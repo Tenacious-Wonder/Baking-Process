@@ -1,0 +1,9 @@
+{
+  "parent": "baking_process:dishes/iron_plate_salt_baked_lamb_chops",
+  "textures": {
+    "mutton": "block/cooked_mutton",
+    "plate": "baking_process:block/cooked_more_salt_iron_plate",
+    "potato": "baking_process:block/baked_potato_cubes",
+    "carrot": "baking_process:block/roasted_carrot"
+  }
+}

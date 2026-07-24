@@ -1,0 +1,142 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"carrot": "baking_process:block/roasted_carrot",
+		"honey": "baking_process:block/cooked_honey_iron_plate"
+	},
+	"elements": [
+		{
+			"from": [5.02071, 2.1, 6.49645],
+			"to": [11.02071, 8.1, 6.49645],
+			"rotation": {"angle": -22.5, "axis": "y", "origin": [8.05, -0.9, 6.50858]},
+			"faces": {
+				"north": {"uv": [0, 0, 3, 3], "rotation": 270, "texture": "#carrot"},
+				"east": {"uv": [3, 0, 0, 0], "rotation": 90, "texture": "#carrot"},
+				"south": {"uv": [0, 3, 3, 6], "rotation": 90, "texture": "#carrot"},
+				"west": {"uv": [3, 0, 0, 0], "rotation": 90, "texture": "#carrot"},
+				"up": {"uv": [0, 0, 0, 3], "rotation": 90, "texture": "#carrot"},
+				"down": {"uv": [0, 0, 0, 3], "rotation": 90, "texture": "#carrot"}
+			}
+		},
+		{
+			"from": [8.03787, 2.1, 3.53787],
+			"to": [8.03787, 8.1, 9.53787],
+			"rotation": {"angle": -22.5, "axis": "y", "origin": [8.05, -0.9, 6.50858]},
+			"faces": {
+				"north": {"uv": [3, 0, 0, 0], "rotation": 90, "texture": "#carrot"},
+				"east": {"uv": [3, 3, 6, 6], "rotation": 90, "texture": "#carrot"},
+				"south": {"uv": [3, 0, 0, 0], "rotation": 90, "texture": "#carrot"},
+				"west": {"uv": [3, 0, 6, 3], "rotation": 270, "texture": "#carrot"},
+				"up": {"uv": [0, 0, 0, 3], "texture": "#carrot"},
+				"down": {"uv": [0, 0, 0, 3], "rotation": 180, "texture": "#carrot"}
+			}
+		},
+		{
+			"from": [6.05, 1.35, 4.50858],
+			"to": [10.05, 2.1, 8.50858],
+			"rotation": {"angle": 22.5, "axis": "y", "origin": [8.05, -0.9, 6.50858]},
+			"faces": {
+				"north": {"uv": [3.625, 6, 4, 8], "rotation": 270, "texture": "#carrot"},
+				"east": {"uv": [10, 4, 9.625, 2], "rotation": 90, "texture": "#carrot"},
+				"south": {"uv": [6, 0, 6.375, 2], "rotation": 90, "texture": "#carrot"},
+				"west": {"uv": [8, 6, 7.625, 8], "rotation": 90, "texture": "#carrot"},
+				"up": {"uv": [0, 8, 2, 10], "rotation": 90, "texture": "#carrot"},
+				"down": {"uv": [6, 4, 8, 6], "rotation": 90, "texture": "#carrot"}
+			}
+		},
+		{
+			"name": "cube_outline",
+			"from": [10.15, 2.2, 8.60858],
+			"to": [5.95, 1.25, 4.40858],
+			"rotation": {"angle": 22.5, "axis": "y", "origin": [8.05, -0.9, 6.50858]},
+			"faces": {
+				"north": {"uv": [6, 0, 6.375, 2], "rotation": 180, "texture": "#carrot"},
+				"east": {"uv": [8, 6, 7.625, 8], "rotation": 180, "texture": "#carrot"},
+				"south": {"uv": [3.625, 6, 4, 8], "rotation": 180, "texture": "#carrot"},
+				"west": {"uv": [10, 4, 9.625, 2], "rotation": 180, "texture": "#carrot"},
+				"up": {"uv": [6, 4, 8, 6], "rotation": 180, "texture": "#carrot"},
+				"down": {"uv": [0, 8, 2, 10], "rotation": 180, "texture": "#carrot"}
+			}
+		},
+		{
+			"from": [1, 1.35, 1],
+			"to": [15, 1.35, 15],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 0.35, 0]},
+			"faces": {
+				"north": {"uv": [0, 0, 14, 0], "texture": "#honey"},
+				"east": {"uv": [0, 0, 14, 0], "texture": "#honey"},
+				"south": {"uv": [0, 0, 14, 0], "texture": "#honey"},
+				"west": {"uv": [0, 0, 14, 0], "texture": "#honey"},
+				"up": {"uv": [7, 6.5, 0, 0], "texture": "#honey"},
+				"down": {"uv": [7, 0, 0, 6.5], "texture": "#honey"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [71, 0, 0],
+			"translation": [-0.25, 4, 2.5],
+			"scale": [0.5, 0.5, 0.5]
+		},
+		"firstperson_righthand": {
+			"translation": [0, 6.25, 0]
+		},
+		"gui": {
+			"rotation": [30, 45, 0],
+			"translation": [0, 1.75, 0],
+			"scale": [0.8, 0.8, 0.8]
+		},
+		"fixed": {
+			"rotation": [-90, 0, 0],
+			"translation": [0, 0, -5],
+			"scale": [0.69, 0.67, 0.65]
+		}
+	},
+	"groups": [
+		{
+			"name": "切胡萝卜8",
+			"origin": [8, 8, 8],
+			"scope": 0,
+			"color": 0,
+			"children": [
+				{
+					"name": "group",
+					"origin": [9.75, 8, 7.00858],
+					"scope": 0,
+					"color": 0,
+					"children": [0, 1]
+				},
+				{
+					"name": "group",
+					"origin": [8, 8, 8],
+					"scope": 0,
+					"color": 0,
+					"children": [2]
+				},
+				{
+					"name": "group",
+					"origin": [8, 8, 8],
+					"scope": 0,
+					"color": 0,
+					"children": [3]
+				}
+			]
+		},
+		{
+			"name": "iron_plat",
+			"origin": [8, 8, 8],
+			"scope": 0,
+			"color": 0,
+			"children": [
+				{
+					"name": "group",
+					"origin": [8, 8, 8],
+					"scope": 0,
+					"color": 0,
+					"children": [4]
+				}
+			]
+		}
+	]
+}

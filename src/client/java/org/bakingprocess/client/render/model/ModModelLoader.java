@@ -200,6 +200,10 @@ public class ModModelLoader implements ModelLoadingPlugin {
         MODELS_TO_LOAD.add(createDishesModel(ModItems.IRON_PLATE, ModContents.COOKED_HONEY_ROASTED_MUTTON));
         MODELS_TO_LOAD.add(createDishesModel(ModItems.IRON_PLATE, ModContents.DELUXE_ROAST_CHICKEN));
         MODELS_TO_LOAD.add(createDishesModel(ModItems.IRON_PLATE, ModContents.COOKED_DELUXE_ROAST_CHICKEN));
+        MODELS_TO_LOAD.add(createDishesModel(ModItems.IRON_PLATE, ModContents.SALT_BAKED_LAMB_CHOPS));
+        MODELS_TO_LOAD.add(createDishesModel(ModItems.IRON_PLATE, ModContents.COOKED_SALT_BAKED_LAMB_CHOPS));
+        MODELS_TO_LOAD.add(createDishesModel(ModItems.IRON_PLATE, ModContents.HONEY_MADE_RABBIT_LEG));
+        MODELS_TO_LOAD.add(createDishesModel(ModItems.IRON_PLATE, ModContents.COOKED_HONEY_MADE_RABBIT_LEG));
     }
 
     /**
@@ -214,6 +218,8 @@ public class ModModelLoader implements ModelLoadingPlugin {
         registerEatStageModels(ModItems.IRON_PLATE, ModContents.COOKED_DELUXE_ROASTED_RABBIT);
         registerEatStageModels(ModItems.IRON_PLATE, ModContents.COOKED_HONEY_ROASTED_MUTTON);
         registerEatStageModels(ModItems.IRON_PLATE, ModContents.COOKED_DELUXE_ROAST_CHICKEN);
+        registerEatStageModels(ModItems.IRON_PLATE, ModContents.COOKED_SALT_BAKED_LAMB_CHOPS);
+        registerEatStageModels(ModItems.IRON_PLATE, ModContents.COOKED_HONEY_MADE_RABBIT_LEG);
     }
 
     /**
@@ -308,6 +314,34 @@ public class ModModelLoader implements ModelLoadingPlugin {
                         new AddItemPlayerAction(ModItems.CARROT_HEAD)
                 ),
                 ModContents.DELUXE_ROAST_CHICKEN);
+        registerPlatingSequenceModels(
+                ModItems.IRON_PLATE,
+                Arrays.asList(
+                        new AddItemPlayerAction(ModItems.SALT_FLOUR),
+                        new AddItemPlayerAction(ModItems.SALT_FLOUR),
+                        new AddItemPlayerAction(Items.MUTTON),
+                        new AddItemPlayerAction(ModItems.POTATO_CUBES),
+                        new AddItemPlayerAction(ModItems.SALT_CUBES),
+                        new AddItemPlayerAction(ModItems.SALT_CUBES),
+                        new AddItemPlayerAction(ModItems.SALT_CUBES),
+                        new AddItemPlayerAction(ModItems.SALT_CUBES),
+                        new AddItemPlayerAction(ModItems.CARROT_HEAD)
+                ),
+                ModContents.SALT_BAKED_LAMB_CHOPS);
+        registerPlatingSequenceModels(
+                ModItems.IRON_PLATE,
+                Arrays.asList(
+                        new AddItemPlayerAction(ModItems.CARROT_SLICES),
+                        new AddItemPlayerAction(ModItems.CARROT_HEAD),
+                        new AddItemPlayerAction(Items.RABBIT_FOOT),
+                        new AddItemPlayerAction(Items.RABBIT_FOOT),
+                        new AddItemPlayerAction(Items.RABBIT_FOOT),
+                        new AddItemPlayerAction(Items.RABBIT_FOOT),
+                        new AddContentPlayerAction(Contents.HONEY),
+                        new AddItemPlayerAction(ModItems.SALT_FLOUR),
+                        new AddItemPlayerAction(Items.SWEET_BERRIES)
+                ),
+                ModContents.HONEY_MADE_RABBIT_LEG);
     }
 
     /**

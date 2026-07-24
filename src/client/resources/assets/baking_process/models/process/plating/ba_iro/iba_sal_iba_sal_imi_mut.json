@@ -1,0 +1,133 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"texture_size": [32, 32],
+	"textures": {
+		"mutton": "block/mutton",
+		"plate": "baking_process:block/more_salt_iron_plate"
+	},
+	"elements": [
+		{
+			"from": [2, 0.8, 4],
+			"to": [3, 2.8, 9],
+			"rotation": {"angle": -22.5, "axis": "y", "origin": [8, 1.8, 8]},
+			"faces": {
+				"north": {"uv": [4, 8, 4.5, 9], "texture": "#mutton"},
+				"east": {"uv": [5.5, 0, 8, 1], "texture": "#mutton"},
+				"south": {"uv": [4.5, 8, 5, 9], "texture": "#mutton"},
+				"west": {"uv": [5.5, 1, 8, 2], "texture": "#mutton"},
+				"up": {"uv": [7.5, 10, 7, 7.5], "texture": "#mutton"},
+				"down": {"uv": [8, 7.5, 7.5, 10], "texture": "#mutton"}
+			}
+		},
+		{
+			"from": [3, 0.8, 7],
+			"to": [14, 2.8, 9],
+			"rotation": {"angle": -22.5, "axis": "y", "origin": [8, 1.8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 5.5, 1], "texture": "#mutton"},
+				"east": {"uv": [0, 8, 1, 9], "texture": "#mutton"},
+				"south": {"uv": [0, 1, 5.5, 2], "texture": "#mutton"},
+				"west": {"uv": [8, 0, 9, 1], "texture": "#mutton"},
+				"up": {"uv": [5.5, 3, 0, 2], "texture": "#mutton"},
+				"down": {"uv": [5.5, 3, 0, 4], "texture": "#mutton"}
+			}
+		},
+		{
+			"from": [4, 0.8, 10],
+			"to": [10, 2.8, 11],
+			"rotation": {"angle": -22.5, "axis": "y", "origin": [8, 1.8, 8]},
+			"faces": {
+				"north": {"uv": [0, 5, 3, 6], "texture": "#mutton"},
+				"east": {"uv": [5, 8, 5.5, 9], "texture": "#mutton"},
+				"south": {"uv": [3, 5, 6, 6], "texture": "#mutton"},
+				"west": {"uv": [5.5, 8, 6, 9], "texture": "#mutton"},
+				"up": {"uv": [9, 6, 6, 5.5], "texture": "#mutton"},
+				"down": {"uv": [7, 7.5, 4, 8], "texture": "#mutton"}
+			}
+		},
+		{
+			"from": [3, 0.8, 5],
+			"to": [8, 2.8, 7],
+			"rotation": {"angle": -22.5, "axis": "y", "origin": [8, 1.8, 8]},
+			"faces": {
+				"north": {"uv": [5.5, 2, 8, 3], "texture": "#mutton"},
+				"east": {"uv": [1, 8, 2, 9], "texture": "#mutton"},
+				"south": {"uv": [5.5, 3, 8, 4], "texture": "#mutton"},
+				"west": {"uv": [8, 1, 9, 2], "texture": "#mutton"},
+				"up": {"uv": [2.5, 7, 0, 6], "texture": "#mutton"},
+				"down": {"uv": [5, 6, 2.5, 7], "texture": "#mutton"}
+			}
+		},
+		{
+			"from": [3, 0.8, 3],
+			"to": [7, 2.8, 5],
+			"rotation": {"angle": -22.5, "axis": "y", "origin": [8, 1.8, 8]},
+			"faces": {
+				"north": {"uv": [5, 6.5, 7, 7.5], "texture": "#mutton"},
+				"east": {"uv": [2, 8, 3, 9], "texture": "#mutton"},
+				"south": {"uv": [0, 7, 2, 8], "texture": "#mutton"},
+				"west": {"uv": [8, 2, 9, 3], "texture": "#mutton"},
+				"up": {"uv": [4, 8, 2, 7], "texture": "#mutton"},
+				"down": {"uv": [9, 6.5, 7, 7.5], "texture": "#mutton"}
+			}
+		},
+		{
+			"from": [8, 0.8, 6],
+			"to": [10, 2.8, 7],
+			"rotation": {"angle": -22.5, "axis": "y", "origin": [8, 1.8, 8]},
+			"faces": {
+				"north": {"uv": [3, 8, 4, 9], "texture": "#mutton"},
+				"east": {"uv": [6, 8, 6.5, 9], "texture": "#mutton"},
+				"south": {"uv": [8, 3, 9, 4], "texture": "#mutton"},
+				"west": {"uv": [6.5, 8, 7, 9], "texture": "#mutton"},
+				"up": {"uv": [5, 7.5, 4, 7], "texture": "#mutton"},
+				"down": {"uv": [9, 7.5, 8, 8], "texture": "#mutton"}
+			}
+		},
+		{
+			"from": [3, 0.8, 9],
+			"to": [12, 2.8, 10],
+			"rotation": {"angle": -22.5, "axis": "y", "origin": [8, 1.8, 8]},
+			"faces": {
+				"north": {"uv": [0, 4, 4.5, 5], "texture": "#mutton"},
+				"east": {"uv": [8, 8, 8.5, 9], "texture": "#mutton"},
+				"south": {"uv": [4.5, 4, 9, 5], "texture": "#mutton"},
+				"west": {"uv": [8.5, 8, 9, 9], "texture": "#mutton"},
+				"up": {"uv": [9.5, 6.5, 5, 6], "texture": "#mutton"},
+				"down": {"uv": [10.5, 5, 6, 5.5], "texture": "#mutton"}
+			}
+		},
+		{
+			"from": [1, 1, 1],
+			"to": [15, 1.1, 15],
+			"rotation": {"angle": 0, "axis": "y", "origin": [1, 1, 1]},
+			"faces": {
+				"north": {"uv": [7, 0, 14, 0.5], "texture": "#plate"},
+				"east": {"uv": [7, 0.5, 14, 1], "texture": "#plate"},
+				"south": {"uv": [7, 1, 14, 1.5], "texture": "#plate"},
+				"west": {"uv": [7, 1.5, 14, 2], "texture": "#plate"},
+				"up": {"uv": [7, 7, 0, 0], "texture": "#plate"},
+				"down": {"uv": [7, 7, 0, 14], "texture": "#plate"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "生羊排",
+			"origin": [8, 8, 8],
+			"scope": 0,
+			"color": 0,
+			"children": [
+				{
+					"name": "group",
+					"origin": [8, 8, 8],
+					"scope": 0,
+					"color": 0,
+					"children": [0, 1, 2, 3, 4, 5, 6]
+				}
+			]
+		},
+		7
+	]
+}

@@ -62,6 +62,18 @@ public class ModContents {
     public static final Content COOKED_DELUXE_ROAST_CHICKEN = registerContent("cooked_deluxe_roast_chicken",
             new DishesContent(DISHES, ModFoodComponents.COOKED_DELUXE_ROAST_CHICKEN, 4));
 
+    public static final Content SALT_BAKED_LAMB_CHOPS = registerContent("salt_baked_lamb_chops",
+            new DishesContent(DISHES));
+
+    public static final Content COOKED_SALT_BAKED_LAMB_CHOPS = registerContent("cooked_salt_baked_lamb_chops",
+            new DishesContent(DISHES, ModFoodComponents.COOKED_SALT_BAKED_LAMB_CHOPS, 5));
+
+    public static final Content HONEY_MADE_RABBIT_LEG = registerContent("honey_made_rabbit_leg",
+            new DishesContent(DISHES));
+
+    public static final Content COOKED_HONEY_MADE_RABBIT_LEG = registerContent("cooked_honey_made_rabbit_leg",
+            new DishesContent(DISHES, ModFoodComponents.COOKED_HONEY_MADE_RABBIT_LEG, 5));
+
     // 定型面团
     public static final Content TOAST_EMBRYO = registerContent("toast_embryo", new ShapedDoughContent(
             SHAPED_DOUGH, createModId("toast_dough"), createModId("toast_embryo_mold")));

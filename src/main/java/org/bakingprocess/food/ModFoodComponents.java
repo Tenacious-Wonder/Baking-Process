@@ -72,4 +72,8 @@ public class ModFoodComponents {
             .hunger(18).saturationModifier(2.51f).build();
     public static final FoodComponent COOKED_DELUXE_ROAST_CHICKEN = new FoodComponent.Builder()
             .hunger(20).saturationModifier(2.47f).build();
+    public static final FoodComponent COOKED_SALT_BAKED_LAMB_CHOPS = new FoodComponent.Builder()
+            .hunger(20).saturationModifier(2.47f).build();
+    public static final FoodComponent COOKED_HONEY_MADE_RABBIT_LEG = new FoodComponent.Builder()
+            .hunger(20).saturationModifier(2.47f).build();
 }

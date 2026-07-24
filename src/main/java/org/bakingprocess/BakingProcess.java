@@ -31,6 +31,8 @@ public class BakingProcess implements ModInitializer {
         TwModManager.IMPL.register(BakingProcess.MOD_ID, 1);
 
         AddItemPlayerAction.REMAPPING.put(ModItems.SALMON_CUBES, "msa");
+        AddItemPlayerAction.REMAPPING.put(ModItems.SALT_CUBES, "sac");
+        AddItemPlayerAction.REMAPPING.put(ModItems.CARROT_HEAD, "cad");
         ((AbstractMappedContainer) ContainerTypes.POTION).registerContentMapping(Contents.MILK, ModItems.MILK_POTION);
         Item2BlockSounds.registerParser(BakingProcessUtils::getSoundGroupFromItem);
     }
