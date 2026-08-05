@@ -129,7 +129,7 @@ public class PlateBlock extends Block implements BlockEntityProvider {
                     .map(containerStack -> newList.add(containerStack.replaceContent(plateBlockEntity.getOutcome())))
                     .orElseGet(() -> newList.add(stack)));
 
-            return droppedStacks;
+            return newList;
         }
 
         return super.getDroppedStacks(state, builder);

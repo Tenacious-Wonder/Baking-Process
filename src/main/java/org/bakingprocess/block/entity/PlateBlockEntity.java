@@ -259,7 +259,7 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
         // 清除当前状态
         this.performedActions.clear();
 
-        if (nbt.contains("eat_process")) {
+        if (nbt.contains("plating_process")) {
             platingProcess.readFromNbt(nbt.getCompound("plating_process"));
         }
 
