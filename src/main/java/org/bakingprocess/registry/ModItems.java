@@ -70,6 +70,7 @@ public class ModItems {
 
     // 切片食物
     public static final Item CARROT_SLICES = registerItem(ModBlocks.CARROT_SLICES, new Item.Settings().food(ModFoodComponents.CARROT_SLICES));
+    public static final Item BEETROOT_SLICES = registerItem(ModBlocks.BEETROOT_SLICES, new Item.Settings().food(ModFoodComponents.BEETROOT_SLICES));
     public static final Item CARROT_HEAD = registerItem("carrot_head", new Item(new Item.Settings().food(ModFoodComponents.CARROT_HEAD)));
     public static final Item SEPARATE_POTATO_CUBES = registerItem(ModBlocks.SEPARATE_POTATO_CUBES, new Item.Settings().food(ModFoodComponents.SEPARATE_POTATO_CUBES));
     public static final Item POTATO_CUBES = registerItem(ModBlocks.POTATO_CUBES, new Item.Settings().food(ModFoodComponents.POTATO_CUBES));

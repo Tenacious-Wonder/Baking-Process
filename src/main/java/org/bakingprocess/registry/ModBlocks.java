@@ -158,6 +158,12 @@ public class ModBlocks {
                     .useItemTranslationKey(false)
                     .settings(DFoodUtils.getFoodBlockSettings())
                     .build());
+    public static final Block BEETROOT_SLICES = registerBlock("beetroot_slices",
+            FoodBlock.Builder.create()
+                    .maxFood(1)
+                    .useItemTranslationKey(false)
+                    .settings(DFoodUtils.getFoodBlockSettings())
+                    .build());
     public static final Block SEPARATE_POTATO_CUBES = registerBlock("separate_potato_cubes",
             FoodBlock.Builder.create()
                     .maxFood(4)

@@ -60,7 +60,7 @@ public class ModModelLoader implements ModelLoadingPlugin {
     /**
      * 注册所有需要加载烘烤模型的食物方块。
      */
-    private void registerAllCookingModels() {
+    private static void registerAllCookingModels() {
         registerCookingModelsForBlock(FoodBlocks.POTATO, 4);
         registerCookingModelsForBlock(FoodBlocks.BAKED_POTATO, 4);
         registerCookingModelsForBlock(FoodBlocks.BEEF, 2);
@@ -103,10 +103,7 @@ public class ModModelLoader implements ModelLoadingPlugin {
 
     // =========== 粉尘袋模型 ===========
 
-    /**
-     * 注册所有粉尘袋模型。
-     */
-    private void registerAllFlourSackModels() {
+    private static void registerAllFlourSackModels() {
         for (FlourItem flourItem : FlourItem.FLOURS) {
             Identifier itemId = Registries.ITEM.getId(flourItem);
 
@@ -137,22 +134,23 @@ public class ModModelLoader implements ModelLoadingPlugin {
     /**
      * 注册所有切割模型。
      */
-    private void registerCuttingModels() {
-        registerCuttingModelsForItem(new Identifier("carrot"), 12);
-        registerCuttingModelsForItem(new Identifier("apple"), 6);
-        registerCuttingModelsForItem(new Identifier("cod"), 9);
-        registerCuttingModelsForItem(new Identifier("cooked_cod"), 9);
-        registerCuttingModelsForItem(new Identifier("salmon"), 7);
-        registerCuttingModelsForItem(new Identifier("cooked_salmon"), 7);
-        registerCuttingModelsForItem(new Identifier("potato"), 1);
-        registerCuttingModelsForItem(new Identifier("baked_potato"), 1);
-        registerCuttingModelsForItem(new Identifier(BakingProcess.MOD_ID, "hard_bread"), 1);
+    private static void registerCuttingModels() {
+        registerCuttingModelsForItem(Items.CARROT, 12);
+        registerCuttingModelsForItem(Items.APPLE, 6);
+        registerCuttingModelsForItem(Items.COD, 9);
+        registerCuttingModelsForItem(Items.COOKED_COD, 9);
+        registerCuttingModelsForItem(Items.SALMON, 7);
+        registerCuttingModelsForItem(Items.COOKED_SALMON, 7);
+        registerCuttingModelsForItem(Items.POTATO, 1);
+        registerCuttingModelsForItem(Items.BAKED_POTATO, 1);
+        registerCuttingModelsForItem(Items.BEETROOT, 9);
+        registerCuttingModelsForId(new Identifier(BakingProcess.MOD_ID, "hard_bread"), 1);
     }
 
     /**
      * 为指定物品注册所有切割模型。
      */
-    public static void registerCuttingModelsForItem(Identifier itemId, int maxCuts) {
+    public static void registerCuttingModelsForId(Identifier itemId, int maxCuts) {
         if (maxCuts < 1) {
             LOGGER.warn("Max cuts {} is less than 1 for item {}, skipping cutting models",
                     maxCuts, itemId);
@@ -163,9 +161,11 @@ public class ModModelLoader implements ModelLoadingPlugin {
         for (int cutCount = 1; cutCount <= maxCuts; cutCount++) {
             Identifier modelId = createCuttingModel(itemId, cutCount);
             MODELS_TO_LOAD.add(modelId);
-            LOGGER.debug("Registered cutting model: {} for item {} at cut {}",
-                    modelId, itemId, cutCount);
         }
+    }
+
+    public static void registerCuttingModelsForItem(Item item, int maxCuts) {
+        registerCuttingModelsForId(Registries.ITEM.getId(item), maxCuts);
     }
 
     /**
@@ -225,7 +225,7 @@ public class ModModelLoader implements ModelLoadingPlugin {
     /**
      * 注册摆盘流程模型
      */
-    private void registerPlatingProcessModels() {
+    private static void registerPlatingProcessModels() {
         registerPlatingSequenceModels(
                 ModItems.IRON_PLATE,
                 Arrays.asList(

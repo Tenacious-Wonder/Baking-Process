@@ -1,0 +1,26 @@
+{
+  "type": "baking_process:cut",
+  "input": {
+    "item": "minecraft:beetroot"
+  },
+  "output": {
+    "item": "baking_process:beetroot_slices",
+    "count": 2
+  },
+  "totalCuts": 9,
+  "defaultState": {},
+  "cutStates": {
+    "8": {
+      "0": {
+        "item": "baking_process:beetroot_slices",
+        "count": 2
+      }
+    },
+    "9": {
+      "0": {
+        "item": "baking_process:beetroot_slices",
+        "count": 2
+      }
+    }
+  }
+}

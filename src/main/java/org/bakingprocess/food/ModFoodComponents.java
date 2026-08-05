@@ -22,6 +22,8 @@ public class ModFoodComponents {
     // 切片食物
     public static final FoodComponent CARROT_SLICES = new FoodComponent.Builder()
             .hunger(1).saturationModifier(0.2f).build();
+    public static final FoodComponent BEETROOT_SLICES = new FoodComponent.Builder()
+            .hunger(1).saturationModifier(0.15f).build();
     public static final FoodComponent CARROT_HEAD = new FoodComponent.Builder()
             .hunger(1).saturationModifier(0.1f).build();
     public static final FoodComponent COD_CUBES = new FoodComponent.Builder()

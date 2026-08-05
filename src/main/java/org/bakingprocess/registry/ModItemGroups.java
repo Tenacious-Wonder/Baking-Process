@@ -68,6 +68,7 @@ public class ModItemGroups {
 
                             // 切片
                             entries.add(ModItems.CARROT_SLICES);
+                            entries.add(ModItems.BEETROOT_SLICES);
                             entries.add(ModItems.CARROT_HEAD);
                             entries.add(ModItems.SEPARATE_POTATO_CUBES);
                             entries.add(ModItems.POTATO_CUBES);
@@ -106,7 +107,7 @@ public class ModItemGroups {
                 new Identifier(BakingProcess.MOD_ID, "all_dish"),
                 ItemGroup.create(ItemGroup.Row.TOP, -1)
                         .displayName(Text.translatable("itemgroup.baking_process.plating"))
-                        .icon(() -> new ItemStack(ModItems.GRINDING_STONE))
+                        .icon(() -> new ItemStack(ModItems.IRON_PLATE))
                         .entries(((displayContext, entries) ->
                                 entries.addAll(PlateBlock.getAll(ModItems.IRON_PLATE))))
                         .build()
