@@ -45,6 +45,7 @@
   "block.baking_process.salty_dough": "塩味生地",
 
   "block.baking_process.carrot_slices": "ニンジンスライス",
+  "block.baking_process.beetroot_slices": "ビーツスライス",
   "item.baking_process.carrot_head": "ニンジンの頭",
   "block.baking_process.separate_potato_cubes": "ジャガイモの塊",
   "block.baking_process.potato_cubes": "ジャガイモの塊",
@@ -99,6 +100,10 @@
   "content.baking_process.cooked_honey_roasted_mutton": "ハニーローストマトン",
   "content.baking_process.deluxe_roast_chicken": "未焼成のデラックスローストチキン",
   "content.baking_process.cooked_deluxe_roast_chicken": "デラックスローストチキン",
+  "content.baking_process.salt_baked_lamb_chops": "未焼成の塩焼きラムチョップ",
+  "content.baking_process.cooked_salt_baked_lamb_chops": "塩焼きラムチョップ",
+  "content.baking_process.honey_made_rabbit_leg": "未焼成のハチミツ仕立てのウサギの脚",
+  "content.baking_process.cooked_honey_made_rabbit_leg": "ハチミツ仕立てのウサギの脚",
 
   "content.baking_process.toast_embryo": "食パン生地",
   "content.baking_process.toast": "食パン",

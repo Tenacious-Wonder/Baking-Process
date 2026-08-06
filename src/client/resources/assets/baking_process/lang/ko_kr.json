@@ -45,6 +45,7 @@
   "block.baking_process.salty_dough": "짠 반죽",
 
   "block.baking_process.carrot_slices": "당근 조각",
+  "block.baking_process.beetroot_slices": "비트 조각",
   "item.baking_process.carrot_head": "당근 머리",
   "block.baking_process.separate_potato_cubes": "감자 덩어리",
   "block.baking_process.potato_cubes": "감자 덩어리",
@@ -99,6 +100,10 @@
   "content.baking_process.cooked_honey_roasted_mutton": "허니 로스트 머튼",
   "content.baking_process.deluxe_roast_chicken": "굽지 않은 디럭스 로스트 치킨",
   "content.baking_process.cooked_deluxe_roast_chicken": "디럭스 로스트 치킨",
+  "content.baking_process.salt_baked_lamb_chops": "굽지 않은 소금 구이 양갈비",
+  "content.baking_process.cooked_salt_baked_lamb_chops": "소금 구이 양갈비",
+  "content.baking_process.honey_made_rabbit_leg": "굽지 않은 꿀 토끼 다리",
+  "content.baking_process.cooked_honey_made_rabbit_leg": "꿀 토끼 다리",
 
   "content.baking_process.toast_embryo": "식빵 반죽",
   "content.baking_process.toast": "식빵",

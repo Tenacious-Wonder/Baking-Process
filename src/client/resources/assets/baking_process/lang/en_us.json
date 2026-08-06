@@ -45,6 +45,7 @@
   "block.baking_process.salty_dough": "Salty Dough",
 
   "block.baking_process.carrot_slices": "Carrot Slices",
+  "block.baking_process.beetroot_slices": "Beetroot Slices",
   "item.baking_process.carrot_head": "Carrot Head",
   "block.baking_process.separate_potato_cubes": "Potato Cube",
   "block.baking_process.potato_cubes": "Potato Cubes",
@@ -99,6 +100,10 @@
   "content.baking_process.cooked_honey_roasted_mutton": "Honey-Roasted Mutton",
   "content.baking_process.deluxe_roast_chicken": "Unbaked Deluxe Roast Chicken",
   "content.baking_process.cooked_deluxe_roast_chicken": "Deluxe Roast Chicken",
+  "content.baking_process.salt_baked_lamb_chops": "Unbaked Salt-Baked Lamb Chops",
+  "content.baking_process.cooked_salt_baked_lamb_chops": "Salt-Baked Lamb Chops",
+  "content.baking_process.honey_made_rabbit_leg": "Unbaked Honeyed Rabbit Leg",
+  "content.baking_process.cooked_honey_made_rabbit_leg": "Honeyed Rabbit Leg",
 
   "content.baking_process.toast_embryo": "Toast Dough",
   "content.baking_process.toast": "Toast",

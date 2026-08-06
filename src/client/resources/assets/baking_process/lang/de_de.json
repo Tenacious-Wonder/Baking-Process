@@ -45,6 +45,7 @@
   "block.baking_process.salty_dough": "Salziger Teig",
 
   "block.baking_process.carrot_slices": "Karottenscheiben",
+  "block.baking_process.beetroot_slices": "Rote-Bete-Scheiben",
   "item.baking_process.carrot_head": "Karottenkopf",
   "block.baking_process.separate_potato_cubes": "Kartoffelwürfel",
   "block.baking_process.potato_cubes": "Kartoffelwürfel",
@@ -99,6 +100,10 @@
   "content.baking_process.cooked_honey_roasted_mutton": "Honig-Lamm",
   "content.baking_process.deluxe_roast_chicken": "Ungebackenes Luxus-Brathähnchen",
   "content.baking_process.cooked_deluxe_roast_chicken": "Luxus-Brathähnchen",
+  "content.baking_process.salt_baked_lamb_chops": "Ungebackene Salz-Lammkoteletts",
+  "content.baking_process.cooked_salt_baked_lamb_chops": "Salz-Lammkoteletts",
+  "content.baking_process.honey_made_rabbit_leg": "Ungebackene Honig-Kaninchenkeule",
+  "content.baking_process.cooked_honey_made_rabbit_leg": "Honig-Kaninchenkeule",
 
   "content.baking_process.toast_embryo": "Toast-Teig",
   "content.baking_process.toast": "Toast",

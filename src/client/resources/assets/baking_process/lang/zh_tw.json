@@ -45,6 +45,7 @@
   "block.baking_process.salty_dough": "鹹麵團",
 
   "block.baking_process.carrot_slices": "胡蘿蔔片",
+  "block.baking_process.beetroot_slices": "甜菜根片",
   "item.baking_process.carrot_head": "胡蘿蔔頭",
   "block.baking_process.separate_potato_cubes": "一塊馬鈴薯塊",
   "block.baking_process.potato_cubes": "馬鈴薯塊",
@@ -99,6 +100,10 @@
   "content.baking_process.cooked_honey_roasted_mutton": "蜜烤羊排",
   "content.baking_process.deluxe_roast_chicken": "未烤製的豪華烤雞",
   "content.baking_process.cooked_deluxe_roast_chicken": "豪華烤雞",
+  "content.baking_process.salt_baked_lamb_chops": "未烤製的鹽焗羊排",
+  "content.baking_process.cooked_salt_baked_lamb_chops": "鹽焗羊排",
+  "content.baking_process.honey_made_rabbit_leg": "未烤製的蜜製兔腿",
+  "content.baking_process.cooked_honey_made_rabbit_leg": "蜜製兔腿",
 
   "content.baking_process.toast_embryo": "吐司胚",
   "content.baking_process.toast": "吐司",

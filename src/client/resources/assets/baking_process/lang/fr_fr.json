@@ -45,6 +45,7 @@
   "block.baking_process.salty_dough": "Pâte Salée",
 
   "block.baking_process.carrot_slices": "Tranches de Carotte",
+  "block.baking_process.beetroot_slices": "Tranches de Betterave",
   "item.baking_process.carrot_head": "Tête de Carotte",
   "block.baking_process.separate_potato_cubes": "Cube de Pomme de Terre",
   "block.baking_process.potato_cubes": "Cubes de Pomme de Terre",
@@ -99,6 +100,10 @@
   "content.baking_process.cooked_honey_roasted_mutton": "Agneau Rôti au Miel",
   "content.baking_process.deluxe_roast_chicken": "Poulet Rôti Deluxe Cru",
   "content.baking_process.cooked_deluxe_roast_chicken": "Poulet Rôti Deluxe",
+  "content.baking_process.salt_baked_lamb_chops": "Côtelettes d'Agneau au Sel Cru",
+  "content.baking_process.cooked_salt_baked_lamb_chops": "Côtelettes d'Agneau au Sel",
+  "content.baking_process.honey_made_rabbit_leg": "Cuisse de Lapin au Miel Cru",
+  "content.baking_process.cooked_honey_made_rabbit_leg": "Cuisse de Lapin au Miel",
 
   "content.baking_process.toast_embryo": "Pâte à Pain de Mie",
   "content.baking_process.toast": "Pain de Mie",

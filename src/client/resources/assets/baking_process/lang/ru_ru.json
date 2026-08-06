@@ -45,6 +45,7 @@
   "block.baking_process.salty_dough": "Солёное тесто",
 
   "block.baking_process.carrot_slices": "Ломтики моркови",
+  "block.baking_process.beetroot_slices": "Ломтики свёклы",
   "item.baking_process.carrot_head": "Головка моркови",
   "block.baking_process.separate_potato_cubes": "Кусочек картофеля",
   "block.baking_process.potato_cubes": "Кусочки картофеля",
@@ -99,6 +100,10 @@
   "content.baking_process.cooked_honey_roasted_mutton": "Баранина с мёдом",
   "content.baking_process.deluxe_roast_chicken": "Незапечённая делюкс-жареная курица",
   "content.baking_process.cooked_deluxe_roast_chicken": "Делюкс-жареная курица",
+  "content.baking_process.salt_baked_lamb_chops": "Незапечённые бараньи отбивные в соли",
+  "content.baking_process.cooked_salt_baked_lamb_chops": "Бараньи отбивные в соли",
+  "content.baking_process.honey_made_rabbit_leg": "Незапечённая медовая кроличья ножка",
+  "content.baking_process.cooked_honey_made_rabbit_leg": "Медовая кроличья ножка",
 
   "content.baking_process.toast_embryo": "Тесто для тоста",
   "content.baking_process.toast": "Тост",

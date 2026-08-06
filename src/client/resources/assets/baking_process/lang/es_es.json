@@ -45,6 +45,7 @@
   "block.baking_process.salty_dough": "Masa Salada",
 
   "block.baking_process.carrot_slices": "Rodajas de Zanahoria",
+  "block.baking_process.beetroot_slices": "Rodajas de Remolacha",
   "item.baking_process.carrot_head": "Cabeza de Zanahoria",
   "block.baking_process.separate_potato_cubes": "Cubo de Patata",
   "block.baking_process.potato_cubes": "Cubos de Patata",
@@ -99,6 +100,10 @@
   "content.baking_process.cooked_honey_roasted_mutton": "Cordero Asado con Miel",
   "content.baking_process.deluxe_roast_chicken": "Pollo Asado Deluxe Sin Hornear",
   "content.baking_process.cooked_deluxe_roast_chicken": "Pollo Asado Deluxe",
+  "content.baking_process.salt_baked_lamb_chops": "Chuletas de Cordero a la Sal Sin Hornear",
+  "content.baking_process.cooked_salt_baked_lamb_chops": "Chuletas de Cordero a la Sal",
+  "content.baking_process.honey_made_rabbit_leg": "Muslo de Conejo con Miel Sin Hornear",
+  "content.baking_process.cooked_honey_made_rabbit_leg": "Muslo de Conejo con Miel",
 
   "content.baking_process.toast_embryo": "Masa para Tostadas",
   "content.baking_process.toast": "Tostada",
