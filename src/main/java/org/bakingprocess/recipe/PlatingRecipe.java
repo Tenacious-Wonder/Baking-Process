@@ -1,5 +1,7 @@
 package org.bakingprocess.recipe;
 
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.*;
@@ -8,16 +10,16 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 import org.bakingprocess.block.entity.PlatableBlockEntity;
+import org.bakingprocess.block.process.PlatingProcess;
 import org.bakingprocess.content.DishesContent;
 import org.bakingprocess.registry.ModRecipeSerializers;
 import org.bakingprocess.registry.ModRecipeTypes;
 import org.jetbrains.annotations.Nullable;
 import org.twcore.api.process.PlayerAction;
 import org.twcore.content.Content;
+import org.twcore.process.playeraction.impl.AddItemPlayerAction;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 摆盘配方类，表示一个完整的摆盘配方。
@@ -36,11 +38,11 @@ import java.util.Map;
  *   <li>不允许跳过任何操作</li>
  *   <li>当所有操作完成后，使用特定的完成物品触发输出</li>
  * </ol>
+ *
+ * <p><strong>配方查找：</strong>需要按容器与菜肴反查配方时，
+ * 通过 {@link #findRecipe} 从世界配方管理器实时读取。</p>
  */
-public class PlatingRecipe implements Recipe<PlatableBlockEntity> {
-    /** 基础容器 -> 菜肴 -> 配方列表的映射。用于回溯配方 */
-    private static final Map<Item, Map<DishesContent, PlatingRecipe>> RESTORE = new HashMap<>();
-
+public class PlatingRecipe implements Recipe<PlatingRecipe.PlatingInventory> {
     /** 配方ID，用于唯一标识此配方 */
     private final Identifier id;
 
@@ -67,18 +69,13 @@ public class PlatingRecipe implements Recipe<PlatableBlockEntity> {
             this.container = container;
             this.actions = List.copyOf(actions);
             this.output = dishes;
-
-            // 将配方添加到RESTORE映射中，用于回溯
-            Map<DishesContent, PlatingRecipe> containerMap = RESTORE.computeIfAbsent(container, k -> new HashMap<>());
-            // 将当前配方放入映射中，以菜肴内容为键
-            containerMap.put(dishes, this);
         } else {
             throw new IllegalArgumentException("The product of the recipe for the dish must be dishes");
         }
     }
 
     @Override
-    public boolean matches(PlatableBlockEntity inventory, World world) {
+    public boolean matches(PlatingInventory inventory, World world) {
         // 首先检查容器类型是否匹配
         if (inventory.getContainerType() != this.container) {
             return false;
@@ -103,7 +100,7 @@ public class PlatingRecipe implements Recipe<PlatableBlockEntity> {
     }
 
     @Override
-    public ItemStack craft(PlatableBlockEntity inventory, DynamicRegistryManager registryManager) {
+    public ItemStack craft(PlatingInventory inventory, DynamicRegistryManager registryManager) {
         return ItemStack.EMPTY;
     }
 
@@ -238,37 +235,27 @@ public class PlatingRecipe implements Recipe<PlatableBlockEntity> {
     // ==================== 静态方法 ====================
 
     /**
-     * 根据可摆盘方块实体的容器和菜肴内容查找对应的配方。
+     * 通过世界配方管理器查找指定容器与菜肴对应的配方。
+     *
+     * <p>配方只从 {@code RecipeManager} 实时读取，不存储任何配方实例，
+     * 避免数据包重载后引用失效。运行时由调用方保证世界非空。</p>
+     *
+     * @param world 世界实例
+     * @param container 容器物品类型
+     * @param dishes 成品菜肴
+     * @return 匹配的配方，未找到返回 {@code null}
      */
     @Nullable
-    public static PlatingRecipe getRecipeFromEntity(PlatableBlockEntity entity) {
-        if (entity == null) {
+    public static PlatingRecipe findRecipe(World world, Item container, DishesContent dishes) {
+        if (world == null || container == null || dishes == null) {
             return null;
         }
 
-        // 获取容器的菜肴内容
-        DishesContent outcome = entity.getOutcome();
-        if (outcome == null) {
-            return null;
-        }
-
-        return getRecipeByContainerAndDishes(entity.getContainerType(), outcome);
-    }
-
-    /**
-     * 根据容器和菜肴内容查找对应的配方。
-     */
-    @Nullable
-    public static PlatingRecipe getRecipeByContainerAndDishes(Item container, DishesContent dishes) {
-        if (container == null || dishes == null) {
-            return null;
-        }
-
-        Map<DishesContent, PlatingRecipe> containerMap = RESTORE.get(container);
-        if (containerMap != null) {
-            return containerMap.get(dishes);
-        }
-        return null;
+        return world.getRecipeManager().listAllOfType(ModRecipeTypes.PLATING).stream()
+                .filter(recipe -> recipe.getContainer() == container)
+                .filter(recipe -> recipe.getDishes() == dishes)
+                .findFirst()
+                .orElse(null);
     }
 
     /**
@@ -286,5 +273,121 @@ public class PlatingRecipe implements Recipe<PlatableBlockEntity> {
     public String toString() {
         return String.format("PlatingRecipe{id=%s, container=%s, actions=%d, output=%s}",
                 id, container, actions.size(), output);
+    }
+
+    // ==================== 配方匹配适配器 ====================
+
+    /**
+     * 摆盘配方匹配使用的物品栏适配器。
+     *
+     * <p>原版 {@link Recipe} 接口要求操作对象实现 {@link Inventory}，而摆盘方块实体
+     * 的语义不是物品栏（操作序列由 {@link PlatingProcess} 统一管理），因此提供此
+     * 轻量适配器：它只用于在配方匹配时按需读取容器类型与已执行操作，不持有任何状态。</p>
+     *
+     * <p>适配器的核心方法仅供 {@link PlatingRecipe#matches} 使用；通过
+     * {@link Inventory} 接口暴露的写入方法只是对流程操作序列的委托，
+     * 便于外部系统（如原版物品栏交互）复用。</p>
+     *
+     * <p>注意：该适配器刻意保持轻薄（核心是 {@link #getStack} 与 {@link #isEmpty}），
+     * 方便未来原版把配方接口从 {@code Recipe<C extends Inventory>} 迁移为
+     * 仅需物品堆栈访问与空判断的新接口时，改动只集中在本类。</p>
+     */
+    public static final class PlatingInventory implements Inventory {
+        /** 持有操作序列的摆盘流程 */
+        private final PlatingProcess<?> process;
+        /** 提供容器身份的摆盘方块实体 */
+        private final PlatableBlockEntity plate;
+
+        public PlatingInventory(PlatingProcess<?> process, PlatableBlockEntity plate) {
+            this.process = process;
+            this.plate = plate;
+        }
+
+        /**
+         * 获取配方的容器类型。
+         */
+        public Item getContainerType() {
+            return plate.getContainerType();
+        }
+
+        /**
+         * 获取流程当前已执行的操作序列。
+         */
+        public List<PlayerAction> getPerformedActions() {
+            return process.getPerformedActions();
+        }
+
+        @Override
+        public int size() {
+            // 固定容量仅用于满足 Inventory 接口约束；实际容量由配方决定
+            return 16;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return process.getPerformedActions().isEmpty();
+        }
+
+        @Override
+        public ItemStack getStack(int slot) {
+            List<PlayerAction> actions = process.getPerformedActions();
+            if (slot >= 0 && slot < actions.size()) {
+                PlayerAction action = actions.get(slot);
+                return action != null ? action.toItemStack() : ItemStack.EMPTY;
+            }
+            return ItemStack.EMPTY;
+        }
+
+        @Override
+        public ItemStack removeStack(int slot) {
+            PlayerAction action = process.removeAction(slot);
+            return action != null ? action.toItemStack() : ItemStack.EMPTY;
+        }
+
+        @Override
+        public ItemStack removeStack(int slot, int amount) {
+            return removeStack(slot);
+        }
+
+        @Override
+        public void setStack(int slot, ItemStack stack) {
+            if (slot < 0 || slot >= size()) {
+                return;
+            }
+
+            if (!stack.isEmpty()) {
+                PlayerAction action = createActionFromItemStack(stack);
+                if (action != null) {
+                    process.performAction(slot, action);
+                }
+            } else {
+                process.removeAction(slot);
+            }
+        }
+
+        @Override
+        public boolean canPlayerUse(PlayerEntity player) {
+            return true;
+        }
+
+        @Override
+        public void clear() {
+            process.clearPerformedActions();
+        }
+
+        @Override
+        public void markDirty() {
+            // 适配器为瞬态对象，不持有任何状态，无需标记脏数据
+        }
+
+        /**
+         * 将物品堆栈转换为默认的添加物品操作。
+         */
+        private static PlayerAction createActionFromItemStack(ItemStack stack) {
+            if (stack.isEmpty()) {
+                return null;
+            }
+            return new AddItemPlayerAction(stack.getItem(), stack.getCount());
+        }
     }
 }

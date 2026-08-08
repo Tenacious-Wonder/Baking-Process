@@ -8,7 +8,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.context.LootContextParameterSet;
@@ -36,6 +35,7 @@ import org.bakingprocess.registry.ModContents;
 import org.bakingprocess.registry.ModItems;
 import org.jetbrains.annotations.Nullable;
 import org.twcore.api.content.ContainerUtil;
+import org.twcore.api.process.PlayerAction;
 import org.twcore.content.Content;
 import org.twcore.content.ContentCategories;
 
@@ -150,8 +150,16 @@ public class PlateBlock extends Block implements BlockEntityProvider {
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (!state.isOf(newState.getBlock())) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof Inventory inventory) {
-                ItemScatterer.spawn(world, pos, inventory);
+            if (blockEntity instanceof PlateBlockEntity plateBlockEntity) {
+                // 未完成的摆盘食材由流程管理的操作序列负责掉落
+                DefaultedList<ItemStack> stacks = DefaultedList.of();
+                for (PlayerAction action : plateBlockEntity.getPlatingProcess().getPerformedActions()) {
+                    ItemStack stack = action.toItemStack();
+                    if (!stack.isEmpty()) {
+                        stacks.add(stack);
+                    }
+                }
+                ItemScatterer.spawn(world, pos, stacks);
                 world.updateComparators(pos, this);
             }
             super.onStateReplaced(state, world, pos, newState, moved);

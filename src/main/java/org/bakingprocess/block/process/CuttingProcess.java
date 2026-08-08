@@ -500,37 +500,37 @@ public class CuttingProcess<T extends UpPlaceBlockEntity> extends AbstractProces
         StringBuilder info = new StringBuilder();
 
         // 切割进度信息
-        info.append("切割进度: ").append(currentCut).append("/").append(totalCuts).append("\n");
-        info.append("完成度: ").append(String.format("%.1f%%", getProgress() * 100)).append("\n");
+        info.append("Cut Progress: ").append(currentCut).append("/").append(totalCuts).append("\n");
+        info.append("Progress: ").append(String.format("%.1f%%", getProgress() * 100)).append("\n");
 
         // 配方信息
         if (currentRecipe != null) {
-            info.append("当前配方: ").append(currentRecipe.getId().getPath()).append("\n");
-            info.append("配方步骤数: ").append(totalCuts).append("\n");
+            info.append("Current Recipe: ").append(currentRecipe.getId().getPath()).append("\n");
+            info.append("Recipe Steps: ").append(totalCuts).append("\n");
         } else {
-            info.append("当前配方: <无>\n");
+            info.append("Current Recipe: <none>\n");
         }
 
         // 输入物品信息
         if (!inputStack.isEmpty()) {
-            info.append("输入物品: ").append(inputStack.getItem().getName().getString());
+            info.append("Input Item: ").append(inputStack.getItem().getName().getString());
             if (inputStack.getCount() > 1) {
                 info.append(" x").append(inputStack.getCount());
             }
             info.append("\n");
         } else {
-            info.append("输入物品: <空>\n");
+            info.append("Input Item: <empty>\n");
         }
 
         // 特殊步骤信息
         String specialStepId = checkSpecialStep();
         if (specialStepId != null) {
-            info.append("待处理特殊步骤: ").append(specialStepId).append("\n");
+            info.append("Pending Special Step: ").append(specialStepId).append("\n");
         }
 
         // NBT数据恢复状态
         if (savedRecipeId != null && !savedRecipeId.isEmpty()) {
-            info.append("保存的配方ID: ").append(savedRecipeId).append("\n");
+            info.append("Saved Recipe ID: ").append(savedRecipeId).append("\n");
         }
 
         return info.toString();

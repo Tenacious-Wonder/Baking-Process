@@ -19,7 +19,6 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.bakingprocess.BakingProcess;
 import org.bakingprocess.block.PlateBlock;
 import org.bakingprocess.block.process.EatDishesProcess;
 import org.bakingprocess.block.process.PlatingProcess;
@@ -28,27 +27,23 @@ import org.bakingprocess.recipe.PlatingRecipe;
 import org.bakingprocess.registry.ModBlockEntityTypes;
 import org.bakingprocess.registry.ModItems;
 import org.jetbrains.annotations.Nullable;
-import org.twcore.api.process.PlayerAction;
 import org.twcore.content.Content;
-import org.twcore.process.playeraction.PlayerActionListUtil;
 import org.twcore.registry.TWRegistries;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
+/**
+ * 盘子方块实体，可摆盘方块的标准实现。
+ *
+ * <p><strong>职责划分：</strong></p>
+ * <ul>
+ *   <li>本实体持有菜肴（{@link DishesContent}），并负责容器身份、完成物品判断与流程回调</li>
+ * </ul>
+ */
 public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity {
-    /** 方块库存的最大容量，同时也是摆盘流程的最大步骤数量。 */
-    public static final int MAX_STEPS = 10;
     private static final String OUTCOME_KEY = "outcome";
-    private static final String ACTIONS_KEY = "actions";
 
-    /**
-     * 已执行的操作列表。
-     * <p>当{@linkplain #platingProcess}处于关闭状态时该列表应该为空</p>
-     */
-    private final List<PlayerAction> performedActions = new ArrayList<>();
-    /** 摆盘流程 */
+    /** 摆盘流程（负责操作序列、候选配方与配方匹配） */
     private final PlatingProcess<PlateBlockEntity> platingProcess;
     /** 食用流程 */
     private final EatDishesProcess<PlateBlockEntity> eatProcess;
@@ -60,76 +55,6 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
         super(ModBlockEntityTypes.PLATE, pos, state);
         this.eatProcess = new EatDishesProcess<>();
         this.platingProcess = new PlatingProcess<>();
-    }
-
-    // ==================== 操作管理方法 ====================
-
-    @Override
-    public List<PlayerAction> getPerformedActions() {
-        return new ArrayList<>(performedActions);
-    }
-
-    @Override
-    public boolean performAction(int step, PlayerAction action) {
-        if (!platingProcess.isActive()) {
-            return false;
-        }
-
-        // 验证参数
-        if (step < 0 || step >= MAX_STEPS || action == null) {
-            return false;
-        }
-
-        // 检查步骤连续性：前面的步骤必须有操作
-        for (int i = 0; i < step; i++) {
-            if (i >= performedActions.size()) {
-                return false;
-            }
-        }
-
-        // 检查该步骤是否已有操作
-        if (step < performedActions.size()) {
-            return false;
-        }
-
-        // 确保列表足够大
-        while (performedActions.size() < step) {
-            performedActions.add(null);
-        }
-
-        // 添加操作
-        performedActions.add(action);
-
-        // 标记脏状态以保存
-        markDirty();
-        return true;
-    }
-
-    @Override
-    public @Nullable PlayerAction removeAction(int step) {
-        // 验证参数
-        if (step < 0 || step >= performedActions.size()) {
-            return null;
-        }
-
-        PlayerAction removed = performedActions.get(step);
-        if (removed == null) {
-            return null;
-        }
-
-        // 移除该步骤及之后的所有操作（保持连续性）
-        while (performedActions.size() > step) {
-            performedActions.remove(performedActions.size() - 1);
-        }
-
-        markDirty();
-        return removed;
-    }
-
-    @Override
-    public void clearPerformedActions() {
-        performedActions.clear();
-        markDirty();
     }
 
     // ==================== 盖子相关方法 ====================
@@ -178,38 +103,46 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
     }
 
     /**
+     * 设置方块实体所属的世界。
+     *
+     * <p>重写此方法以在 {@code readNbt} 之后、世界可用时恢复摆盘流程：
+     * 游戏重启后由 {@link PlatingProcess#restoreAfterWorldSet} 按已持久化的
+     * 操作序列恢复候选配方与精确匹配。客户端不需要恢复（渲染按操作序列取模型）。</p>
+     */
+    @Override
+    public void setWorld(World world) {
+        super.setWorld(world);
+        if (world != null && !world.isClient) {
+            platingProcess.restoreAfterWorldSet(world, this);
+        }
+    }
+
+    /**
      * 尝试根据当前的{@link #outcome}恢复流程。
+     *
+     * <p>运行时世界必然可用，直接通过 {@link PlatingRecipe#findRecipe} 从配方管理器
+     * 反查配方，将成品菜肴还原为进行中的摆盘流程，并立即恢复候选配方。</p>
+     *
+     * @return 是否成功恢复流程
      */
     public boolean restoreProcess() {
         if (platingProcess.isActive() || outcome == null || world == null) {
             return false;
         }
 
-        // 根据菜肴获取对应的配方
-        PlatingRecipe recipe = PlatingRecipe.getRecipeByContainerAndDishes(getContainerType(), outcome);
+        // 从世界配方管理器反查配方
+        PlatingRecipe recipe = PlatingRecipe.findRecipe(world, getContainerType(), outcome);
         if (recipe == null) {
             return false;
         }
 
-        // 清除当前的菜肴
+        // 清除菜肴，并将配方的完整操作序列恢复到流程中
         setOutcome(null);
+        platingProcess.restoreFromRecipe(recipe);
 
-        // 根据配方的操作恢复 performedActions
-        List<PlayerAction> actions = recipe.getActions();
-        performedActions.clear();
-        performedActions.addAll(actions);
-
-        // 启动摆盘流程
+        // 启动摆盘流程，并立即恢复候选配方与精确匹配
         platingProcess.start(world, this);
-
-        // 初始化候选配方列表
-        boolean initialized = platingProcess.initializeCandidates(world, this);
-        if (!initialized) {
-            // 如果初始化失败，重置状态
-            clearPerformedActions();
-            platingProcess.reset();
-            return false;
-        }
+        platingProcess.restoreCandidates(world, this);
 
         markDirty();
         return true;
@@ -223,7 +156,6 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
     public ActionResult tryPlating(PlayerEntity player, Hand hand, BlockHitResult hit) {
         // 检查是否满足摆盘条件
         if (eatProcess.isActive() || outcome != null || getCachedState().get(PlateBlock.IS_COVERED)) {
-            BakingProcess.LOGGER.info("正常情况");
             return ActionResult.PASS;
         }
 
@@ -256,9 +188,7 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
 
-        // 清除当前状态
-        this.performedActions.clear();
-
+        // 操作序列与流程状态由 PlatingProcess 自行序列化
         if (nbt.contains("plating_process")) {
             platingProcess.readFromNbt(nbt.getCompound("plating_process"));
         }
@@ -271,10 +201,6 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
         if (nbt.contains(OUTCOME_KEY, NbtElement.STRING_TYPE)) {
             Content content = TWRegistries.CONTENT.get(Identifier.tryParse(nbt.getString(OUTCOME_KEY)));
             setOutcome((DishesContent) content);
-        } else {
-            // 读取操作列表
-            List<PlayerAction> actions = PlayerActionListUtil.readActionsFromNbt(nbt);
-            performedActions.addAll(actions);
         }
     }
 
@@ -292,9 +218,6 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
 
         if (outcome != null) {
             nbt.putString(OUTCOME_KEY, Objects.requireNonNull(TWRegistries.CONTENT.getId(outcome)).toString());
-        } else {
-            // 写入操作列表
-            PlayerActionListUtil.writeActionsToNbt(nbt, performedActions);
         }
     }
 
@@ -336,11 +259,6 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
         return outcome;
     }
 
-    @Override
-    public int size() {
-        return MAX_STEPS;
-    }
-
     // ==================== 访问器方法 ====================
 
     /**
@@ -350,26 +268,20 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
         this.outcome = outcome;
 
         if (outcome != null) {
-            clearPerformedActions();
+            // 出菜后清空操作序列与流程状态
+            platingProcess.clearPerformedActions();
             platingProcess.reset();
         }
 
         markDirty();
     }
 
-    /**
-     * 获取当前摆盘流程。
-     */
     public PlatingProcess<PlateBlockEntity> getPlatingProcess() {
         return platingProcess;
     }
 
     public EatDishesProcess<PlateBlockEntity> getEatProcess() {
         return eatProcess;
-    }
-
-    public String getDebugInfo() {
-        return platingProcess.toString() + "\n" + getPerformedActions();
     }
 
     // ==================== 网络同步 ====================

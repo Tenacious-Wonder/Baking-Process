@@ -156,6 +156,6 @@ public class EatDishesProcess<T extends BlockEntity & PlatableBlockEntity> exten
 
     @Override
     protected String getCustomStatusInfo() {
-        return "剩余食用次数: " + remainingEats + "\n";
+        return "Remaining Eats: " + remainingEats + "\n";
     }
 }

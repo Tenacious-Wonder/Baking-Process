@@ -39,7 +39,7 @@ public class PlateBlockEntityRenderer implements BlockEntityRenderer<PlateBlockE
         BlockState state = entity.getCachedState();
         Item item = state.getBlock().asItem();
         PlatingModelManager manager = PlatingModelManager.getInstance();
-        Identifier renderModelId = manager.getModelForActions(item, entity.getPerformedActions());
+        Identifier renderModelId = manager.getModelForActions(item, entity.getPlatingProcess().getPerformedActions());
 
         if (entity.getOutcome() != null) {
             renderModelId = ModModelLoader.createDishesModel(item, entity.getOutcome());

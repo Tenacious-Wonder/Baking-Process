@@ -553,24 +553,24 @@ public class KneadingProcess<T extends BlockEntity & Inventory> extends Abstract
         StringBuilder info = new StringBuilder();
 
         // 面粉计数详情
-        info.append("面粉: ").append(getTotalFlourCount()).append("/3\n");
+        info.append("Flour: ").append(getTotalFlourCount()).append("/3\n");
         if (!flourCounts.isEmpty()) {
             flourCounts.forEach((type, count) -> info.append("  - ").append(type.asString()).append(": ").append(count).append("\n"));
         }
 
         // 液体计数详情
-        info.append("液体: ").append(getTotalLiquidCount()).append("/3\n");
+        info.append("Liquid: ").append(getTotalLiquidCount()).append("/3\n");
         if (!liquidCounts.isEmpty()) {
             liquidCounts.forEach((type, count) -> info.append("  - ").append(type.toString()).append(": ").append(count).append("\n"));
         }
 
         // 额外物品详情
-        info.append("额外物品: ").append(getExtraItemCount()).append("/").append(EXTRA_SLOT_COUNT).append("\n");
+        info.append("Extra Items: ").append(getExtraItemCount()).append("/").append(EXTRA_SLOT_COUNT).append("\n");
         if (getExtraItemCount() > 0) {
             for (int i = 0; i < EXTRA_SLOT_COUNT; i++) {
                 ItemStack stack = extraInventory.get(i);
                 if (!stack.isEmpty()) {
-                    info.append("  - 槽位").append(i + 1).append(": ")
+                    info.append("  - Slot ").append(i + 1).append(": ")
                             .append(stack.getItem().getName().getString());
                     if (stack.getCount() > 1) {
                         info.append(" x").append(stack.getCount());
@@ -581,13 +581,13 @@ public class KneadingProcess<T extends BlockEntity & Inventory> extends Abstract
         }
 
         // 揉面次数
-        info.append("揉面次数: ").append(kneadingCount).append("/2\n");
+        info.append("Kneading Count: ").append(kneadingCount).append("/2\n");
 
         // 跳过逻辑状态
-        info.append("跳过逻辑已处理: ").append(processedSkip).append("\n");
+        info.append("Skip Logic Processed: ").append(processedSkip).append("\n");
 
         // 库存空状态
-        info.append("库存是否为空: ").append(isEmpty()).append("\n");
+        info.append("Inventory Empty: ").append(isEmpty()).append("\n");
 
         return info.toString();
     }

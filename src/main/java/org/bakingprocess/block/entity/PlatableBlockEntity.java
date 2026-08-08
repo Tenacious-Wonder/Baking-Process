@@ -1,10 +1,8 @@
 package org.bakingprocess.block.entity;
 
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
@@ -13,42 +11,50 @@ import org.bakingprocess.block.process.PlatingProcess;
 import org.bakingprocess.content.DishesContent;
 import org.bakingprocess.recipe.PlatingRecipe;
 import org.jetbrains.annotations.Nullable;
-import org.twcore.api.process.PlayerAction;
-import org.twcore.process.playeraction.impl.AddItemPlayerAction;
-
-import java.util.List;
 
 /**
- * 可摆盘的方块实体接口，定义摆盘方块必须实现的功能。
+ * 可摆盘的方块实体接口，定义摆盘/食用流程与方块实体之间的契约。
  *
- * <p><strong>设计理念：</strong></p>
+ * <p><strong>摆盘设计：</strong></p>
+ * <p>摆盘是"按配方顺序向容器中放入食材，最后以完成物品封口成菜"的多步骤交互玩法。
+ * 一次完整的摆盘过程如下：</p>
+ * <ol>
+ *   <li><strong>放置容器</strong>：摆盘在特定的容器方块上进行（如铁盘），
+ *       容器类型决定可用的配方集合</li>
+ *   <li><strong>按序放入食材</strong>：玩家依次向容器中放入食材（物品或内容物），
+ *       每次放入都会被流程与候选配方进行匹配，只有与某配方下一步相符的食材
+ *       才会被接受</li>
+ *   <li><strong>候选配方收敛</strong>：流程维护候选配方集合，随放入的食材按前缀
+ *       匹配不断收窄，最终唯一确定玩家正在制作的配方</li>
+ *   <li><strong>完成封口</strong>：当操作序列与配方完全一致时，玩家手持完成物品
+ *       （如盘盖）右键容器，流程判定配方完成，生成菜肴并盖上盖子</li>
+ *   <li><strong>后续处理</strong>：完成的菜肴可被分次食用；也可揭开盖子还原为
+ *       进行中的摆盘继续调整，或直接取走整盘</li>
+ * </ol>
+ *
+ * <p><strong>职责划分：</strong></p>
  * <ul>
- *   <li><strong>操作导向</strong>：方块实体管理已执行的操作（PlayerAction），而非物品</li>
- *   <li><strong>流程分离</strong>：配方匹配和流程逻辑由 {@link org.bakingprocess.block.process.PlatingProcess} 处理</li>
- *   <li><strong>灵活扩展</strong>：支持各种类型的玩家操作（添加物品、剪切、倾倒等）</li>
- *   <li><strong>库存兼容</strong>：通过操作转换为物品堆栈，兼容原版库存接口</li>
+ *   <li><strong>方块实体</strong>：作为容器的身份载体，持有菜肴
+ *       （{@link DishesContent}），负责容器类型、完成物品判断与流程完成回调</li>
+ *   <li><strong>{@link PlatingProcess}</strong>：驱动摆盘流程，管理操作序列、
+ *       候选配方与配方匹配</li>
+ *   <li><strong>{@link PlatingRecipe}</strong>：定义摆盘配方
+ *       （容器 + 操作序列 + 输出菜肴），提供匹配与反查能力</li>
  * </ul>
  *
  * <p><strong>核心概念：</strong></p>
  * <ol>
- *   <li><strong>操作（PlayerAction）</strong>：代表玩家执行的具体交互，如添加物品、使用工具等</li>
- *   <li><strong>操作序列</strong>：按顺序执行的操作列表，构成完整的摆盘流程</li>
  *   <li><strong>容器类型</strong>：配方的承载容器，决定可用的配方集合</li>
- *   <li><strong>完成操作</strong>：触发流程完成的特殊操作（如盖上盖子）</li>
- * </ol>
- *
- * <p><strong>实现要求：</strong></p>
- * <ol>
- *   <li>必须正确管理操作序列的连续性和完整性</li>
- *   <li>必须在状态改变时调用 {@code markDirty()} 来保存数据</li>
- *   <li>必须实现 NBT 序列化来保存已执行的操作</li>
- *   <li>必须确保操作到物品堆栈的转换正确无误</li>
+ *   <li><strong>操作序列</strong>：玩家按顺序执行的操作（{@code PlayerAction}），
+ *       是配方匹配的依据，由流程统一管理</li>
+ *   <li><strong>菜肴</strong>：摆盘完成后的最终产物，由方块实体持有</li>
+ *   <li><strong>完成物品</strong>：触发流程完成的特殊物品（如盘子盖）</li>
  * </ol>
  *
  * @see PlatingProcess
- * @see PlayerAction
+ * @see PlatingRecipe
  */
-public interface PlatableBlockEntity extends Inventory {
+public interface PlatableBlockEntity {
 
     // ==================== 容器信息方法 ====================
 
@@ -80,78 +86,7 @@ public interface PlatableBlockEntity extends Inventory {
     @Nullable
     DishesContent getOutcome();
 
-    // ==================== 操作管理方法 ====================
-
-    /**
-     * 获取当前已执行的所有操作。
-     *
-     * <p>返回的列表按照执行顺序排列，第一个元素是第一步执行的操作。
-     * 操作列表必须是连续的，不允许有空位或跳过步骤。</p>
-     *
-     * <p><strong>实现要求：</strong></p>
-     * <ul>
-     *   <li>必须返回按顺序排列的已执行操作列表</li>
-     *   <li>如果没有执行任何操作，应返回空列表</li>
-     *   <li>返回的操作应该是副本或不可修改的视图，防止外部修改内部状态</li>
-     *   <li>列表应该只包含实际存在的操作，不包含空位</li>
-     * </ul>
-     *
-     * @return 已执行操作的列表，按步骤顺序排列
-     */
-    List<PlayerAction> getPerformedActions();
-
-    /**
-     * 在指定步骤位置执行操作。
-     *
-     * <p>此方法尝试在给定的步骤索引处执行一个操作。实现必须验证：</p>
-     * <ol>
-     *   <li>步骤索引是否有效（0 ≤ index < getMaxSteps()）</li>
-     *   <li>操作是否非空</li>
-     *   <li>步骤连续性：不能跳过步骤执行（即前面的步骤必须有操作）</li>
-     *   <li>目标步骤位置是否为空</li>
-     * </ol>
-     *
-     * <p><strong>步骤连续性规则：</strong></p>
-     * <ul>
-     *   <li>第 0 步可以直接执行操作</li>
-     *   <li>第 n 步（n > 0）只有在第 n-1 步有操作时才能执行</li>
-     *   <li>不允许跳过步骤（如第 0 步为空，直接执行第 1 步）</li>
-     * </ul>
-     *
-     * @param step 步骤索引（从 0 开始）
-     * @param action 要执行的操作
-     * @return 如果执行成功返回 {@code true}，否则返回 {@code false}
-     *
-     * @throws IllegalArgumentException 如果步骤索引无效或操作为空
-     */
-    boolean performAction(int step, PlayerAction action);
-
-    /**
-     * 移除指定步骤的操作。
-     *
-     * <p>此方法移除指定步骤的操作。根据摆盘逻辑，如果移除的是中间步骤的操作，
-     * 则后续所有步骤的操作都应该被移除，以保持步骤连续性。</p>
-     *
-     * <p><strong>连锁移除规则：</strong></p>
-     * <ul>
-     *   <li>移除第 n 步的操作时，所有步骤 > n 的操作都应该被移除</li>
-     *   <li>返回被移除的操作</li>
-     *   <li>如果步骤无效或为空，返回 {@code null}</li>
-     * </ul>
-     *
-     * @param step 要移除操作的步骤索引（从 0 开始）
-     * @return 被移除的操作，如果步骤为空或无效则返回 {@code null}
-     */
-    @Nullable
-    PlayerAction removeAction(int step);
-
-    /**
-     * 清空所有已执行的操作。
-     *
-     * <p>此方法清除所有步骤的操作，将摆盘状态重置为初始空状态。
-     * 通常在配方完成或流程重置时调用。</p>
-     */
-    void clearPerformedActions();
+    // ==================== 流程回调方法 ====================
 
     /**
      * 检查物品是否为该容器的完成物品。
@@ -177,15 +112,15 @@ public interface PlatableBlockEntity extends Inventory {
      *
      * <p>此方法在摆盘流程成功完成、输出菜肴后被调用，方块实体可以在此方法中：</p>
      * <ul>
-     *   <li>清空已执行的操作</li>
      *   <li>设置菜肴内容</li>
+     *   <li>消耗完成物品</li>
      *   <li>播放自定义音效或粒子效果</li>
      *   <li>更新方块状态</li>
      *   <li>触发其他事件</li>
      * </ul>
      *
      * <p><strong>注意：</strong>此方法由摆盘流程在完成步骤中调用，
-     * 流程本身不会直接操作方块实体的操作状态。</p>
+     * 操作序列的清理由流程自身完成，方块实体无需（也不应）直接操作。</p>
      *
      * @param world 世界实例
      * @param pos 方块位置
@@ -199,8 +134,6 @@ public interface PlatableBlockEntity extends Inventory {
     /**
      * 当盘子中的食物被吃完时调用。
      *
-     * <p>与 {@link #onPlatingComplete}调用时机类似</p>
-     *
      * @param world 世界实例
      * @param pos 方块位置
      * @param player 操作的玩家
@@ -209,279 +142,28 @@ public interface PlatableBlockEntity extends Inventory {
      */
     void onEatComplete(World world, BlockPos pos, PlayerEntity player, Hand hand, HitResult hit);
 
-    // ==================== Inventory 接口适配 ====================
-
-    /**
-     * 设置指定槽位的物品堆栈。
-     *
-     * <p>此方法将物品堆栈转换为默认操作并执行。主要用于：
-     * <ul>
-     *   <li>从 NBT 恢复状态时重建操作序列</li>
-     *   <li>外部系统与摆盘方块交互</li>
-     * </ul>
-     *
-     * <p><strong>注意：</strong>此方法不执行操作的消耗逻辑，仅用于状态恢复。</p>
-     *
-     * @param slot 槽位索引
-     * @param stack 要设置的物品堆栈
-     */
-    @Override
-    default void setStack(int slot, ItemStack stack) {
-        if (slot < 0 || slot >= size()) {
-            return;
-        }
-
-        // 将物品堆栈转换为 AddItemPlayerAction
-        if (!stack.isEmpty()) {
-            PlayerAction action = createActionFromItemStack(stack);
-            if (action != null) {
-                performAction(slot, action);
-            }
-        } else {
-            // 如果堆栈为空，移除该槽位的操作
-            removeAction(slot);
-        }
-    }
-
-    /**
-     * 从指定槽位移除物品堆栈。
-     *
-     * <p>此方法移除指定槽位的操作，并返回对应的物品堆栈表示。</p>
-     *
-     * @param slot 槽位索引
-     * @return 被移除操作对应的物品堆栈
-     */
-    @Override
-    default ItemStack removeStack(int slot) {
-        PlayerAction action = removeAction(slot);
-        return action != null ? action.toItemStack() : ItemStack.EMPTY;
-    }
-
-    /**
-     * 从指定槽位移除指定数量的物品堆栈。
-     *
-     * <p>对于摆盘系统，操作是不可分割的，因此此方法与 {@link #removeStack(int)} 行为相同。</p>
-     *
-     * @param slot 槽位索引
-     * @param amount 要移除的数量（对于操作系统，此参数被忽略）
-     * @return 被移除操作对应的物品堆栈
-     */
-    @Override
-    default ItemStack removeStack(int slot, int amount) {
-        return removeStack(slot);
-    }
-
-    /**
-     * 检查玩家是否可以使用此方块实体。
-     *
-     * <p>默认实现允许所有玩家使用。子类可以重写此方法以添加权限检查。</p>
-     *
-     * @param player 要检查的玩家
-     * @return 如果玩家可以使用此方块实体，则返回 {@code true}
-     */
-    @Override
-    default boolean canPlayerUse(PlayerEntity player) {
-        return true;
-    }
-
-    /**
-     * 清空所有槽位。
-     *
-     * <p>此方法清空所有已执行的操作。</p>
-     */
-    @Override
-    default void clear() {
-        clearPerformedActions();
-    }
-
-    /**
-     * 获取指定槽位的物品堆栈。
-     *
-     * <p>此方法将槽位对应的操作转换为物品堆栈返回。</p>
-     *
-     * @param slot 槽位索引
-     * @return 操作对应的物品堆栈，如果槽位为空则返回 {@link ItemStack#EMPTY}
-     */
-    @Override
-    default ItemStack getStack(int slot) {
-        List<PlayerAction> actions = getPerformedActions();
-        if (slot >= 0 && slot < actions.size()) {
-            PlayerAction action = actions.get(slot);
-            return action != null ? action.toItemStack() : ItemStack.EMPTY;
-        }
-        return ItemStack.EMPTY;
-    }
-
-    /**
-     * 检查方块实体是否为空。
-     *
-     * <p>如果没有任何已执行的操作，则视为空。</p>
-     *
-     * @return 如果没有任何操作则返回 {@code true}
-     */
-    @Override
-    default boolean isEmpty() {
-        return getPerformedActions().isEmpty();
-    }
-
-    // ==================== 便捷默认方法 ====================
-
-    /**
-     * 获取当前已完成的步骤数量。
-     *
-     * <p>这是一个便捷方法，等价于 {@code getPerformedActions().size()}。</p>
-     *
-     * @return 已执行操作的数量（当前步骤数）
-     */
-    default int getStepCount() {
-        return getPerformedActions().size();
-    }
-
-    /**
-     * 检查指定步骤是否有操作。
-     *
-     * @param step 要检查的步骤索引（从 0 开始）
-     * @return 如果该步骤有操作返回 {@code true}，否则返回 {@code false}
-     */
-    default boolean hasActionAt(int step) {
-        List<PlayerAction> actions = getPerformedActions();
-        return step >= 0 && step < actions.size() && actions.get(step) != null;
-    }
-
-    /**
-     * 获取最大可记录操作数量。
-     *
-     * <p>这是一个可选方法，用于限制单个摆盘的容量。
-     * 默认返回 {@link #size()} 表示和对应的方块实体容量相关。</p>
-     *
-     * @return 最大可执行步骤数量
-     */
-    default int getMaxSteps() {
-        return size();
-    }
-
-    /**
-     * 检查是否可以在指定步骤执行操作。
-     *
-     * <p>此方法综合检查步骤有效性、连续性和容量限制。</p>
-     *
-     * @param step 要检查的步骤索引
-     * @return 如果可以在该步骤执行操作返回 {@code true}
-     */
-    default boolean canPerformActionAtStep(int step) {
-        // 检查步骤是否在有效范围内
-        if (step < 0 || step >= getMaxSteps()) {
-            return false;
-        }
-
-        // 检查步骤连续性：只能按顺序执行
-        for (int i = 0; i < step; i++) {
-            if (!hasActionAt(i)) {
-                return false;
-            }
-        }
-
-        // 检查该步骤是否已有操作
-        return !hasActionAt(step);
-    }
-
-    /**
-     * 检查当前操作序列是否完全匹配指定配方。
-     *
-     * <p>此方法检查容器的物品类型和所有已执行操作是否与配方完全匹配。</p>
-     *
-     * @param recipe 要检查的配方
-     * @return 如果容器类型和所有操作都匹配返回 {@code true}，否则返回 {@code false}
-     */
-    default boolean matchesRecipeExactly(PlatingRecipe recipe) {
-        if (recipe == null) return false;
-        // 检查容器类型
-        if (getContainerType() != recipe.getContainer()) return false;
-        // 检查操作序列
-        return recipe.matchesActions(getPerformedActions());
-    }
-
-    /**
-     * 检查当前操作序列是否是指定配方的有效前缀。
-     *
-     * <p>有效前缀意味着当前操作序列是配方操作序列的开头部分，且顺序完全一致。
-     * 用于实时验证玩家是否在正确的配方路径上。</p>
-     *
-     * @param recipe 要检查的配方
-     * @return 如果容器类型相同且当前操作序列是配方的有效前缀返回 {@code true}
-     */
-    default boolean matchesRecipePrefix(PlatingRecipe recipe) {
-        if (recipe == null) return false;
-        // 检查容器类型
-        if (getContainerType() != recipe.getContainer()) return false;
-        // 检查操作前缀
-        return recipe.matchesPrefix(getPerformedActions());
-    }
+    // ==================== 状态查询方法 ====================
 
     /**
      * 检查是否可以开始新的摆盘流程。
      *
      * <p>此方法检查当前摆盘状态是否允许开始新的流程。
-     * 通常当摆盘为空且没有菜肴时允许开始新的流程。</p>
+     * 通常当没有菜肴时允许开始新的流程（操作序列是否为空由流程自身保证）。</p>
      *
      * @return 如果可以开始新流程返回 {@code true}，否则返回 {@code false}
      */
     default boolean canStartNewProcess() {
-        return getPerformedActions().isEmpty() && getOutcome() == null;
+        return getOutcome() == null;
     }
 
     /**
-     * 获取操作的显示名称列表。
+     * 检查是否已有完成的菜肴。
      *
-     * <p>用于调试和UI显示。</p>
+     * <p>这是一个便捷方法，通常用于 UI 显示完成状态。</p>
      *
-     * @return 操作显示名称的列表
-     */
-    default List<Text> getActionDisplayNames() {
-        return getPerformedActions().stream()
-                .map(PlayerAction::getDisplayName)
-                .toList();
-    }
-
-    /**
-     * 检查是否有完全匹配的配方。
-     *
-     * <p>这是一个便捷方法，通常用于UI显示完成状态。</p>
-     *
-     * @return 如果当前状态匹配某个配方则返回 {@code true}
+     * @return 如果当前已有菜肴则返回 {@code true}
      */
     default boolean hasCompleteRecipe() {
         return getOutcome() != null;
-    }
-
-    // ==================== 内部辅助方法 ====================
-
-    /**
-     * 从物品堆栈创建操作。
-     *
-     * <p>默认实现创建 {@code AddItemPlayerAction}。子类可以重写此方法以支持更多操作类型。</p>
-     *
-     * @param stack 物品堆栈
-     * @return 对应的操作，如果无法创建则返回 {@code null}
-     */
-    default PlayerAction createActionFromItemStack(ItemStack stack) {
-        if (stack.isEmpty()) {
-            return null;
-        }
-        // 默认创建添加物品操作
-        return new AddItemPlayerAction(stack.getItem(), stack.getCount());
-    }
-
-    /**
-     * 获取操作的类型标识符列表。
-     *
-     * <p>用于调试和序列化。</p>
-     *
-     * @return 操作类型标识符的列表
-     */
-    default List<String> getActionTypes() {
-        return getPerformedActions().stream()
-                .map(PlayerAction::getType)
-                .toList();
     }
 }
