@@ -34,7 +34,6 @@ public class ModBlocks {
     public static final Block COMBUSTION_FIREWOOD = registerBlock("combustion_firewood",
             new CombustionFirewoodBlock(AbstractBlock.Settings.create()
                     .sounds(BlockSoundGroup.WOOD).strength(0.5F, 0.5F)
-                    .mapColor(MapColor.ORANGE).nonOpaque()
                     .nonOpaque().luminance(state -> state.get(CombustionFirewoodBlock.COMBUSTION_STATE).isBurning()? 15: 0)));
     public static final Block FIREWOOD = registerBlock("firewood",
             FirewoodBlock.Builder.create()
@@ -55,7 +54,7 @@ public class ModBlocks {
                     .pistonBehavior(PistonBehavior.DESTROY)));
     public static final Block CUTTING_BOARD = registerBlock("cutting_board",
             new CuttingBoardBlock(AbstractBlock.Settings.create()
-                    .sounds(BlockSoundGroup.WOOD).sounds(BlockSoundGroup.WOOL).strength(0.2F)
+                    .sounds(BlockSoundGroup.WOOL).strength(0.2F)
                     .pistonBehavior(PistonBehavior.DESTROY)));
     public static final Block IRON_POTS = registerBlock("iron_pots",
             new PotsBlock(AbstractBlock.Settings.create()

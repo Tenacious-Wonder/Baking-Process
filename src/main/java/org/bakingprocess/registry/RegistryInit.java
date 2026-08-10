@@ -11,6 +11,7 @@ public class RegistryInit {
         ModRecipeTypes.registerAll();
         ModItemGroups.registerAll();
         ModSounds.registerAll();
+        ModProcessingTypes.registerAll();
         ModBiomeFeatures.registerAll();
     }
 }

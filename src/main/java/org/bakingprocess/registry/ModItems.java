@@ -45,7 +45,7 @@ public class ModItems {
     public static final Item SUGAR_FLOUR = registerItem("sugar_flour",
             new FlourItem(new Item.Settings().food(ModFoodComponents.SUGAR_FLOUR), 0xFFF5F5F0, FlourItem.FlourType.SUGAR));
     public static final Item SALT_FLOUR = registerItem("salt_flour",
-            new FlourItem(new Item.Settings(), 0xFFFDFCF5, FlourItem.FlourType.SUGAR));
+            new FlourItem(new Item.Settings(), 0xFFFDFCF5, FlourItem.FlourType.SALT));
 
     // 粉尘袋
     public static final Item FLOUR_SACK = registerItem("flour_sack", new FlourSackItem(ModBlocks.FLOUR_SACK ,new Item.Settings().maxCount(1)));

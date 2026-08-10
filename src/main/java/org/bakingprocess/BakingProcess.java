@@ -24,7 +24,7 @@ public class BakingProcess implements ModInitializer {
         RegistryInit.init();
         TwCoreRegisterEvent.TW_CORE_REGISTRAR.register(BakingProcess::register);
 
-        LOGGER.info("TW`s Baking Process is initializing!");
+        LOGGER.info("TW's Baking Process is initializing!");
     }
 
     public static void register() {
