@@ -19,7 +19,7 @@ import net.minecraft.util.math.random.Random;
 import org.bakingprocess.block.CuttingBoardBlock;
 import org.bakingprocess.block.entity.CuttingBoardBlockEntity;
 import org.bakingprocess.block.process.CuttingProcess;
-import org.bakingprocess.client.render.model.ModModelLoader;
+import org.bakingprocess.client.render.model.ModModelId;
 import org.twcore.client.api.render.UpPlaceBlockEntityRenderer;
 
 import java.util.HashMap;
@@ -60,7 +60,7 @@ public class CuttingBoardBlockEntityRenderer extends UpPlaceBlockEntityRenderer<
         Identifier itemId = Registries.ITEM.getId(itemStack.getItem());
 
         // 构建切割模型ID
-        Identifier modelId = ModModelLoader.createCuttingModel(itemId, cutCount);
+        Identifier modelId = ModModelId.createCuttingModelId(itemId, cutCount);
         BakedModel model = manager.getModel(modelId);
 
         // 检查是否是有效模型（不是错误模型）

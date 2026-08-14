@@ -132,7 +132,7 @@ public class PlatingModelManager {
     public void registerRecipeModel(Item container, List<PlayerAction> recipeActions, Content dish) {
         // 生成配方操作的编码序列哈希（作为唯一标识）
         String recipeHash = generateRecipeHash(recipeActions);
-        Identifier dishId = ModModelLoader.createDishesModel(container, dish);
+        Identifier dishId = ModModelId.createDishesModelId(container, dish);
 
         // 注册到配方模型缓存
         recipeModelCache.put(container, recipeHash, dishId);

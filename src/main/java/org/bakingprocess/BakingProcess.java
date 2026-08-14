@@ -22,13 +22,13 @@ public class BakingProcess implements ModInitializer {
     public void onInitialize() {
         DFoodInit.init();
         RegistryInit.init();
-        TwCoreRegisterEvent.TW_CORE_REGISTRAR.register(BakingProcess::register);
+        TwCoreRegisterEvent.TW_CORE_REGISTRAR.register(BakingProcess::registerCore);
 
         LOGGER.info("TW's Baking Process is initializing!");
     }
 
-    public static void register() {
-        TwModManager.IMPL.register(BakingProcess.MOD_ID, 1);
+    public static void registerCore() {
+        TwModManager.IMPL.register(BakingProcess.MOD_ID, 2);
 
         AddItemPlayerAction.REMAPPING.put(ModItems.SALMON_CUBES, "msa");
         AddItemPlayerAction.REMAPPING.put(ModItems.SALT_CUBES, "sac");

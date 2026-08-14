@@ -1,9 +1,7 @@
 package org.bakingprocess.client.register;
 
-import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import org.bakingprocess.client.render.gui.tooltip.FlourSackTooltipComponent;
-import org.bakingprocess.client.render.model.ModModelLoader;
 import org.bakingprocess.item.FlourSackItem;
 
 public class ModFabricEvent {
@@ -14,6 +12,5 @@ public class ModFabricEvent {
             }
             return null;
         });
-        ModelLoadingPlugin.register(new ModModelLoader());
     }
 }

@@ -11,7 +11,7 @@ import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import org.bakingprocess.client.render.model.ModModelLoader;
+import org.bakingprocess.client.render.model.ModModelId;
 import org.bakingprocess.content.ShapedDoughContent;
 import org.twcore.api.content.ContainerUtil;
 import org.twcore.content.Content;
@@ -35,7 +35,7 @@ public class MoldItemRenderer {
 
         // 如果有定型面团内容，渲染它
         if (content instanceof ShapedDoughContent shapedDough) {
-            BakedModel model = manager.getModel(ModModelLoader.createShapedDoughModel(shapedDough));
+            BakedModel model = manager.getModel(ModModelId.createShapedDoughModelId(shapedDough));
             blockRenderer.getModelRenderer().render(matrices.peek(),
                     vertexConsumers.getBuffer(RenderLayers.getBlockLayer(state)), state, model, 1, 1, 1, light, overlay);
         }

@@ -11,7 +11,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.world.BlockRenderView;
-import org.bakingprocess.client.render.model.ModModelLoader;
+import org.bakingprocess.client.render.model.ModModelId;
 import org.dfood.block.FoodBlock;
 import org.bakingprocess.block.entity.HeatResistantSlateBlockPileEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,7 +32,7 @@ public class BlockModelRendererMixin {
 
             if (foodValue > 1) {
                 BakedModelManager manager = MinecraftClient.getInstance().getBakedModelManager();
-                Identifier renderModelId = ModModelLoader.createCookingModel(Registries.BLOCK.getId(state.getBlock()).getPath(), foodValue);
+                Identifier renderModelId = ModModelId.createCookingModelId(Registries.BLOCK.getId(state.getBlock()).getPath(), foodValue);
                 BakedModel model1 = manager.getModel(renderModelId);
 
                 // 只在成功获取到有效模型时才执行旋转并返回新模型

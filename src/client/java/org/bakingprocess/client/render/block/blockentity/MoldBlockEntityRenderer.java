@@ -14,7 +14,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.bakingprocess.block.entity.MoldBlockEntity;
-import org.bakingprocess.client.render.model.ModModelLoader;
+import org.bakingprocess.client.render.model.ModModelId;
 import org.bakingprocess.content.ShapedDoughContent;
 
 public class MoldBlockEntityRenderer implements BlockEntityRenderer<MoldBlockEntity> {
@@ -45,7 +45,7 @@ public class MoldBlockEntityRenderer implements BlockEntityRenderer<MoldBlockEnt
                                      MatrixStack matrices, VertexConsumerProvider vertexConsumers) {
         matrices.push();
         matrices.translate(0, 0.1, 0);
-        BakedModel renderModel = modelManager.getModel(ModModelLoader.createShapedDoughModel(content));
+        BakedModel renderModel = modelManager.getModel(ModModelId.createShapedDoughModelId(content));
 
         if (renderModel != null) {
             // 渲染切割模型

@@ -9,7 +9,7 @@ import net.minecraft.util.math.RotationAxis;
 import org.bakingprocess.block.EmptyBreadBoatBlock;
 import org.bakingprocess.block.PlateBlock;
 import org.bakingprocess.client.render.item.renderer.MoldItemRenderer;
-import org.bakingprocess.client.render.model.ModModelLoader;
+import org.bakingprocess.client.render.model.ModModelId;
 import org.bakingprocess.container.BreadBoatContainer;
 import org.bakingprocess.registry.ModItems;
 import org.bakingprocess.util.BakingProcessUtils;
@@ -74,7 +74,7 @@ public class UpPlaceStackRenderers {
     public static UpPlaceStackRenderer createKitchenKnifeRenderer() {
         return context -> {
             BakedModel model = context.getModelManager()
-                    .getModel(ModModelLoader.BOARD_KITCHEN_KNIFE);
+                    .getModel(ModModelId.BOARD_KITCHEN_KNIFE);
 
             if (model == null) {
                 context.defaultRender();

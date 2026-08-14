@@ -17,7 +17,7 @@ import net.minecraft.util.math.random.Random;
 import org.dfood.block.FoodBlock;
 import org.bakingprocess.block.PlateBlock;
 import org.bakingprocess.block.entity.PlateBlockEntity;
-import org.bakingprocess.client.render.model.ModModelLoader;
+import org.bakingprocess.client.render.model.ModModelId;
 import org.bakingprocess.client.render.model.PlatingModelManager;
 import org.bakingprocess.content.DishesContent;
 
@@ -42,7 +42,7 @@ public class PlateBlockEntityRenderer implements BlockEntityRenderer<PlateBlockE
         Identifier renderModelId = manager.getModelForActions(item, entity.getPlatingProcess().getPerformedActions());
 
         if (entity.getOutcome() != null) {
-            renderModelId = ModModelLoader.createDishesModel(item, entity.getOutcome());
+            renderModelId = ModModelId.createDishesModelId(item, entity.getOutcome());
         }
 
         if (entity.getEatProcess().isActive()) {
@@ -51,7 +51,7 @@ public class PlateBlockEntityRenderer implements BlockEntityRenderer<PlateBlockE
                 int eaten = entity.getEatProcess().getEatenCount();
                 int total = entity.getEatProcess().getTotalEats();
                 if (eaten >= 0 && eaten < total) {
-                    renderModelId = ModModelLoader.createEatStageModel(item, outcome, eaten);
+                    renderModelId = ModModelId.createEatStageModelId(item, outcome, eaten);
                 }
             }
         }

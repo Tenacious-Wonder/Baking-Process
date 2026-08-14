@@ -12,25 +12,25 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.random.Random;
 import org.bakingprocess.block.entity.PotsBlockEntity;
 import org.bakingprocess.block.process.KneadingProcess;
-import org.bakingprocess.client.render.model.ModModelLoader;
+import org.bakingprocess.client.render.model.ModModelId;
 
 public class PotsBlockEntityRenderer implements BlockEntityRenderer<PotsBlockEntity> {
     protected final BlockModelRenderer renderer;
     protected final BakedModelManager modelManager;
 
     // 加粉步骤模型
-    private static final Identifier MODEL_ADD_FLOUR_1 = ModModelLoader.createProcessModel("knead_add_flour_1");
-    private static final Identifier MODEL_ADD_FLOUR_2 = ModModelLoader.createProcessModel("knead_add_flour_2");
-    private static final Identifier MODEL_ADD_FLOUR_3 = ModModelLoader.createProcessModel("knead_add_flour_3");
+    private static final Identifier MODEL_ADD_FLOUR_1 = ModModelId.createProcessModelId("knead_add_flour_1");
+    private static final Identifier MODEL_ADD_FLOUR_2 = ModModelId.createProcessModelId("knead_add_flour_2");
+    private static final Identifier MODEL_ADD_FLOUR_3 = ModModelId.createProcessModelId("knead_add_flour_3");
 
     // 加水步骤模型
-    private static final Identifier MODEL_ADD_LIQUID_1 = ModModelLoader.createProcessModel("knead_add_liquid_1");
-    private static final Identifier MODEL_ADD_LIQUID_2 = ModModelLoader.createProcessModel("knead_add_liquid_2");
-    private static final Identifier MODEL_ADD_LIQUID_3 = ModModelLoader.createProcessModel("knead_add_liquid_3");
+    private static final Identifier MODEL_ADD_LIQUID_1 = ModModelId.createProcessModelId("knead_add_liquid_1");
+    private static final Identifier MODEL_ADD_LIQUID_2 = ModModelId.createProcessModelId("knead_add_liquid_2");
+    private static final Identifier MODEL_ADD_LIQUID_3 = ModModelId.createProcessModelId("knead_add_liquid_3");
 
     // 揉面步骤模型
-    private static final Identifier MODEL_KNEAD_1 = ModModelLoader.createProcessModel("knead_knead_1");
-    private static final Identifier MODEL_KNEAD_2 = ModModelLoader.createProcessModel("knead_knead_2");
+    private static final Identifier MODEL_KNEAD_1 = ModModelId.createProcessModelId("knead_knead_1");
+    private static final Identifier MODEL_KNEAD_2 = ModModelId.createProcessModelId("knead_knead_2");
 
     public PotsBlockEntityRenderer(BlockEntityRendererFactory.Context ctx) {
         renderer = ctx.getRenderManager().getModelRenderer();
