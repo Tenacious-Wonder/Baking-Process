@@ -2,11 +2,13 @@ package org.bakingprocess.food.culinary;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.World;
 import org.bakingprocess.food.culinary.carrier.ServingVessel;
 import org.bakingprocess.food.culinary.step.ProcessingStep;
 import org.bakingprocess.food.culinary.step.ProcessingType;
@@ -18,39 +20,50 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <h1>一道菜肴（Culinary）的数据容器。</h1>
+ * <h1>一道菜肴（Culinary）的数据对象。</h1>
  * <p>
- * Culinary 是整个烹饪系统的核心数据对象：它承载一道菜从原料到成品的完整加工历史，
- * 是加工、转移、展示与存档共用的<b>唯一真实对象</b>。
+ * Culinary 承载一道菜从原料到成品的完整加工历史，是加工、转移、展示与存档共用的
+ * <b>值对象</b>：它自身没有独立的身份，只是随 {@code ServingVessel} 流转、可被完整拷贝
+ * 的数据团。一道菜的<b>权威归属</b>是持有它的容器，而不是某个常驻的 Culinary 实例。
  * </p>
  *
- * <h2>对象身份与生命周期</h2>
+ * <h2>二元数据模型</h2>
  * <ul>
- *     <li>一道菜从被制作出来起就是同一个对象：加工方（砧板、烤箱等）通过
- *         {@link #addStep(ProcessingStep)} 对<b>同一个对象</b>原地追加加工步骤；</li>
- *     <li>载体（盘子、碗等 {@code ServingVessel}）持有该对象直到被转移或丢弃，
- *         转移时由目标容器接住同一对象，原容器通过 {@code clearCulinary()} 抛弃引用；</li>
- *     <li>状态可随时通过 {@link #writeNbt} / {@link #readNbt} 在 NBT 中完整保存与恢复
- *         （加工步骤列表 + 锁定标记）。</li>
+ *     <li><b>步骤链</b>（{@code steps}）：只追加、不可变的加工历史，由最新一步
+ *         （{@link #getLatestStep()}）派生这道菜"是什么"——显示名、可食性、总口数、
+ *         吃的行为；</li>
+ *     <li><b>动态状态</b>（{@link CulinaryState}）：无法由步骤决定、但跟随这道菜的
+ *         可读写事实（如已吃口数），决定这道菜"现在吃到哪了"。</li>
  * </ul>
  *
- * <h2>锁定与展示</h2>
+ * <h2>值语义与生命周期</h2>
  * <ul>
- *     <li>{@link #lock()} 表示这道菜已经定型（例如已盛好上桌），定型后不允许再追加
- *         任何加工步骤，且该状态不可逆；</li>
+ *     <li>本对象不承诺"内存地址不变"：加工、转移、拷贝都可能产生新的 Culinary 实例；
+ *         对一道菜的实际读写一律经由持有它的 {@code ServingVessel} 容器进行；</li>
+ *     <li>需要把菜肴交给别处时，使用 {@link #copy()} 得到完整深拷贝，
+ *         修改拷贝不影响原对象；</li>
+ *     <li>状态可随时通过 {@link #writeNbt} / {@link #readNbt} 在 NBT 中完整保存与恢复
+ *         （加工步骤列表 + 动态状态）。</li>
+ * </ul>
+ *
+ * <h2>食用与锁定</h2>
+ * <ul>
+ *     <li>被吃过至少一口（{@link #isConsumed()} 为真）即视为已食用，此后不允许再追加
+ *         任何加工步骤（见 {@link #addStep}）；</li>
  *     <li>需要把菜肴展示给 GUI 时，必须使用 {@link #asReadOnly()} 的只读快照
  *         （{@link CulinaryView}），<b>不要将真实菜肴对象交给渲染代码</b>。</li>
  * </ul>
  *
  * <h2>步骤类型体系</h2>
  * <p>
- * 仿照原版 Structure / StructureType：{@link ProcessingStep} 是步骤抽象基类，
+ * {@link ProcessingStep} 是步骤抽象基类，
  * 每种具体步骤通过 {@link ProcessingStep#getType()} 找到自己的 {@link ProcessingType}，
  * 由该类型提供序列化 Codec。所有 ProcessingType 注册于
  * {@link org.bakingprocess.registry.ModProcessingTypes}，Culinary 序列化步骤时
- * 通过注册表在“类型 id”和“步骤 Codec”之间互相转换。
+ * 通过注册表在"类型 id"和"步骤 Codec"之间互相转换。
  * </p>
  *
+ * @see CulinaryState
  * @see CulinaryView
  * @see ProcessingStep
  * @see ProcessingType
@@ -60,63 +73,99 @@ import java.util.List;
 public final class Culinary {
     /** 加工步骤列表。 */
     private static final String KEY_STEPS = "Steps";
-    /** 锁定标记。 */
-    private static final String KEY_LOCKED = "Locked";
+    /** 动态状态子标签。 */
+    private static final String KEY_STATE = "State";
     /** 步骤条目中的类型 id。 */
     private static final String KEY_TYPE = "Type";
     /** 步骤条目中的步骤数据。 */
     private static final String KEY_DATA = "Data";
 
     private final List<ProcessingStep> steps;
-    private boolean locked;
+    private final CulinaryState state;
 
-    private Culinary(List<ProcessingStep> steps, boolean locked) {
+    private Culinary(List<ProcessingStep> steps, CulinaryState state) {
         this.steps = new ArrayList<>(steps);
-        this.locked = locked;
+        this.state = state;
     }
 
     /**
-     * 创建一道全新的空菜肴：没有任何加工步骤，未锁定。
+     * 创建一道全新的空菜肴：没有任何加工步骤，动态状态为默认。
      */
     public static Culinary create() {
-        return new Culinary(new ArrayList<>(), false);
+        return new Culinary(new ArrayList<>(), new CulinaryState());
     }
 
-    // ==================== 加工与定型 ====================
+    // ==================== 加工 ====================
     /**
      * 追加一次加工步骤，表示这道菜经历了该加工。
      *
-     * @throws IllegalStateException 菜肴已锁定（定型后不允许再加工）
+     * @throws IllegalStateException 菜肴已被食用过（不允许再加工）
      */
     public Culinary addStep(ProcessingStep step) {
-        if (locked) {
-            throw new IllegalStateException("Culinary is locked");
+        if (state.isConsumed()) {
+            throw new IllegalStateException("Culinary has already been consumed");
         }
         steps.add(step);
         return this;
     }
 
+    // ==================== 食用 ====================
     /**
-     * 将菜肴定型，之后不能再追加任何加工步骤。该操作幂等且不可逆。
+     * 吃下这道菜的一口。
+     *
+     * <p>这是吃的统一入口：先校验可食性与剩余口数，再把"这一口具体吃什么"
+     * 委托给最新一步（{@link ProcessingStep#eat}），随后推进口数；当吃完最后一口时，
+     * 若提供了容器 {@code vessel}，则调用其 {@link ServingVessel#clearCulinary()} 让
+     * 持有者自动丢弃这道菜。</p>
+     *
+     * <p>注意：本方法会修改动态状态（已吃口数），因此应由<b>持有这道菜的容器</b>
+     * 对其内部真实对象调用；对 {@link #copy()} 得到的拷贝调用只会改副本，不影响任何容器。</p>
+     *
+     * @param player 吃的玩家
+     * @param world  当前世界
+     * @param vessel 持有这道菜的容器；吃完最后一口时会被清空。可为 {@code null}，
+     *               表示无需自动丢弃（例如由物品直接食用）
+     * @return 是否成功吃下一口；不可食、无剩余口数时为 {@code false}
      */
-    public Culinary lock() {
-        locked = true;
-        return this;
-    }
+    public boolean eat(PlayerEntity player, World world, @Nullable ServingVessel vessel) {
+        ProcessingStep latest = getLatestStep();
+        if (latest == null || !latest.isEdible()) {
+            return false;
+        }
 
-    /**
-     * 当前菜肴是否已定型（锁定）。
-     */
-    public boolean isLocked() {
-        return locked;
+        int totalEats = latest.getTotalEats();
+        if (totalEats <= 0) {
+            return false;
+        }
+
+        int eaten = state.getEatenCount();
+        if (eaten >= totalEats) {
+            return false;
+        }
+
+        // 本次是第几口（从 1 起），交由最新一步决定这一口的具体吃法
+        int currentBite = eaten + 1;
+        latest.eat(player, world, currentBite);
+        state.incrementEatenCount();
+
+        if (state.getEatenCount() >= totalEats && vessel != null) {
+            vessel.clearCulinary();
+        }
+        return true;
     }
 
     // ==================== 克隆 ====================
     /**
-     * 完整克隆一份菜肴：新对象与原件互不影响，锁定状态一并复制。
+     * 完整克隆一份菜肴：新对象与原件互不影响，动态状态一并复制。
+     *
+     * <p>通过 NBT 往返实现<b>深拷贝</b>：每个加工步骤都经其 {@link ProcessingType} 的
+     * Codec 重新序列化并反序列化，返回全新的步骤对象，与原件不共享任何可变引用。
+     * 这是 Culinary 作为值对象（随容器流转、可被安全拷贝）的语义前提。</p>
      */
     public Culinary copy() {
-        return new Culinary(steps, locked);
+        NbtCompound snapshot = new NbtCompound();
+        writeNbt(snapshot);
+        return create().readNbt(snapshot);
     }
 
     // ==================== 只读快照 ====================
@@ -149,23 +198,53 @@ public final class Culinary {
         return steps.get(steps.size() - 1);
     }
 
-    // ==================== 当前状态（预留板块） ====================
-    // 此处放置“此刻这道菜是什么状态”的方法，例如当前显示名称、
-    // 此刻应当如何被食用等。这些方法的行为由最新追加的加工步骤
-    // （getLatestStep()）决定，每追加一步加工，返回结果实时变化。
-    // TODO: 后续按具体步骤类型补充实现。
+    // ==================== 当前状态 ====================
+    /**
+     * 已吃口数。
+     */
+    public int getEatenCount() {
+        return state.getEatenCount();
+    }
+
+    /**
+     * 是否已被吃过至少一口（即"已食用"，此后不允许再加工）。
+     */
+    public boolean isConsumed() {
+        return state.isConsumed();
+    }
+
+    /**
+     * 这道菜总共可以食用的口数，由最新一步决定；尚无步骤或不可食时为 0。
+     */
+    public int getTotalEats() {
+        ProcessingStep latest = getLatestStep();
+        return latest == null ? 0 : latest.getTotalEats();
+    }
+
+    /**
+     * 剩余可食用口数。
+     */
+    public int getRemainingEats() {
+        return Math.max(0, getTotalEats() - state.getEatenCount());
+    }
+
+    /**
+     * 当前是否可以食用，由最新一步决定。
+     */
+    public boolean isEdible() {
+        ProcessingStep latest = getLatestStep();
+        return latest != null && latest.isEdible();
+    }
 
     // ==================== NBT 序列化 ====================
     /**
-     * 将当前状态完整写入 NBT：加工步骤列表（按各自类型 id + Codec 序列化）与锁定标记。
+     * 将当前状态完整写入 NBT：加工步骤列表（按各自类型 id + Codec 序列化）与动态状态。
      *
      * @return 写入后的同一份 NBT
      * @throws IllegalStateException 某一步骤的类型未注册，或步骤序列化失败
      */
     public NbtCompound writeNbt(NbtCompound nbt) {
-        nbt.putBoolean(KEY_LOCKED, locked);
         NbtList stepList = new NbtList();
-
         for (ProcessingStep step : steps) {
             ProcessingType<?> type = step.getType();
             Identifier typeId = ModProcessingTypes.PROCESSING_TYPES.getId(type);
@@ -180,21 +259,22 @@ public final class Culinary {
             entry.put(KEY_DATA, data);
             stepList.add(entry);
         }
-
         nbt.put(KEY_STEPS, stepList);
+
+        NbtCompound stateNbt = new NbtCompound();
+        state.writeNbt(stateNbt);
+        nbt.put(KEY_STATE, stateNbt);
+
         return nbt;
     }
 
     /**
-     * 用 NBT 中的状态完整覆盖当前对象（包括锁定标记）。
-     *
-     * <p>这是反序列化路径：即使当前对象已锁定也可以调用，覆盖后以 NBT 中的状态为准。</p>
+     * 用 NBT 中的状态完整覆盖当前对象（包括动态状态）。
      *
      * @return this
      */
     public Culinary readNbt(NbtCompound nbt) {
         steps.clear();
-        locked = nbt.getBoolean(KEY_LOCKED);
 
         NbtList stepList = nbt.getList(KEY_STEPS, NbtElement.COMPOUND_TYPE);
         for (NbtElement element : stepList) {
@@ -210,6 +290,10 @@ public final class Culinary {
             }
 
             steps.add(decodeStep(type, entry.getCompound(KEY_DATA)));
+        }
+
+        if (nbt.contains(KEY_STATE, NbtElement.COMPOUND_TYPE)) {
+            state.readNbt(nbt.getCompound(KEY_STATE));
         }
 
         return this;
