@@ -9,7 +9,6 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import org.dfood.item.HaveBlock;
 import org.bakingprocess.BakingProcess;
-import org.bakingprocess.food.ModFoodComponents;
 import org.bakingprocess.item.*;
 
 import java.util.function.BiFunction;

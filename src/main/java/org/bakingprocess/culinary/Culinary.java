@@ -1,4 +1,4 @@
-package org.bakingprocess.food.culinary;
+package org.bakingprocess.culinary;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -9,9 +9,9 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
-import org.bakingprocess.food.culinary.carrier.ServingVessel;
-import org.bakingprocess.food.culinary.step.ProcessingStep;
-import org.bakingprocess.food.culinary.step.ProcessingType;
+import org.bakingprocess.culinary.carrier.ServingVessel;
+import org.bakingprocess.culinary.step.ProcessingStep;
+import org.bakingprocess.culinary.step.ProcessingType;
 import org.bakingprocess.registry.ModProcessingTypes;
 import org.jetbrains.annotations.Nullable;
 
@@ -105,6 +105,8 @@ public final class Culinary {
         if (state.isConsumed()) {
             throw new IllegalStateException("Culinary has already been consumed");
         }
+        // 让新步骤在落链前消化既有历史（只读快照），决定自己让菜呈现的状态
+        step.onAdded(asReadOnly());
         steps.add(step);
         return this;
     }

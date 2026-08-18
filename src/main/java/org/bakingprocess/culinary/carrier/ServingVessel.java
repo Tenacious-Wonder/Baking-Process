@@ -1,14 +1,14 @@
-package org.bakingprocess.food.culinary.carrier;
+package org.bakingprocess.culinary.carrier;
 
 import net.minecraft.util.Identifier;
-import org.bakingprocess.food.culinary.Culinary;
-import org.bakingprocess.food.culinary.step.ProcessingStep;
+import org.bakingprocess.culinary.Culinary;
+import org.bakingprocess.culinary.step.ProcessingStep;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * <h1>菜肴容器。</h1>
  * <p>
- * 由世界上能"盛放"一道菜的东西实现（盘子、碗、面包船……）。本接口是一份
+ * 由世界上能"盛放"一道菜的东西实现。本接口是一份
  * <b>行为契约</b>，而非实现纲要：它只约定"容器能回答什么、能被做什么"，
  * 不规定容器内部如何持有菜肴——实现方可以把它存成字段，也可以按自身当前状态
  * （例如正在进行的摆盘流程）动态推导，二者在本接口下等价。
@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
  *         由调用方自行负责。</li>
  * </ul>
  *
- * @see org.bakingprocess.food.culinary.Culinary
+ * @see Culinary
  */
 public interface ServingVessel {
 

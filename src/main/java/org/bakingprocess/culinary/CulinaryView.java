@@ -1,6 +1,6 @@
-package org.bakingprocess.food.culinary;
+package org.bakingprocess.culinary;
 
-import org.bakingprocess.food.culinary.step.ProcessingStep;
+import org.bakingprocess.culinary.step.ProcessingStep;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;

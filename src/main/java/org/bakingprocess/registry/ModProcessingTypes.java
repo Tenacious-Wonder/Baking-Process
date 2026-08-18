@@ -7,21 +7,22 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 import org.bakingprocess.BakingProcess;
-import org.bakingprocess.food.culinary.step.ProcessingStep;
-import org.bakingprocess.food.culinary.step.ProcessingType;
+import org.bakingprocess.culinary.step.BakingStep;
+import org.bakingprocess.culinary.step.PlatingStep;
+import org.bakingprocess.culinary.step.ProcessingStep;
+import org.bakingprocess.culinary.step.ProcessingType;
 
 /**
  * 加工步骤类型注册表。
- *
- * <p>持有所有 {@link ProcessingType} 的原版注册表（键名 {@code baking_process:processing_type}，
- * 会同步到客户端）。具体加工步骤类型在 {@link #registerAll()} 中登记；
- * Culinary 序列化步骤时通过该注册表在“步骤类型 id”与“步骤 Codec”之间互相转换。</p>
  *
  * @see ProcessingType
  */
 public class ModProcessingTypes {
     /** 加工步骤类型的注册表。 */
-    public static final Registry<ProcessingType<?>> PROCESSING_TYPES = of("processing_type");
+    public static final Registry<ProcessingType<?>> PROCESSING_TYPES = ofRegistry();
+
+    public static final ProcessingType<PlatingStep> PLATING = register("plating", PlatingStep.CODEC);
+    public static final ProcessingType<BakingStep> BAKING = register("baking", BakingStep.CODEC);
 
     /**
      * 注册一种加工步骤类型。
@@ -36,15 +37,12 @@ public class ModProcessingTypes {
         return type;
     }
 
-    private static <T> Registry<T> of(String id) {
-        RegistryKey<Registry<T>> key = RegistryKey.ofRegistry(new Identifier(BakingProcess.MOD_ID, id));
+    private static <T> Registry<T> ofRegistry() {
+        RegistryKey<Registry<T>> key = RegistryKey.ofRegistry(new Identifier(BakingProcess.MOD_ID, "processing_type"));
         return FabricRegistryBuilder.createSimple(key)
                 .attribute(RegistryAttribute.SYNCED)
                 .buildAndRegister();
     }
 
-    /** 注册所有加工步骤类型（当前暂无具体类型，后续在此登记）。 */
-    public static void registerAll() {
-        // TODO: 注册具体加工步骤类型，如切块、烤制等。
-    }
+    public static void registerAll() {}
 }

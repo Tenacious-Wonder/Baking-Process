@@ -1,4 +1,4 @@
-package org.bakingprocess.food;
+package org.bakingprocess.registry;
 
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;

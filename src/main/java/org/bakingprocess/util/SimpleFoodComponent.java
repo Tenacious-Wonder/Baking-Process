@@ -1,8 +1,17 @@
-package org.bakingprocess.food;
+package org.bakingprocess.util;
 
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.FoodComponent;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * 将食物属性简单的封装起来供临时使用。
@@ -11,6 +20,43 @@ import org.jetbrains.annotations.NotNull;
  * @param SaturationModifier 饱和度修饰符（决定饱食度恢复量）
  */
 public record SimpleFoodComponent(int Hunger, float SaturationModifier) {
+
+    /** SimpleFoodComponent 的序列化 Codec。 */
+    public static final Codec<SimpleFoodComponent> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.INT.fieldOf("hunger").forGetter(SimpleFoodComponent::Hunger),
+            Codec.FLOAT.fieldOf("saturation").forGetter(SimpleFoodComponent::SaturationModifier)
+    ).apply(instance, SimpleFoodComponent::new));
+
+    /** 状态效果的序列化 Codec。 */
+    public static final Codec<StatusEffectInstance> STATUS_EFFECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Identifier.CODEC.fieldOf("id").forGetter(effect -> Registries.STATUS_EFFECT.getId(effect.getEffectType())),
+            Codec.INT.fieldOf("duration").forGetter(StatusEffectInstance::getDuration),
+            Codec.INT.fieldOf("amplifier").forGetter(StatusEffectInstance::getAmplifier),
+            Codec.BOOL.optionalFieldOf("ambient", false).forGetter(StatusEffectInstance::isAmbient),
+            Codec.BOOL.optionalFieldOf("show_particles", true).forGetter(StatusEffectInstance::shouldShowParticles),
+            Codec.BOOL.optionalFieldOf("show_icon", true).forGetter(StatusEffectInstance::shouldShowIcon)
+    ).apply(instance, (id, duration, amplifier, ambient, showParticles, showIcon) ->
+            new StatusEffectInstance(Objects.requireNonNull(Registries.STATUS_EFFECT.get(id)), duration, amplifier, ambient, showParticles, showIcon)));
+
+    /** 食物组件的快捷序列化 Codec：饱食度与饱和度复用 {@link #CODEC}，其余字段在此补充。 */
+    public static final Codec<FoodComponent> FOOD_COMPONENT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            CODEC.fieldOf("food").forGetter(SimpleFoodComponent::fromFoodComponent),
+            Codec.BOOL.optionalFieldOf("meat", false).forGetter(FoodComponent::isMeat),
+            Codec.BOOL.optionalFieldOf("always_edible", false).forGetter(FoodComponent::isAlwaysEdible),
+            Codec.BOOL.optionalFieldOf("snack", false).forGetter(FoodComponent::isSnack),
+            Codec.list(Codec.pair(STATUS_EFFECT_CODEC, Codec.FLOAT))
+                    .optionalFieldOf("effects", List.of())
+                    .forGetter(FoodComponent::getStatusEffects)
+    ).apply(instance, (simple, meat, alwaysEdible, snack, effects) -> {
+        FoodComponent.Builder builder = simple.toFoodComponentBuilder();
+        if (meat) builder.meat();
+        if (alwaysEdible) builder.alwaysEdible();
+        if (snack) builder.snack();
+        for (Pair<StatusEffectInstance, Float> effect : effects) {
+            builder.statusEffect(effect.getFirst(), effect.getSecond());
+        }
+        return builder.build();
+    }));
 
     /**
      * 从FoodComponent创建SimpleFoodComponent

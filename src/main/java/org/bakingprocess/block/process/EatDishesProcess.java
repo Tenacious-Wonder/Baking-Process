@@ -11,7 +11,7 @@ import net.minecraft.world.World;
 import org.bakingprocess.block.PlateBlock;
 import org.bakingprocess.block.entity.PlatableBlockEntity;
 import org.bakingprocess.content.DishesContent;
-import org.bakingprocess.food.SimpleFoodComponent;
+import org.bakingprocess.util.SimpleFoodComponent;
 import org.twcore.api.process.AbstractProcess;
 import org.twcore.process.step.Step;
 import org.twcore.process.step.StepExecutionContext;

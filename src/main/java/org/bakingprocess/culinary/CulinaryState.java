@@ -1,4 +1,4 @@
-package org.bakingprocess.food.culinary;
+package org.bakingprocess.culinary;
 
 import net.minecraft.nbt.NbtCompound;
 

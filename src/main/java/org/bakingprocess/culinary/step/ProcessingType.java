@@ -1,4 +1,4 @@
-package org.bakingprocess.food.culinary.step;
+package org.bakingprocess.culinary.step;
 
 import com.mojang.serialization.Codec;
 

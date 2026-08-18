@@ -1,8 +1,9 @@
-package org.bakingprocess.food.culinary.step;
+package org.bakingprocess.culinary.step;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
+import org.bakingprocess.culinary.CulinaryView;
 
 /**
  * 加工步骤抽象基类。
@@ -41,4 +42,17 @@ public abstract class ProcessingStep {
      *                    最后一口（currentBite == getTotalEats()）可补足余量
      */
     public abstract void eat(PlayerEntity player, World world, int currentBite);
+
+    /**
+     * 当本步骤被加入一道菜时调用，可读取既有历史（快照）来决定自身表现。
+     *
+     * <p>步骤链只追加，因此新步骤加入时可以看到之前的所有加工历史；
+     * 具体步骤可在此时消化历史、推导并固化自己的表现（例如 {@code BakingStep}
+     * 根据摆盘步骤推导烤熟后的食物属性）。</p>
+     *
+     * @param history 加入前这道菜的既有历史（只读快照），不含本步骤
+     */
+    public void onAdded(CulinaryView history) {
+
+    }
 }

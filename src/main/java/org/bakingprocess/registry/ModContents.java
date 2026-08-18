@@ -5,7 +5,6 @@ import net.minecraft.util.Identifier;
 import org.bakingprocess.BakingProcess;
 import org.bakingprocess.content.DishesContent;
 import org.bakingprocess.content.ShapedDoughContent;
-import org.bakingprocess.food.ModFoodComponents;
 import org.twcore.content.Content;
 import org.twcore.registry.TWRegistries;
 

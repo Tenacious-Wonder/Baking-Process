@@ -23,7 +23,7 @@ import org.dfood.block.SimpleFoodBlock;
 import org.dfood.util.IntPropertyManager;
 import org.bakingprocess.BakingProcess;
 import org.bakingprocess.container.BreadBoatContainer;
-import org.bakingprocess.food.SimpleFoodComponent;
+import org.bakingprocess.util.SimpleFoodComponent;
 import org.jetbrains.annotations.Nullable;
 import org.twcore.api.content.ContainerUtil;
 
