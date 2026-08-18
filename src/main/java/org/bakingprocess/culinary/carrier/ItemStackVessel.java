@@ -15,16 +15,24 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * 物品堆栈容器：把携带菜数据的物品堆栈包装为 {@link ServingVessel} 视图，
- * 让无法实现接口的 {@link ItemStack} 也能参与容器语义（如烤炉对盘子物品的加工）。
+ * <h1>物品堆栈容器</h1>
+ * <p>把携带菜数据的物品堆栈包装为 {@link ServingVessel} 视图，让无法实现接口的
+ * {@link ItemStack} 也能参与容器语义（如烤炉对盘子物品的加工）。</p>
  *
- * <p><b>识别与数据布局：</b>堆栈 NBT 需含统一复合对象（键 {@link #VESSEL_NBT_KEY}），
- * 其内固定字段 {@link #VESSEL_NAME_KEY}（{@code name}）对应 {@link #getContainerId()}；
- * 复合对象中其余数据由物品类自行定义。菜数据存于独立键
- * {@link ServingVessel#CULINARY_NBT_KEY}，与方块实体视图读写同一份数据。</p>
+ * <h2>识别与数据布局</h2>
+ * <ul>
+ *     <li>堆栈 NBT 需含统一复合对象（键 {@link #VESSEL_NBT_KEY}），其内固定字段
+ *         {@link #VESSEL_NAME_KEY}（{@code name}）对应 {@link #getContainerId()}；
+ *         复合对象中其余数据由物品类自行定义；</li>
+ *     <li>菜数据存于独立键 {@link ServingVessel#CULINARY_NBT_KEY}，
+ *         与方块实体视图读写同一份数据。</li>
+ * </ul>
  *
- * <p><b>映射语义：</b>每次操作都从当前堆栈 NBT 重新读取、操作后写回，不缓存中间数据；
- * 即使堆栈实例被替换，只要用当前堆栈重建视图，数据不丢。</p>
+ * <h2>映射语义</h2>
+ * <ul>
+ *     <li>每次操作都从当前堆栈 NBT 重新读取、操作后写回，不缓存中间数据：
+ *         即使堆栈实例被替换，用当前堆栈重建视图即可，数据不丢。</li>
+ * </ul>
  */
 public final class ItemStackVessel implements ServingVessel {
     /** 堆栈 NBT 中容器身份复合对象的键（mod 命名空间，避免与其他数据冲突）。 */

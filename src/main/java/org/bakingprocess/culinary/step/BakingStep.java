@@ -15,12 +15,13 @@ import org.bakingprocess.util.SimpleFoodComponent;
 import java.util.List;
 
 /**
- * 烘烤加工步骤：表示这道菜经历了"烤制"这一加工。
+ * <h1>烘烤加工步骤</h1>
+ * <p>表示这道菜经历了"烤制"这一加工；独有数据是烘烤时间（{@code bakeTime}）。</p>
  *
- * <p>BakingStep 的独有数据是烘烤时间（{@code bakeTime}）；它在加入一道菜时
- * （{@link #onAdded}）读取既有历史中的 {@link PlatingStep}，据此<b>推导并固化</b>
- * 烤熟后的表现：口数沿用目标菜口数、食物属性按原料"烤熟后"属性（{@code cooked}）
- * 经 {@link DishFoodCalculator} 计算、菜标识由摆盘标识派生（路径加 {@code cooked_} 前缀）。</p>
+ * <h2>从摆盘步骤推导并固化</h2>
+ * <p>加入一道菜时（{@link #onAdded}）读取既有历史中的 {@link PlatingStep}，推导烤熟后的表现：
+ * 口数沿用目标菜口数、食物属性按原料"烤熟后"属性（{@code cooked}）经
+ * {@link DishFoodCalculator} 计算、菜标识由摆盘标识派生（路径加 {@code cooked_} 前缀）。</p>
  */
 public class BakingStep extends ProcessingStep {
 

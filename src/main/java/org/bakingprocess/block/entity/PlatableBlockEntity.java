@@ -11,12 +11,16 @@ import org.bakingprocess.culinary.carrier.ServingVessel;
 import org.bakingprocess.recipe.PlatingRecipe;
 
 /**
- * 可摆盘的方块实体接口：摆盘流程（{@link PlatingProcess}）与方块实体之间的契约，
- * 同时是菜肴容器（{@link ServingVessel}）。
+ * <h1>可摆盘的方块实体</h1>
+ * <p>摆盘流程（{@link PlatingProcess}）与方块实体之间的契约，同时是菜肴容器（{@link ServingVessel}）。</p>
  *
- * <p><b>摆盘玩法：</b>按配方顺序向容器放入食材（每次与候选配方做前缀匹配），
- * 操作序列与配方完全一致时，手持完成物品（盘盖）右键完成，用配方生成摆盘步骤并盖上盖子；
- * 成品菜可分次食用，也可揭开盖子还原为进行中的摆盘。</p>
+ * <h2>摆盘玩法</h2>
+ * <ol>
+ *     <li>按配方顺序向容器放入食材，每次与候选配方做<b>前缀匹配</b>收窄候选；</li>
+ *     <li>操作序列与配方完全一致时，手持完成物品（盘盖）右键完成，
+ *         用配方生成摆盘步骤并盖上盖子；</li>
+ *     <li>成品菜可分次食用，也可揭开盖子还原为进行中的摆盘。</li>
+ * </ol>
  *
  * @see PlatingProcess
  * @see PlatingRecipe

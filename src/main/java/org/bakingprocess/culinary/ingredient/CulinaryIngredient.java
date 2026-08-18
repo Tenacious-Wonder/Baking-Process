@@ -9,10 +9,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * 食材条目：原料的来源、分类与食物属性，由食材表配置（{@code food_ingredients}）承载。
+ * <h1>食材条目</h1>
+ * <p>原料的来源、分类与食物属性，由食材表配置（{@code food_ingredients}）承载。</p>
  *
- * <p>{@link #cooked()} 为<b>烤熟后</b>属性（加工基准，必填）；{@link #raw()} 为<b>直接吃</b>属性
- * （可选，缺失 = 不可直接吃）。可直接食用的摆盘配方用 {@code raw} 计算。</p>
+ * <h2>食物属性</h2>
+ * <ul>
+ *     <li>{@link #cooked()}：<b>烤熟后</b>属性（加工基准，必填）；</li>
+ *     <li>{@link #raw()}：<b>直接吃</b>属性（可选，缺失 = 不可直接吃）；
+ *         可直接食用的摆盘配方用 {@code raw} 计算。</li>
+ * </ul>
  *
  * @param source   原料来源
  * @param id       原料 id（物品或内容物注册表 id）

@@ -7,14 +7,14 @@ import net.minecraft.world.World;
 import org.bakingprocess.culinary.CulinaryView;
 
 /**
- * 加工步骤抽象基类。
+ * <h1>加工步骤</h1>
+ * <p>一道菜经历过的某一次加工（摆盘、烤制……）之后的状态快照；具体步骤类型继承本类，
+ * 定义各自特有的属性字段。</p>
  *
- * <p>代表一道菜经历过的某一次加工（切块、腌制、烤制……）之后的状态快照。
- * 具体步骤类型继承本类，定义各自特有的属性字段，并通过 {@link #getType()} 声明
- * 自己属于哪种 {@link ProcessingType}，由该类型提供步骤的序列化 Codec。</p>
- *
+ * <h2>当前表现由最新一步决定</h2>
  * <p>一道菜的<b>当前表现</b>（身份标识、显示名、可食性、总口数、吃的行为）由最新一步决定，
- * 因此这些查询与行为方法都在本基类声明，由具体步骤实现。</p>
+ * 因此这些查询与行为方法都在本基类声明，由具体步骤实现；步骤经 {@link #getType()} 声明
+ * 自己属于哪种 {@link ProcessingType}，由该类型提供序列化 Codec。</p>
  *
  * @see ProcessingType
  */

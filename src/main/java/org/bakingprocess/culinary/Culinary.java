@@ -20,9 +20,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 一道菜肴：从原料到成品的加工历史与动态状态，随容器流转、可被完整拷贝的<b>值对象</b>。
+ * <h1>一道菜肴（Culinary）</h1>
+ * <p>从原料到成品的加工历史与动态状态，随容器流转、可被完整拷贝的<b>值对象</b>。</p>
  *
- * <p><b>二元数据模型：</b></p>
+ * <h2>二元数据模型</h2>
  * <ul>
  *     <li><b>步骤链</b>（{@code steps}）：只追加的加工历史，最新一步（{@link #getLatestStep()}）
  *         派生这道菜"是什么"——显示名、可食性、总口数、吃的行为；</li>
@@ -30,10 +31,12 @@ import java.util.List;
  *         决定"现在吃到哪了"。</li>
  * </ul>
  *
- * <p><b>归属与写权限：</b>一道菜的权威归属是持有它的容器（{@link ServingVessel}），
- * 对菜的实际读写一律经容器进行；加工（{@link #addStep}）不可回退，被吃过至少一口
- * （{@link #isConsumed()}）后不允许再加工。交给别处用 {@link #copy()} 深拷贝，
- * 展示用 {@link #asReadOnly()} 快照（{@link CulinaryView}）。</p>
+ * <h2>归属与写权限</h2>
+ * <ul>
+ *     <li>权威归属是持有它的容器（{@link ServingVessel}），对菜的实际读写一律经容器进行；</li>
+ *     <li>加工（{@link #addStep}）不可回退；被吃过至少一口（{@link #isConsumed()}）后不允许再加工；</li>
+ *     <li>交给别处用 {@link #copy()} 深拷贝，展示用 {@link #asReadOnly()} 快照（{@link CulinaryView}）。</li>
+ * </ul>
  *
  * @see ServingVessel
  * @see CulinaryState

@@ -8,8 +8,8 @@ import java.util.Locale;
 import java.util.function.Function;
 
 /**
- * 食材分类：主菜 / 配菜 / 调料，各自拥有独立的子分类。
- *
+ * <h1>食材分类</h1>
+ * <p>主菜 / 配菜 / 调料，各自拥有独立的子分类：</p>
  * <ul>
  *     <li>{@link Main}：常规 / 大型主菜；</li>
  *     <li>{@link Side}：中型 / 小型 / 装饰配菜；</li>

@@ -20,11 +20,19 @@ import org.twcore.process.playeraction.impl.AddItemPlayerAction;
 import java.util.List;
 
 /**
- * 摆盘配方：按"容器 + 有序操作序列"产出摆盘加工步骤（{@link PlatingStep}）。
+ * <h1>摆盘配方</h1>
+ * <p>按"容器 + 有序操作序列"产出摆盘加工步骤（{@link PlatingStep}）。</p>
  *
- * <p>配方只负责匹配（{@link #matches} / {@link #matchesPrefix}）与生成步骤
- * （{@link #createStep()}）；菜标识（{@code dish_name}）是纯 {@link Identifier}，
- * 不依赖内容物注册，摆盘完成的菜由此派生显示名与渲染模型。</p>
+ * <h2>职责</h2>
+ * <ul>
+ *     <li><b>匹配</b>：{@link #matches} / {@link #matchesPrefix} 判定给定操作序列
+ *         是否构成（或前缀匹配）本配方；</li>
+ *     <li><b>生成步骤</b>：{@link #createStep()} 用配方数据（菜标识、口数、可食性）
+ *         生成 PlatingStep，供流程组合菜肴。</li>
+ * </ul>
+ *
+ * <p>菜标识（{@code dish_name}）是纯 {@link Identifier}，不依赖内容物注册，
+ * 摆盘完成的菜由此派生显示名与渲染模型。</p>
  */
 public class PlatingRecipe implements Recipe<PlatingRecipe.PlatingInventory> {
     /** 配方ID，用于唯一标识此配方 */

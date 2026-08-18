@@ -6,11 +6,17 @@ import org.bakingprocess.culinary.carrier.ServingVessel;
 import org.bakingprocess.culinary.step.ProcessingStep;
 
 /**
- * 菜肴操作句柄：由容器（{@link ServingVessel#getCulinaryHandle()}）提供，对容器内部
- * 真实菜肴执行操作的唯一通道，与 {@link ServingVessel#getCulinary()}（只读快照）互补。
+ * <h1>菜肴操作句柄</h1>
+ * <p>由容器（{@link ServingVessel#getCulinaryHandle()}）提供，对容器内部真实菜肴
+ * 执行操作的唯一通道，与 {@link ServingVessel#getCulinary()}（只读快照）互补：
+ * 快照管"读 / 转移 / 展示"，句柄管"推进 / 加工 / 吃"。</p>
  *
- * <p>外部对菜肴的所有操作（加工、吃、状态推进）都必须经此句柄，由容器认可后才生效；
- * 调用方拿不到真实菜肴对象，无法绕过容器。读方法在容器无菜时返回安全默认值。</p>
+ * <h2>容器认可语义</h2>
+ * <ul>
+ *     <li>外部对菜肴的所有操作都必须经此句柄，由容器认可后才生效（例如摆盘流程中拒绝加工）；
+ *         调用方拿不到真实菜肴对象，无法绕过容器；</li>
+ *     <li>读方法在容器无菜时返回安全默认值（口数 0、不可食），调用方无需先判空。</li>
+ * </ul>
  *
  * @see ServingVessel
  * @see Culinary

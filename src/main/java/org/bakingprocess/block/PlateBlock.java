@@ -43,10 +43,9 @@ import org.twcore.api.process.PlayerAction;
 import java.util.List;
 
 /**
- * 盘子方块：摆盘 / 食用 / 盖盖 / 取放交互的入口。
- *
- * <p>菜数据经 {@link ServingVessel#CULINARY_NBT_KEY} 在方块实体与盘子物品间互转
- * （{@link #writeCulinaryToStack} / {@link #readCulinaryFromStack}）。</p>
+ * <h1>盘子方块</h1>
+ * <p>摆盘 / 食用 / 盖盖 / 取放交互的入口；菜数据经 {@link ServingVessel#CULINARY_NBT_KEY}
+ * 在方块实体与盘子物品间互转（{@link #writeCulinaryToStack} / {@link #readCulinaryFromStack}）。</p>
  */
 public class PlateBlock extends Block implements BlockEntityProvider {
     /** 盘子物品上承载菜肴数据的 NBT 键（见 {@link org.bakingprocess.culinary.carrier.ServingVessel#CULINARY_NBT_KEY}）。 */

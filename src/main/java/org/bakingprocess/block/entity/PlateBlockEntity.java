@@ -34,11 +34,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * 盘子方块实体：可摆盘方块的标准实现，同时是菜肴容器（{@link ServingVessel}）。
+ * <h1>盘子方块实体</h1>
+ * <p>可摆盘方块的标准实现，同时是菜肴容器（{@link ServingVessel}）。</p>
  *
- * <p><b>菜与流程的状态关系：</b>摆盘流程活动（未盖盖）时，菜肴按是否完全匹配配方动态推导
- * （{@link #getCulinary()}）；成品态（盖盖）时菜肴固化在字段中（含已吃口数），流程不活动；
- * 揭盖仅当菜肴只含一个摆盘步骤时还原为流程，否则菜保留、露着可继续吃。</p>
+ * <h2>菜与流程的状态关系</h2>
+ * <ul>
+ *     <li><b>摆盘流程活动</b>（未盖盖）：菜肴按是否完全匹配配方动态推导（{@link #getCulinary()}）；</li>
+ *     <li><b>成品态</b>（盖盖）：菜肴固化在字段中（含已吃口数），流程不活动；</li>
+ *     <li><b>揭盖还原</b>：仅当菜肴只含一个摆盘步骤时还原为流程，否则菜保留、露着可继续吃。</li>
+ * </ul>
  */
 public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity {
     private static final String CULINARY_KEY = "culinary";

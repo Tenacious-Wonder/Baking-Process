@@ -6,9 +6,10 @@ import org.bakingprocess.util.SimpleFoodComponent;
 import java.util.List;
 
 /**
- * 菜肴食物属性计算器：饥饿值纯累加，饱和度累加后乘<b>衰减倍率</b>
- * （{@code M = 1 + x/(1+x)}，{@code x} 由食材种类数与调料种类数决定），
- * 保证简单菜式数值克制、豪华菜式有回报但不会无限膨胀。
+ * <h1>菜肴食物属性计算器</h1>
+ * <p>饥饿值纯累加；饱和度累加后乘<b>衰减倍率</b>（{@code M = 1 + x/(1+x)}，
+ * {@code x} 由食材种类数与调料种类数决定），使简单菜式数值克制、
+ * 豪华菜式有回报但不会无限膨胀。</p>
  */
 public final class DishFoodCalculator {
 

@@ -15,17 +15,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 摆盘加工步骤：记录一次摆盘经历，并承载配方给出的菜标识、口数与可食性。
+ * <h1>摆盘加工步骤</h1>
+ * <p>记录一次摆盘经历，承载配方给出的菜标识、口数与可食性；是这道菜的<b>第一步历史</b>，
+ * 无既有历史可消化（{@link #onAdded} 保持默认空实现）。</p>
  *
- * <p>PlatingStep 保存摆盘配方的全部数据（操作序列、目标菜标识、口数、是否摆完即食），
- * 是这道菜的<b>第一步历史</b>，无既有历史可消化（{@link #onAdded} 保持默认空实现）。</p>
- *
- * <p><b>生熟语义：</b></p>
+ * <h2>生熟语义</h2>
  * <ul>
  *     <li>{@code edible=false}（默认）：摆完是<b>生菜</b>，不可食（{@link #isEdible()} 为假、
  *         {@link #getTotalEats()} 为 0），{@code eatCount} 是<b>目标熟菜口数</b>，预留给
  *         后续 {@code BakingStep} 推导；</li>
- *     <li>{@code edible=true}：摆完<b>直接可食</b>，{@code eatCount} 就是真实口数，
+ *     <li>{@code edible=true}：摆完<b>直接可食</b>，{@code eatCount} 是真实口数，
  *         吃的时候用原料的"直接吃"属性（{@code raw}）经 {@link DishFoodCalculator} 计算。</li>
  * </ul>
  */

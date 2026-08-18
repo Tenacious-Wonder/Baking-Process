@@ -6,9 +6,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * 菜肴的只读展示快照：由 {@link Culinary#asReadOnly()} 生成，供 GUI 渲染等展示用途。
+ * <h1>菜肴的只读展示快照</h1>
+ * <p>由 {@link Culinary#asReadOnly()} 生成，供 GUI 渲染等展示用途。</p>
  *
- * <p>快照生成时锁定，不参与加工、转移或存档；之后真实菜肴的变化不会反映到快照上。</p>
+ * <ul>
+ *     <li>快照生成时锁定，不参与加工、转移或存档；</li>
+ *     <li>之后真实菜肴的变化不会反映到快照上。</li>
+ * </ul>
  *
  * @see Culinary
  */

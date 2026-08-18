@@ -17,12 +17,16 @@ import org.twcore.api.content.ContainerUtil;
 import org.twcore.content.Content;
 
 /**
- * 烤炉配方：输入 / 输出可为物品堆栈、内容物或菜标识（culinary）。
+ * <h1>烤炉配方</h1>
+ * <p>输入 / 输出可为物品堆栈、内容物或菜标识（culinary）。</p>
  *
- * <p><b>culinary 适配：</b>输入为菜标识时，槽位堆栈需能转为 {@link ItemStackVessel}
- * 且菜肴身份（{@link Culinary#getIdentifier()}）与标识一致；输出为菜标识时，
- * 烤制完成生成 {@link BakingStep} 应用到容器内菜肴（时长来自配方，名称与口数由
- * {@code BakingStep} 从摆盘步骤推导）。</p>
+ * <h2>culinary 适配</h2>
+ * <ul>
+ *     <li><b>输入</b>为菜标识：槽位堆栈需能转为 {@link ItemStackVessel}，
+ *         且菜肴身份（{@link Culinary#getIdentifier()}）与标识一致；</li>
+ *     <li><b>输出</b>为菜标识：烤制完成生成 {@link BakingStep} 应用到容器内菜肴
+ *         （时长来自配方，名称与口数由 {@code BakingStep} 从摆盘步骤推导）。</li>
+ * </ul>
  */
 public class StoveRecipe implements Recipe<Inventory> {
 

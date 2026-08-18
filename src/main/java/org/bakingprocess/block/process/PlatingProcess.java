@@ -27,13 +27,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 摆盘流程：管理摆盘的多步骤交互。
+ * <h1>摆盘流程</h1>
+ * <p>管理摆盘的多步骤交互。</p>
  *
- * <p><b>职责：</b>按顺序持有玩家已执行的操作（只追加，不允许跳过/回填），
- * 用当前序列做配方前缀匹配收窄候选，序列完整时记录精确匹配配方供完成步骤使用。</p>
+ * <h2>职责</h2>
+ * <ul>
+ *     <li>按顺序持有玩家已执行的操作（只追加，不允许跳过 / 回填）；</li>
+ *     <li>用当前序列做配方前缀匹配收窄候选，序列完整时记录精确匹配配方供完成步骤使用。</li>
+ * </ul>
  *
- * <p><b>状态与恢复：</b>候选配方在首次放入或世界就绪（{@code setWorld}）时建立；
- * 操作序列随 NBT 持久化，重启后自动恢复；移除中间步骤会连锁移除其后所有操作。</p>
+ * <h2>状态与恢复</h2>
+ * <ul>
+ *     <li>候选配方在首次放入或世界就绪（{@code setWorld}）时建立；</li>
+ *     <li>操作序列随 NBT 持久化，重启后自动恢复；</li>
+ *     <li>移除中间步骤会连锁移除其后所有操作。</li>
+ * </ul>
  */
 public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends AbstractProcess<T> {
     /** 执行操作步骤的ID */
