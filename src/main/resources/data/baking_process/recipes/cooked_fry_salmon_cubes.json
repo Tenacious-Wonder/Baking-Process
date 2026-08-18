@@ -1,6 +1,6 @@
 {
   "type": "baking_process:stove",
-  "ingredient": "content|baking_process:fry_salmon_cubes",
-  "result": "content|baking_process:cooked_fry_salmon_cubes",
+  "ingredient": "culinary|baking_process:fry_salmon_cubes",
+  "result": "culinary|baking_process:cooked_fry_salmon_cubes",
   "stoveTime": 12000
 }

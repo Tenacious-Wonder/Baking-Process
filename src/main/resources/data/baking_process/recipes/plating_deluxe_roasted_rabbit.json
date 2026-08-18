@@ -9,5 +9,6 @@
     "add_item|baking_process:carrot_slices",
     "add_item|minecraft:sweet_berries"
   ],
-  "result": "baking_process:deluxe_roasted_rabbit"
+  "dish_name": "baking_process:deluxe_roasted_rabbit",
+  "eat_count": 4
 }

@@ -8,10 +8,12 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.context.LootContextParameterSet;
 import net.minecraft.loot.context.LootContextParameters;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.registry.Registries;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
@@ -30,22 +32,26 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.bakingprocess.block.entity.PlateBlockEntity;
-import org.bakingprocess.content.DishesContent;
-import org.bakingprocess.registry.ModContents;
+import org.bakingprocess.culinary.Culinary;
+import org.bakingprocess.culinary.carrier.ItemStackVessel;
+import org.bakingprocess.culinary.carrier.ServingVessel;
+import org.bakingprocess.culinary.step.ProcessingStep;
 import org.bakingprocess.registry.ModItems;
 import org.jetbrains.annotations.Nullable;
-import org.twcore.api.content.ContainerUtil;
 import org.twcore.api.process.PlayerAction;
-import org.twcore.content.Content;
-import org.twcore.content.ContentCategories;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 表示一个可以摆盘的盘子方块
+ * 盘子方块：摆盘 / 食用 / 盖盖 / 取放交互的入口。
+ *
+ * <p>菜数据经 {@link ServingVessel#CULINARY_NBT_KEY} 在方块实体与盘子物品间互转
+ * （{@link #writeCulinaryToStack} / {@link #readCulinaryFromStack}）。</p>
  */
 public class PlateBlock extends Block implements BlockEntityProvider {
+    /** 盘子物品上承载菜肴数据的 NBT 键（见 {@link org.bakingprocess.culinary.carrier.ServingVessel#CULINARY_NBT_KEY}）。 */
+    public static final String CULINARY_NBT_KEY = ServingVessel.CULINARY_NBT_KEY;
+
     /**
      * 表示当前的方块是否已经被盖子覆盖。
      * <p>请不要直接更改该属性的值。</p>
@@ -71,7 +77,7 @@ public class PlateBlock extends Block implements BlockEntityProvider {
 
         if (entity instanceof PlateBlockEntity plateBlockEntity) {
             // 尝试食用
-            if (plateBlockEntity.getOutcome() != null && !state.get(IS_COVERED) && handStack.isEmpty()) {
+            if (plateBlockEntity.getCulinary() != null && !state.get(IS_COVERED) && handStack.isEmpty()) {
                 return plateBlockEntity.tryEat(player, hand, hit);
             }
 
@@ -80,7 +86,7 @@ public class PlateBlock extends Block implements BlockEntityProvider {
             }
 
             // 尝试盖盖子
-            if (plateBlockEntity.getOutcome() != null && !state.get(IS_COVERED) && handStack.isOf(ModItems.PLATE_LID)) {
+            if (plateBlockEntity.getCulinary() != null && !state.get(IS_COVERED) && handStack.isOf(ModItems.PLATE_LID)) {
                 plateBlockEntity.coverWithLid();
                 if (!player.isCreative()) {
                     handStack.decrement(1);
@@ -96,15 +102,13 @@ public class PlateBlock extends Block implements BlockEntityProvider {
             }
 
             // 直接取下整个盘子
-            if (state.get(IS_COVERED) && plateBlockEntity.getOutcome() != null && !player.isSneaking() && handStack.isEmpty()) {
+            if (state.get(IS_COVERED) && plateBlockEntity.getCulinary() != null && !player.isSneaking() && handStack.isEmpty()) {
                 // 构建带有菜肴数据的盘子物品
                 ItemStack plateStack = new ItemStack(this.asItem());
-                DishesContent outcome = plateBlockEntity.getOutcome();
+                writeCulinaryToStack(plateStack, plateBlockEntity.getCulinary());
 
                 // 给予玩家物品
-                player.giveItemStack(ContainerUtil.analyze(plateStack)
-                        .map(containerStack -> containerStack.replaceContent(outcome))
-                        .orElse(plateStack));
+                player.giveItemStack(plateStack);
 
                 // 移除方块
                 world.removeBlock(pos, false);
@@ -124,12 +128,15 @@ public class PlateBlock extends Block implements BlockEntityProvider {
 
         if (state.get(IS_COVERED) && entity instanceof PlateBlockEntity plateBlockEntity) {
             List<ItemStack> droppedStacks = super.getDroppedStacks(state, builder);
-            List<ItemStack> newList = new ArrayList<>();
-            droppedStacks.forEach(stack -> ContainerUtil.analyze(stack)
-                    .map(containerStack -> newList.add(containerStack.replaceContent(plateBlockEntity.getOutcome())))
-                    .orElseGet(() -> newList.add(stack)));
-
-            return newList;
+            Culinary dish = plateBlockEntity.getCulinary();
+            if (dish != null) {
+                for (ItemStack stack : droppedStacks) {
+                    if (stack.isOf(state.getBlock().asItem())) {
+                        writeCulinaryToStack(stack, dish);
+                    }
+                }
+            }
+            return droppedStacks;
         }
 
         return super.getDroppedStacks(state, builder);
@@ -137,12 +144,14 @@ public class PlateBlock extends Block implements BlockEntityProvider {
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-        Content content = ContainerUtil.extractContent(itemStack);
         BlockEntity entity = world.getBlockEntity(pos);
 
-        if (content instanceof DishesContent dishes && entity instanceof PlateBlockEntity plateBlockEntity) {
-            plateBlockEntity.setOutcome(dishes);
-            plateBlockEntity.coverWithLid();
+        if (entity instanceof PlateBlockEntity plateBlockEntity) {
+            Culinary dish = readCulinaryFromStack(itemStack);
+            if (dish != null) {
+                plateBlockEntity.tryAddCulinary(dish);
+                plateBlockEntity.coverWithLid();
+            }
         }
     }
 
@@ -151,15 +160,17 @@ public class PlateBlock extends Block implements BlockEntityProvider {
         if (!state.isOf(newState.getBlock())) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof PlateBlockEntity plateBlockEntity) {
-                // 未完成的摆盘食材由流程管理的操作序列负责掉落
-                DefaultedList<ItemStack> stacks = DefaultedList.of();
-                for (PlayerAction action : plateBlockEntity.getPlatingProcess().getPerformedActions()) {
-                    ItemStack stack = action.toItemStack();
-                    if (!stack.isEmpty()) {
-                        stacks.add(stack);
+                // 仅进行中的摆盘由流程管理的操作序列负责掉落原料；成品态（已固化菜肴）不掉
+                if (plateBlockEntity.getPlatingProcess().isActive()) {
+                    DefaultedList<ItemStack> stacks = DefaultedList.of();
+                    for (PlayerAction action : plateBlockEntity.getPlatingProcess().getPerformedActions()) {
+                        ItemStack stack = action.toItemStack();
+                        if (!stack.isEmpty()) {
+                            stacks.add(stack);
+                        }
                     }
+                    ItemScatterer.spawn(world, pos, stacks);
                 }
-                ItemScatterer.spawn(world, pos, stacks);
                 world.updateComparators(pos, this);
             }
             super.onStateReplaced(state, world, pos, newState, moved);
@@ -168,14 +179,17 @@ public class PlateBlock extends Block implements BlockEntityProvider {
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
-        Content content = ContainerUtil.extractContent(stack);
+        Culinary dish = readCulinaryFromStack(stack);
 
-        if (content != null) {
-            Text text = content.getDisplayName();
-            if (text instanceof MutableText mutableText) {
-                mutableText.formatted(Formatting.ITALIC, Formatting.DARK_GRAY);
+        if (dish != null) {
+            ProcessingStep latest = dish.getLatestStep();
+            if (latest != null) {
+                Text text = latest.getDisplayName();
+                if (text instanceof MutableText mutableText) {
+                    mutableText.formatted(Formatting.ITALIC, Formatting.DARK_GRAY);
+                }
+                tooltip.add(text);
             }
-            tooltip.add(text);
         }
     }
 
@@ -188,16 +202,34 @@ public class PlateBlock extends Block implements BlockEntityProvider {
         return BASE_SHAPE;
     }
 
-    public static DefaultedList<ItemStack> getAll(Item item) {
-        DefaultedList<ItemStack> result = DefaultedList.of();
+    // ==================== 菜肴数据与盘子物品的互转 ====================
 
-        for (Content content : ContentCategories.getByCategory(ModContents.DISHES)) {
-            ItemStack stack = new ItemStack(item);
-            ItemStack stack1 = ContainerUtil.analyze(stack).orElseThrow().replaceContent(content);
-            result.add(stack1);
+    /**
+     * 把菜肴数据写入盘子物品的 NBT（菜数据键 {@link #CULINARY_NBT_KEY}，
+     * 容器身份复合对象 {@link ItemStackVessel#VESSEL_NBT_KEY} 供物品堆栈容器识别）。
+     */
+    public static void writeCulinaryToStack(ItemStack stack, Culinary dish) {
+        NbtCompound root = stack.getOrCreateNbt();
+
+        // 容器身份复合对象：name = 容器物品标识
+        NbtCompound vessel = new NbtCompound();
+        vessel.putString(ItemStackVessel.VESSEL_NAME_KEY, Registries.ITEM.getId(stack.getItem()).toString());
+        root.put(ItemStackVessel.VESSEL_NBT_KEY, vessel);
+
+        // 菜数据
+        NbtCompound culinaryNbt = new NbtCompound();
+        dish.writeNbt(culinaryNbt);
+        root.put(CULINARY_NBT_KEY, culinaryNbt);
+    }
+
+    /** 从盘子物品的 NBT 读取菜肴数据；无菜时返回 {@code null}。 */
+    @Nullable
+    public static Culinary readCulinaryFromStack(ItemStack stack) {
+        NbtCompound root = stack.getNbt();
+        if (root == null || !root.contains(CULINARY_NBT_KEY, NbtElement.COMPOUND_TYPE)) {
+            return null;
         }
-
-        return result;
+        return Culinary.create().readNbt(root.getCompound(CULINARY_NBT_KEY));
     }
 
     @Override

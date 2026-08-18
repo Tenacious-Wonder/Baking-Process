@@ -12,5 +12,6 @@
     "add_item|baking_process:salt_flour",
     "add_item|minecraft:sweet_berries"
   ],
-  "result": "baking_process:honey_made_rabbit_leg"
+  "dish_name": "baking_process:honey_made_rabbit_leg",
+  "eat_count": 5
 }

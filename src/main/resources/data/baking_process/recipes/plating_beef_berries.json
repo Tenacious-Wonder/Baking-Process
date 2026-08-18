@@ -5,5 +5,6 @@
     "add_item|minecraft:beef",
     "add_item|minecraft:sweet_berries"
   ],
-  "result": "baking_process:beef_berries"
+  "dish_name": "baking_process:beef_berries",
+  "eat_count": 2
 }

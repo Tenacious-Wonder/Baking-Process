@@ -2,7 +2,6 @@ package org.bakingprocess.recipe;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.*;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -11,73 +10,55 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 import org.bakingprocess.block.entity.PlatableBlockEntity;
 import org.bakingprocess.block.process.PlatingProcess;
-import org.bakingprocess.content.DishesContent;
+import org.bakingprocess.culinary.step.PlatingStep;
 import org.bakingprocess.registry.ModRecipeSerializers;
 import org.bakingprocess.registry.ModRecipeTypes;
 import org.jetbrains.annotations.Nullable;
 import org.twcore.api.process.PlayerAction;
-import org.twcore.content.Content;
 import org.twcore.process.playeraction.impl.AddItemPlayerAction;
 
 import java.util.List;
 
 /**
- * 摆盘配方类，表示一个完整的摆盘配方。
+ * 摆盘配方：按"容器 + 有序操作序列"产出摆盘加工步骤（{@link PlatingStep}）。
  *
- * <p>摆盘配方由以下部分组成：</p>
- * <ul>
- *   <li><strong>容器</strong>：配方的承载容器（如铁盘、木盘）</li>
- *   <li><strong>操作序列</strong>：按顺序执行的操作列表</li>
- *   <li><strong>输出</strong>：完成摆盘后得到的最终物品</li>
- * </ul>
- *
- * <p><strong>配方匹配规则：</strong></p>
- * <ol>
- *   <li>必须使用正确的容器类型</li>
- *   <li>必须按照操作序列的顺序执行操作</li>
- *   <li>不允许跳过任何操作</li>
- *   <li>当所有操作完成后，使用特定的完成物品触发输出</li>
- * </ol>
- *
- * <p><strong>配方查找：</strong>需要按容器与菜肴反查配方时，
- * 通过 {@link #findRecipe} 从世界配方管理器实时读取。</p>
+ * <p>配方只负责匹配（{@link #matches} / {@link #matchesPrefix}）与生成步骤
+ * （{@link #createStep()}）；菜标识（{@code dish_name}）是纯 {@link Identifier}，
+ * 不依赖内容物注册，摆盘完成的菜由此派生显示名与渲染模型。</p>
  */
 public class PlatingRecipe implements Recipe<PlatingRecipe.PlatingInventory> {
     /** 配方ID，用于唯一标识此配方 */
     private final Identifier id;
 
-    /** 容器物品类型，表示此配方所需的容器（如铁盘） */
-    private final Item container;
+    /** 容器标识，表示此配方所需的容器（如 {@code baking_process:iron_plate}） */
+    private final Identifier containerId;
 
     /** 操作序列，按顺序执行的操作列表 */
     private final List<PlayerAction> actions;
 
-    /** 配方输出菜肴，完成所有操作后获得 */
-    private final DishesContent output;
+    /** 目标菜标识（显示名与渲染模型派生的依据） */
+    private final Identifier dishName;
 
-    /**
-     * 创建摆盘配方。
-     *
-     * @param id 配方ID，用于唯一标识此配方
-     * @param container 容器物品类型
-     * @param actions 操作列表，列表顺序即为执行顺序
-     * @param output 配方输出物品
-     */
-    public PlatingRecipe(Identifier id, Item container, List<PlayerAction> actions, Content output) {
-        if (output instanceof DishesContent dishes) {
-            this.id = id;
-            this.container = container;
-            this.actions = List.copyOf(actions);
-            this.output = dishes;
-        } else {
-            throw new IllegalArgumentException("The product of the recipe for the dish must be dishes");
-        }
+    /** 目标菜口数（edible=false 时为熟菜口数，edible=true 时为真实口数） */
+    private final int eatCount;
+
+    /** 摆完是否直接可食 */
+    private final boolean edible;
+
+    public PlatingRecipe(Identifier id, Identifier containerId, List<PlayerAction> actions,
+                         Identifier dishName, int eatCount, boolean edible) {
+        this.id = id;
+        this.containerId = containerId;
+        this.actions = List.copyOf(actions);
+        this.dishName = dishName;
+        this.eatCount = eatCount;
+        this.edible = edible;
     }
 
     @Override
     public boolean matches(PlatingInventory inventory, World world) {
-        // 首先检查容器类型是否匹配
-        if (inventory.getContainerType() != this.container) {
+        // 首先检查容器标识是否匹配
+        if (!inventory.getContainerId().equals(this.containerId)) {
             return false;
         }
 
@@ -131,10 +112,17 @@ public class PlatingRecipe implements Recipe<PlatingRecipe.PlatingInventory> {
     }
 
     /**
-     * 获取配方所需的容器物品类型。
+     * 生成摆盘加工步骤：菜标识、口数与可食性均来自配方。
      */
-    public Item getContainer() {
-        return container;
+    public PlatingStep createStep() {
+        return new PlatingStep(actions, dishName, eatCount, edible);
+    }
+
+    /**
+     * 获取配方所需的容器标识。
+     */
+    public Identifier getContainerId() {
+        return containerId;
     }
 
     /**
@@ -156,7 +144,7 @@ public class PlatingRecipe implements Recipe<PlatingRecipe.PlatingInventory> {
     /**
      * 获取指定索引的操作。
      *
-     * @param index 操作索引（从0开始）
+     * @param index 索引（从0开始）
      * @return 该步骤所需的操作
      * @throws IndexOutOfBoundsException 如果索引超出范围
      */
@@ -165,11 +153,24 @@ public class PlatingRecipe implements Recipe<PlatingRecipe.PlatingInventory> {
     }
 
     /**
-     * 获取配方的成品
-     * @return 制作出的菜肴
+     * 获取目标菜标识。
      */
-    public DishesContent getDishes() {
-        return this.output;
+    public Identifier getDishName() {
+        return dishName;
+    }
+
+    /**
+     * 获取目标菜口数。
+     */
+    public int getEatCount() {
+        return eatCount;
+    }
+
+    /**
+     * 摆完是否直接可食。
+     */
+    public boolean isEdible() {
+        return edible;
     }
 
     // ==================== 配方匹配辅助方法 ====================
@@ -232,32 +233,6 @@ public class PlatingRecipe implements Recipe<PlatingRecipe.PlatingInventory> {
         return ingredients;
     }
 
-    // ==================== 静态方法 ====================
-
-    /**
-     * 通过世界配方管理器查找指定容器与菜肴对应的配方。
-     *
-     * <p>配方只从 {@code RecipeManager} 实时读取，不存储任何配方实例，
-     * 避免数据包重载后引用失效。运行时由调用方保证世界非空。</p>
-     *
-     * @param world 世界实例
-     * @param container 容器物品类型
-     * @param dishes 成品菜肴
-     * @return 匹配的配方，未找到返回 {@code null}
-     */
-    @Nullable
-    public static PlatingRecipe findRecipe(World world, Item container, DishesContent dishes) {
-        if (world == null || container == null || dishes == null) {
-            return null;
-        }
-
-        return world.getRecipeManager().listAllOfType(ModRecipeTypes.PLATING).stream()
-                .filter(recipe -> recipe.getContainer() == container)
-                .filter(recipe -> recipe.getDishes() == dishes)
-                .findFirst()
-                .orElse(null);
-    }
-
     /**
      * 获取下一个操作（如果有）。
      */
@@ -271,8 +246,8 @@ public class PlatingRecipe implements Recipe<PlatingRecipe.PlatingInventory> {
 
     @Override
     public String toString() {
-        return String.format("PlatingRecipe{id=%s, container=%s, actions=%d, output=%s}",
-                id, container, actions.size(), output);
+        return String.format("PlatingRecipe{id=%s, container=%s, actions=%d, dish=%s}",
+                id, containerId, actions.size(), dishName);
     }
 
     // ==================== 配方匹配适配器 ====================
@@ -287,10 +262,6 @@ public class PlatingRecipe implements Recipe<PlatingRecipe.PlatingInventory> {
      * <p>适配器的核心方法仅供 {@link PlatingRecipe#matches} 使用；通过
      * {@link Inventory} 接口暴露的写入方法只是对流程操作序列的委托，
      * 便于外部系统（如原版物品栏交互）复用。</p>
-     *
-     * <p>注意：该适配器刻意保持轻薄（核心是 {@link #getStack} 与 {@link #isEmpty}），
-     * 方便未来原版把配方接口从 {@code Recipe<C extends Inventory>} 迁移为
-     * 仅需物品堆栈访问与空判断的新接口时，改动只集中在本类。</p>
      */
     public static final class PlatingInventory implements Inventory {
         /** 持有操作序列的摆盘流程 */
@@ -304,10 +275,10 @@ public class PlatingRecipe implements Recipe<PlatingRecipe.PlatingInventory> {
         }
 
         /**
-         * 获取配方的容器类型。
+         * 获取配方的容器标识。
          */
-        public Item getContainerType() {
-            return plate.getContainerType();
+        public Identifier getContainerId() {
+            return plate.getContainerId();
         }
 
         /**

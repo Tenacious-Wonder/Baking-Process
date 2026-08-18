@@ -1,6 +1,6 @@
 {
   "type": "baking_process:stove",
-  "ingredient": "content|baking_process:beef_berries",
-  "result": "content|baking_process:cooked_beef_berries",
+  "ingredient": "culinary|baking_process:beef_berries",
+  "result": "culinary|baking_process:cooked_beef_berries",
   "stoveTime": 12000
 }

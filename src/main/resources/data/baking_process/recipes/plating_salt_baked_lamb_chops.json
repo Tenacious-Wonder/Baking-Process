@@ -12,5 +12,6 @@
     "add_item|baking_process:salt_cubes",
     "add_item|baking_process:carrot_head"
   ],
-  "result": "baking_process:salt_baked_lamb_chops"
+  "dish_name": "baking_process:salt_baked_lamb_chops",
+  "eat_count": 5
 }

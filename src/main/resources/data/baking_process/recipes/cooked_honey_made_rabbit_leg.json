@@ -1,6 +1,6 @@
 {
   "type": "baking_process:stove",
-  "ingredient": "content|baking_process:honey_made_rabbit_leg",
-  "result": "content|baking_process:cooked_honey_made_rabbit_leg",
+  "ingredient": "culinary|baking_process:honey_made_rabbit_leg",
+  "result": "culinary|baking_process:cooked_honey_made_rabbit_leg",
   "stoveTime": 18000
 }

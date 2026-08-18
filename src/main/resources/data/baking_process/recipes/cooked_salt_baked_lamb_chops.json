@@ -1,6 +1,6 @@
 {
   "type": "baking_process:stove",
-  "ingredient": "content|baking_process:salt_baked_lamb_chops",
-  "result": "content|baking_process:cooked_salt_baked_lamb_chops",
+  "ingredient": "culinary|baking_process:salt_baked_lamb_chops",
+  "result": "culinary|baking_process:cooked_salt_baked_lamb_chops",
   "stoveTime": 18000
 }

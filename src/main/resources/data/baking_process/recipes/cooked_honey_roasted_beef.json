@@ -1,6 +1,6 @@
 {
   "type": "baking_process:stove",
-  "ingredient": "content|baking_process:honey_roasted_beef",
-  "result": "content|baking_process:cooked_honey_roasted_beef",
+  "ingredient": "culinary|baking_process:honey_roasted_beef",
+  "result": "culinary|baking_process:cooked_honey_roasted_beef",
   "stoveTime": 12000
 }

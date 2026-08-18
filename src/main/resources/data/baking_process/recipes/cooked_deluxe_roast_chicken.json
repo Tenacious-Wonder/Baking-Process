@@ -1,6 +1,6 @@
 {
   "type": "baking_process:stove",
-  "ingredient": "content|baking_process:deluxe_roast_chicken",
-  "result": "content|baking_process:cooked_deluxe_roast_chicken",
+  "ingredient": "culinary|baking_process:deluxe_roast_chicken",
+  "result": "culinary|baking_process:cooked_deluxe_roast_chicken",
   "stoveTime": 18000
 }

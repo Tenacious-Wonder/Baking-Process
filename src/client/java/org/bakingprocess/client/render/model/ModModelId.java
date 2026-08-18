@@ -5,9 +5,7 @@ import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.bakingprocess.BakingProcess;
-import org.bakingprocess.content.DishesContent;
 import org.bakingprocess.content.ShapedDoughContent;
-import org.twcore.content.Content;
 import org.twcore.registry.TWRegistries;
 
 import java.util.Objects;
@@ -48,17 +46,15 @@ public final class ModModelId {
     }
 
     /** 菜肴放置模型：{@code baking_process:dishes/{containerPath}_{dishPath}}。 */
-    public static Identifier createDishesModelId(Item baseContainer, Content dishes) {
+    public static Identifier createDishesModelId(Item baseContainer, Identifier dishId) {
         String containerId = Registries.ITEM.getId(baseContainer).getPath();
-        String dishesId = Objects.requireNonNull(TWRegistries.CONTENT.getId(dishes)).getPath();
-        return new Identifier(BakingProcess.MOD_ID, "dishes/" + containerId + "_" + dishesId);
+        return new Identifier(BakingProcess.MOD_ID, "dishes/" + containerId + "_" + dishId.getPath());
     }
 
     /** 食用阶段模型：{@code baking_process:dishes/eat/{containerPath}_{dishPath}_{eatenCount}}。 */
-    public static Identifier createEatStageModelId(Item container, DishesContent dish, int eatenCount) {
+    public static Identifier createEatStageModelId(Item container, Identifier dishId, int eatenCount) {
         String containerPath = Registries.ITEM.getId(container).getPath();
-        String dishPath = Objects.requireNonNull(TWRegistries.CONTENT.getId(dish)).getPath();
-        return new Identifier(BakingProcess.MOD_ID, "dishes/eat/" + containerPath + "_" + dishPath + "_" + eatenCount);
+        return new Identifier(BakingProcess.MOD_ID, "dishes/eat/" + containerPath + "_" + dishId.getPath() + "_" + eatenCount);
     }
 
     /** 定型面团模型：{@code {namespace}:block/{path}}。 */

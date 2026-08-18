@@ -8,7 +8,6 @@ import net.minecraft.util.Identifier;
 import org.bakingprocess.BakingProcess;
 import org.jetbrains.annotations.Nullable;
 import org.twcore.api.process.PlayerAction;
-import org.twcore.content.Content;
 
 import java.util.*;
 
@@ -127,15 +126,15 @@ public class PlatingModelManager {
      *
      * @param container 容器物品类型
      * @param recipeActions 配方的完整操作序列
-     * @param dish 配方对应的菜肴内容
+     * @param dishId 配方对应的菜标识
      */
-    public void registerRecipeModel(Item container, List<PlayerAction> recipeActions, Content dish) {
+    public void registerRecipeModel(Item container, List<PlayerAction> recipeActions, Identifier dishId) {
         // 生成配方操作的编码序列哈希（作为唯一标识）
         String recipeHash = generateRecipeHash(recipeActions);
-        Identifier dishId = ModModelId.createDishesModelId(container, dish);
+        Identifier dishModelId = ModModelId.createDishesModelId(container, dishId);
 
         // 注册到配方模型缓存
-        recipeModelCache.put(container, recipeHash, dishId);
+        recipeModelCache.put(container, recipeHash, dishModelId);
     }
 
     /**

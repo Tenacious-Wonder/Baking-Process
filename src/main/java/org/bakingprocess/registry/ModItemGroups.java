@@ -7,7 +7,6 @@ import net.minecraft.registry.Registry;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.bakingprocess.BakingProcess;
-import org.bakingprocess.block.PlateBlock;
 import org.bakingprocess.item.BreadBoatItem;
 import org.twcore.api.TwModManager;
 
@@ -100,16 +99,6 @@ public class ModItemGroups {
                                 entries.add(ModItems.CLAY_POTS);
                             }
                         }))
-                        .build()
-        );
-        Registry.register(
-                Registries.ITEM_GROUP,
-                new Identifier(BakingProcess.MOD_ID, "all_dish"),
-                ItemGroup.create(ItemGroup.Row.TOP, -1)
-                        .displayName(Text.translatable("itemgroup.baking_process.plating"))
-                        .icon(() -> new ItemStack(ModItems.IRON_PLATE))
-                        .entries(((displayContext, entries) ->
-                                entries.addAll(PlateBlock.getAll(ModItems.IRON_PLATE))))
                         .build()
         );
     }

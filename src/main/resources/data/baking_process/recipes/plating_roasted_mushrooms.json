@@ -8,5 +8,6 @@
     "add_item|minecraft:brown_mushroom",
     "add_item|baking_process:salt_flour"
   ],
-  "result": "baking_process:roasted_mushrooms"
+  "dish_name": "baking_process:roasted_mushrooms",
+  "eat_count": 4
 }

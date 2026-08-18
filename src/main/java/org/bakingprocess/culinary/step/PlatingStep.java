@@ -3,7 +3,6 @@ package org.bakingprocess.culinary.step;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.bakingprocess.config.IngredientTableData;
@@ -45,7 +44,7 @@ public class PlatingStep extends ProcessingStep {
 
     /** 摆盘操作序列（放入了什么原料、按什么顺序）。 */
     private final List<PlayerAction> actions;
-    /** 目标菜标识：显示名本地化派生与渲染模型分派。 */
+    /** 目标菜标识（显示名本地化派生与渲染模型分派）。 */
     private final Identifier identifier;
     /** 目标菜口数（edible=false 时为预留，edible=true 时为真实口数）。 */
     private final int eatCount;
@@ -68,13 +67,13 @@ public class PlatingStep extends ProcessingStep {
     // ==================== ProcessingStep 实现 ====================
 
     @Override
-    public boolean isEdible() {
-        return edible;
+    public Identifier getIdentifier() {
+        return identifier;
     }
 
     @Override
-    public Text getDisplayName() {
-        return Text.translatable(identifier.toTranslationKey());
+    public boolean isEdible() {
+        return edible;
     }
 
     @Override
@@ -103,11 +102,6 @@ public class PlatingStep extends ProcessingStep {
     /** 摆盘操作序列（不可修改）。 */
     public List<PlayerAction> getActions() {
         return actions;
-    }
-
-    /** 目标菜标识。 */
-    public Identifier getIdentifier() {
-        return identifier;
     }
 
     /** 目标菜口数。 */

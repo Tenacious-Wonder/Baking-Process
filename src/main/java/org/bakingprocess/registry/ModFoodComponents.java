@@ -57,25 +57,4 @@ public class ModFoodComponents {
     public static final FoodComponent SUGAR_FLOUR = new FoodComponent.Builder()
             .hunger(0).saturationModifier(0.05f).meat()
             .build();
-
-    // 菜肴
-    public static final FoodComponent COOKED_BEEF_BERRIES = new FoodComponent.Builder()
-            .hunger(10).saturationModifier(1.05f).build();
-    public static final FoodComponent COOKED_ROASTED_MUSHROOMS = new FoodComponent.Builder()
-            .hunger(6).saturationModifier(0.74f).build();
-    public static final FoodComponent COOKED_HONEY_ROASTED_BEEF = new FoodComponent.Builder()
-            .hunger(18).saturationModifier(2.15f).build();
-    public static final FoodComponent COOKED_FRY_SALMON_CUBES = new FoodComponent.Builder()
-            .hunger(12).saturationModifier(1.50f).build();
-    public static final FoodComponent COOKED_GRILLED_FISH_POTATOES = new FoodComponent.Builder()
-            .hunger(15).saturationModifier(2.10f).build();
-    public static final FoodComponent COOKED_DELUXE_ROASTED_RABBIT = new FoodComponent.Builder().hunger(17).saturationModifier(2.12f).build();
-    public static final FoodComponent COOKED_HONEY_ROASTED_MUTTON = new FoodComponent.Builder()
-            .hunger(18).saturationModifier(2.51f).build();
-    public static final FoodComponent COOKED_DELUXE_ROAST_CHICKEN = new FoodComponent.Builder()
-            .hunger(20).saturationModifier(2.47f).build();
-    public static final FoodComponent COOKED_SALT_BAKED_LAMB_CHOPS = new FoodComponent.Builder()
-            .hunger(20).saturationModifier(2.47f).build();
-    public static final FoodComponent COOKED_HONEY_MADE_RABBIT_LEG = new FoodComponent.Builder()
-            .hunger(20).saturationModifier(2.47f).build();
 }

@@ -2,6 +2,7 @@ package org.bakingprocess.culinary.step;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.bakingprocess.culinary.CulinaryView;
 
@@ -12,18 +13,28 @@ import org.bakingprocess.culinary.CulinaryView;
  * 具体步骤类型继承本类，定义各自特有的属性字段，并通过 {@link #getType()} 声明
  * 自己属于哪种 {@link ProcessingType}，由该类型提供步骤的序列化 Codec。</p>
  *
- * <p>一道菜的<b>当前表现</b>（显示名、可食性、总口数、吃的行为）由最新一步决定，
+ * <p>一道菜的<b>当前表现</b>（身份标识、显示名、可食性、总口数、吃的行为）由最新一步决定，
  * 因此这些查询与行为方法都在本基类声明，由具体步骤实现。</p>
  *
  * @see ProcessingType
  */
 public abstract class ProcessingStep {
 
+    /** 经历这一步加工后，这道菜的标识（身份）；每个步骤声明自己的结果身份。 */
+    public abstract Identifier getIdentifier();
+
     /** 经历这一步加工后，这道菜是否已经可以食用。 */
     public abstract boolean isEdible();
 
-    /** 这一步加工在 GUI / 提示中的显示名称。 */
-    public abstract Text getDisplayName();
+    /**
+     * 这一步加工在 GUI / 提示中的显示名称。
+     *
+     * <p>默认按结果标识翻译（{@code content.<标识>}，标识用 {@link Identifier#toTranslationKey()} 的点号形式），
+     * 需要特殊显示名的步骤可覆写。</p>
+     */
+    public Text getDisplayName() {
+        return Text.translatable("content." + getIdentifier().toTranslationKey());
+    }
 
     /** 本步骤所属的加工类型，用于序列化调度与类型识别。 */
     public abstract ProcessingType<?> getType();

@@ -6,5 +6,6 @@
     "add_item|baking_process:potato_cubes",
     "add_item|minecraft:cod"
   ],
-  "result": "baking_process:grilled_fish_potatoes"
+  "dish_name": "baking_process:grilled_fish_potatoes",
+  "eat_count": 4
 }

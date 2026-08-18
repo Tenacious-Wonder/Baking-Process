@@ -8,5 +8,6 @@
     "add_item|baking_process:carrot_slices",
     "add_item|baking_process:carrot_slices"
   ],
-  "result": "baking_process:honey_roasted_beef"
+  "dish_name": "baking_process:honey_roasted_beef",
+  "eat_count": 3
 }

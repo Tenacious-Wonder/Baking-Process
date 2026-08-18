@@ -1,7 +1,6 @@
 package org.bakingprocess.recipe.serializer;
 
 import com.google.gson.JsonObject;
-import com.mojang.datafixers.util.Either;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
@@ -19,15 +18,13 @@ public class StoveRecipeSerializer implements RecipeSerializer<StoveRecipe> {
 
     @Override
     public StoveRecipe read(Identifier id, JsonObject json) {
-        // 读取输入物品（可以是普通物品或内容物）
-        String inputString = JsonHelper.getString(json, "ingredient");
-        Either<ItemStack, Content> input = readStackFromString(inputString);
+        // 读取输入组件（物品 / 内容物 / 菜标识）
+        StoveRecipe.Component input = readComponentFromString(JsonHelper.getString(json, "ingredient"));
 
-        // 读取结果物品（可以是普通物品或内容物）
-        String resultString = JsonHelper.getString(json, "result");
-        Either<ItemStack, Content> result = readStackFromString(resultString);
+        // 读取输出组件
+        StoveRecipe.Component result = readComponentFromString(JsonHelper.getString(json, "result"));
 
-        // 读取烘烤时间、最大输入数量和模具信息
+        // 读取烘烤时间、最大输入数量
         int inputCount = JsonHelper.getInt(json, "MaxInputCount", 1);
         int stoveTime = JsonHelper.getInt(json, "stoveTime", 200);
 
@@ -36,15 +33,9 @@ public class StoveRecipeSerializer implements RecipeSerializer<StoveRecipe> {
 
     @Override
     public StoveRecipe read(Identifier id, PacketByteBuf buf) {
-        // 读取输入物品
-        String inputString = buf.readString();
-        Either<ItemStack, Content> input = readStackFromString(inputString);
+        StoveRecipe.Component input = readComponentFromString(buf.readString());
+        StoveRecipe.Component result = readComponentFromString(buf.readString());
 
-        // 读取结果物品
-        String resultString = buf.readString();
-        Either<ItemStack, Content> result = readStackFromString(resultString);
-
-        // 读取额外数据
         int inputCount = buf.readInt();
         int stoveTime = buf.readVarInt();
 
@@ -53,7 +44,6 @@ public class StoveRecipeSerializer implements RecipeSerializer<StoveRecipe> {
 
     @Override
     public void write(PacketByteBuf buf, StoveRecipe recipe) {
-        // 将组件转换为 "type|value" 字符串后直接写入
         buf.writeString(componentToString(recipe.getInput()));
         buf.writeString(componentToString(recipe.getOutput()));
 
@@ -62,13 +52,19 @@ public class StoveRecipeSerializer implements RecipeSerializer<StoveRecipe> {
     }
 
     /**
-     * 将 Either<ItemStack, Content> 转换为与配方 JSON 格式一致的字符串。
+     * 将组件转换为与配方 JSON 格式一致的字符串：{@code item|id} / {@code content|id} / {@code culinary|id}。
      */
-    private static String componentToString(Either<ItemStack, Content> component) {
-        return component.map(
-                stack -> "item|" + Registries.ITEM.getId(stack.getItem()),
-                content -> "content|" + TWRegistries.CONTENT.getId(content)
-        );
+    private static String componentToString(StoveRecipe.Component component) {
+        if (component instanceof StoveRecipe.Component.ItemComp comp) {
+            return "item|" + Registries.ITEM.getId(comp.stack().getItem());
+        }
+        if (component instanceof StoveRecipe.Component.ContentComp comp) {
+            return "content|" + TWRegistries.CONTENT.getId(comp.content());
+        }
+        if (component instanceof StoveRecipe.Component.CulinaryComp comp) {
+            return "culinary|" + comp.dishId();
+        }
+        throw new IllegalArgumentException("Unknown component: " + component);
     }
 
     /**
@@ -76,16 +72,17 @@ public class StoveRecipeSerializer implements RecipeSerializer<StoveRecipe> {
      * <p>使用'|'分割，格式为"类别|值"：</p>
      * <ul>
      *   <li>类别为"item"时：解析为物品堆栈</li>
-     *   <li>类别为"content"时：解析为内容物</li>
+     *   <li>类别为"content"时：解析为内容物（如面团）</li>
+     *   <li>类别为"culinary"时：解析为菜标识（经 ItemStackVessel 与容器内菜肴匹配）</li>
      * </ul>
      * <p>如果字符串中不包含'|'，则默认按普通物品处理。</p>
      *
      * @param idString 要解析的字符串
-     * @return 解析后的物品堆栈
-     * @throws IllegalArgumentException 如果无法解析出有效物品或内容物
+     * @return 解析后的配方组件
+     * @throws IllegalArgumentException 如果无法解析出有效组件
      * @throws NullPointerException 如果输入字符串为null
      */
-    private static Either<ItemStack, Content> readStackFromString(String idString) {
+    private static StoveRecipe.Component readComponentFromString(String idString) {
         Objects.requireNonNull(idString, "Input string cannot be null");
 
         // 去除前后空格
@@ -108,17 +105,15 @@ public class StoveRecipeSerializer implements RecipeSerializer<StoveRecipe> {
         return switch (type) {
             case "item" -> parseItemStack(value);
             case "content" -> parseContentStack(value);
-            default -> throw new IllegalArgumentException("Unknown type: '" + type + "'. Expected 'item' or 'content'");
+            case "culinary" -> parseCulinaryStack(value);
+            default -> throw new IllegalArgumentException("Unknown type: '" + type + "'. Expected 'item', 'content' or 'culinary'");
         };
     }
 
     /**
      * 解析物品堆栈。
-     * @param itemId 物品ID字符串
-     * @return 物品堆栈
-     * @throws IllegalArgumentException 如果物品不存在
      */
-    private static Either<ItemStack, Content> parseItemStack(String itemId) {
+    private static StoveRecipe.Component parseItemStack(String itemId) {
         Identifier identifier = Identifier.tryParse(itemId);
         if (identifier == null) {
             throw new IllegalArgumentException("Invalid item ID format: '" + itemId + "'");
@@ -127,16 +122,13 @@ public class StoveRecipeSerializer implements RecipeSerializer<StoveRecipe> {
         Item item = Registries.ITEM.getOrEmpty(identifier)
                 .orElseThrow(() -> new IllegalArgumentException("Item not found: " + itemId));
 
-        return Either.left(new ItemStack(item));
+        return new StoveRecipe.Component.ItemComp(new ItemStack(item));
     }
 
     /**
      * 解析内容物。
-     * @param contentId 内容物ID字符串
-     * @return 内容物占位堆栈
-     * @throws IllegalArgumentException 如果内容物不存在
      */
-    private static Either<ItemStack, Content> parseContentStack(String contentId) {
+    private static StoveRecipe.Component parseContentStack(String contentId) {
         Identifier identifier = Identifier.tryParse(contentId);
         if (identifier == null) {
             throw new IllegalArgumentException("Invalid content ID format: '" + contentId + "'");
@@ -147,6 +139,18 @@ public class StoveRecipeSerializer implements RecipeSerializer<StoveRecipe> {
             throw new IllegalArgumentException("Content not found: " + contentId);
         }
 
-        return Either.right(content);
+        return new StoveRecipe.Component.ContentComp(content);
+    }
+
+    /**
+     * 解析菜标识（culinary）：纯标识符，不依赖内容物注册。
+     */
+    private static StoveRecipe.Component parseCulinaryStack(String dishId) {
+        Identifier identifier = Identifier.tryParse(dishId);
+        if (identifier == null) {
+            throw new IllegalArgumentException("Invalid culinary dish ID format: '" + dishId + "'");
+        }
+
+        return new StoveRecipe.Component.CulinaryComp(identifier);
     }
 }

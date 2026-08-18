@@ -18,25 +18,22 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 原料来源。
+ * 原料来源：原料可以是物品（{@code add_item}）或 TW Core 内容物（{@code add_content}），
+ * 两个注册表的 id 可能相同，食材表以"来源 + id"联合定位。
  *
- * <p>原料可以是原版/模组物品（{@code add_item} 操作），也可以是 TW Core 内容物
- * （{@code add_content} 操作）。两个注册表中的 id 可能相同，因此食材表以
- * "来源 + id" 联合定位。</p>
- *
- * <p>泛型参数 T 为来源维护的注册表实体类型（{@link Item} / {@link Content}），
+ * <p>泛型参数 T 为来源维护的注册表实体类型（{@link Item} / {@link Content}）；
  * 归属判定（{@link #tryExtract}）与"实体 → id"映射（{@link #getIdOf}）分离，
  * 保证 id 只在自己的注册表上产生。</p>
  *
  * @param <T> 来源维护的注册表实体类型
  */
 public abstract class IngredientSource<T> {
+    private static final Map<String, IngredientSource<?>> REGISTRY = new HashMap<>();
+
     /** 物品。 */
     public static final IngredientSource<Item> ITEM = new ItemSource();
     /** 内容物。 */
     public static final IngredientSource<Content> CONTENT = new ContentSource();
-
-    private static final Map<String, IngredientSource<?>> REGISTRY = new HashMap<>();
 
     private final String id;
 

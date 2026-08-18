@@ -6,11 +6,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * 菜肴的只读展示快照。
+ * 菜肴的只读展示快照：由 {@link Culinary#asReadOnly()} 生成，供 GUI 渲染等展示用途。
  *
- * <p>由 {@link Culinary#asReadOnly()} 生成，仅用于 GUI 渲染、进度展示等非实际用途：
- * 它不代表世界上真实存在的一道菜，不参与加工、转移或存档。快照在生成时拷贝当时的
- * 步骤，本身就是锁定且不可变的，之后真实菜肴的变化不会反映到快照上。</p>
+ * <p>快照生成时锁定，不参与加工、转移或存档；之后真实菜肴的变化不会反映到快照上。</p>
  *
  * @see Culinary
  */

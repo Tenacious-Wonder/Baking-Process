@@ -26,9 +26,9 @@ public class UpPlaceStackRenderers {
         // 铁盘
         UpPlaceStackRenderer.register(ModItems.IRON_PLATE, context -> {
             BlockState state = context.getDefaultBlockState();
-            Content content = ContainerUtil.extractContent(context.stack());
 
-            if (content != null && state.getBlock() instanceof PlateBlock) {
+            // 手持盘子的菜数据在自定义 NBT 中（Culinary），有菜时预览显示带盖
+            if (PlateBlock.readCulinaryFromStack(context.stack()) != null && state.getBlock() instanceof PlateBlock) {
                 state = state.with(PlateBlock.IS_COVERED, true);
             }
 

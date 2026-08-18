@@ -19,7 +19,8 @@ import org.bakingprocess.block.PlateBlock;
 import org.bakingprocess.block.entity.PlateBlockEntity;
 import org.bakingprocess.client.render.model.ModModelId;
 import org.bakingprocess.client.render.model.PlatingModelManager;
-import org.bakingprocess.content.DishesContent;
+import org.bakingprocess.culinary.Culinary;
+import org.bakingprocess.culinary.step.ProcessingStep;
 
 public class PlateBlockEntityRenderer implements BlockEntityRenderer<PlateBlockEntity> {
     private final BakedModelManager modelManager;
@@ -41,17 +42,18 @@ public class PlateBlockEntityRenderer implements BlockEntityRenderer<PlateBlockE
         PlatingModelManager manager = PlatingModelManager.getInstance();
         Identifier renderModelId = manager.getModelForActions(item, entity.getPlatingProcess().getPerformedActions());
 
-        if (entity.getOutcome() != null) {
-            renderModelId = ModModelId.createDishesModelId(item, entity.getOutcome());
-        }
-
-        if (entity.getEatProcess().isActive()) {
-            DishesContent outcome = entity.getOutcome();
-            if (outcome != null) {
-                int eaten = entity.getEatProcess().getEatenCount();
-                int total = entity.getEatProcess().getTotalEats();
-                if (eaten >= 0 && eaten < total) {
-                    renderModelId = ModModelId.createEatStageModelId(item, outcome, eaten);
+        // 有菜时按当前菜标识分派模型；吃过的菜显示对应食用阶段模型
+        Culinary dish = entity.getCulinary();
+        if (dish != null) {
+            ProcessingStep latest = dish.getLatestStep();
+            if (latest != null) {
+                Identifier dishId = latest.getIdentifier();
+                int eaten = dish.getEatenCount();
+                int total = dish.getTotalEats();
+                if (eaten > 0 && eaten < total) {
+                    renderModelId = ModModelId.createEatStageModelId(item, dishId, eaten);
+                } else {
+                    renderModelId = ModModelId.createDishesModelId(item, dishId);
                 }
             }
         }

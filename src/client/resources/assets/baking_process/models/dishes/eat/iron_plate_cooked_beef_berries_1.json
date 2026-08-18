@@ -3,7 +3,7 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [32, 32],
 	"textures": {
-		"beef": "block/beef",
+		"beef": "block/cooked_beef",
 		"plate": "baking_process:block/berries_iron_plate"
 	},
 	"elements": [

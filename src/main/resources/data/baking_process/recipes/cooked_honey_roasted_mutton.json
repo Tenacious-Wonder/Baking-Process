@@ -1,6 +1,6 @@
 {
   "type": "baking_process:stove",
-  "ingredient": "content|baking_process:honey_roasted_mutton",
-  "result": "content|baking_process:cooked_honey_roasted_mutton",
+  "ingredient": "culinary|baking_process:honey_roasted_mutton",
+  "result": "culinary|baking_process:cooked_honey_roasted_mutton",
   "stoveTime": 12000
 }

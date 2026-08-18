@@ -3,7 +3,6 @@ package org.bakingprocess.culinary.step;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.bakingprocess.culinary.CulinaryView;
@@ -29,7 +28,7 @@ public class BakingStep extends ProcessingStep {
     public static final Codec<BakingStep> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("bake_time").forGetter(BakingStep::getBakeTime),
             Codec.INT.fieldOf("eat_count").forGetter(BakingStep::getEatCount),
-            Identifier.CODEC.fieldOf("cooked_id").forGetter(BakingStep::getCookedIdentifier),
+            Identifier.CODEC.fieldOf("cooked_id").forGetter(BakingStep::getIdentifier),
             SimpleFoodComponent.CODEC.fieldOf("food").forGetter(BakingStep::getCookedFood)
     ).apply(instance, BakingStep::fromDerived));
 
@@ -58,13 +57,13 @@ public class BakingStep extends ProcessingStep {
     // ==================== ProcessingStep 实现 ====================
 
     @Override
-    public boolean isEdible() {
-        return true;
+    public Identifier getIdentifier() {
+        return cookedIdentifier;
     }
 
     @Override
-    public Text getDisplayName() {
-        return Text.translatable(cookedIdentifier.toTranslationKey());
+    public boolean isEdible() {
+        return true;
     }
 
     @Override
@@ -118,11 +117,6 @@ public class BakingStep extends ProcessingStep {
     /** 烤熟后的总口数。 */
     public int getEatCount() {
         return eatCount;
-    }
-
-    /** 烤熟后的菜标识。 */
-    public Identifier getCookedIdentifier() {
-        return cookedIdentifier;
     }
 
     /** 烤熟后的食物属性。 */

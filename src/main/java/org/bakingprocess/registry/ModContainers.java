@@ -6,7 +6,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import org.bakingprocess.BakingProcess;
 import org.bakingprocess.container.BreadBoatContainer;
-import org.bakingprocess.container.DishesContainer;
 import org.bakingprocess.container.MoldContainer;
 import org.twcore.container.BowlContainer;
 import org.twcore.container.BucketContainer;
@@ -34,12 +33,7 @@ public class ModContainers {
                     .setBaseCapacity(3)
                     .setUseSound(SoundEvents.ITEM_BUCKET_EMPTY)
     ));
-    //铁盘
-    public static final ContainerType IRON_PLATE = registerContainerType("iron_plate", new DishesContainer(
-            new ContainerType.ContainerSettings(ModItems.IRON_PLATE)
-                    .setUseSound(SoundEvents.ITEM_BUCKET_EMPTY)
-    ));
-    //模具
+    // 模具
     public static final ContainerType TOAST_EMBRYO_MOLD = registerContainerType("toast_embryo_mold", new MoldContainer(
             new ContainerType.ContainerSettings(ModItems.TOAST_EMBRYO_MOLD)
                     .setUseSound(SoundEvents.ENTITY_SLIME_DEATH_SMALL)

@@ -1,11 +1,11 @@
 package org.bakingprocess.block.process;
 
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.RecipeManager;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.bakingprocess.block.entity.PlatableBlockEntity;
 import org.bakingprocess.recipe.PlatingRecipe;
@@ -27,25 +27,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 摆盘流程类，管理摆盘的多步骤交互流程。
+ * 摆盘流程：管理摆盘的多步骤交互。
  *
- * <p><strong>职责：</strong></p>
- * <ul>
- *   <li><strong>操作序列</strong>：按顺序持有玩家已执行的操作（{@link PlayerAction}），
- *       操作只能顺序追加，不允许跳过、回填或覆盖</li>
- *   <li><strong>候选配方</strong>：由当前操作序列按前缀匹配推导，用于校验每一步操作
- *       是否合法，并在操作序列完整时确定匹配的配方</li>
- *   <li><strong>精确匹配</strong>：当已执行操作与某个配方完全一致时记录匹配配方，
- *       供完成步骤输出菜肴</li>
- * </ul>
+ * <p><b>职责：</b>按顺序持有玩家已执行的操作（只追加，不允许跳过/回填），
+ * 用当前序列做配方前缀匹配收窄候选，序列完整时记录精确匹配配方供完成步骤使用。</p>
  *
- * <p><strong>状态与恢复：</strong></p>
- * <ul>
- *   <li>候选配方只在两个时机建立：首次放入物品时按第一步操作筛选初始配方；
- *       世界就绪（{@code setWorld}）后按已持久化的操作序列恢复候选与精确匹配</li>
- *   <li>操作序列随 NBT 持久化，游戏重启后由方块实体的世界设置钩子自动恢复流程状态</li>
- *   <li>支持撤销：移除中间步骤的操作会连锁移除其后的所有操作，保持序列连续</li>
- * </ul>
+ * <p><b>状态与恢复：</b>候选配方在首次放入或世界就绪（{@code setWorld}）时建立；
+ * 操作序列随 NBT 持久化，重启后自动恢复；移除中间步骤会连锁移除其后所有操作。</p>
  */
 public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends AbstractProcess<T> {
     /** 执行操作步骤的ID */
@@ -183,21 +171,21 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
     }
 
     /**
-     * 根据已完成的配方恢复操作序列。
+     * 用给定的完整操作序列恢复摆盘进度。
      *
-     * <p>用于揭开盖子时把成品菜肴还原为进行中的摆盘：以配方的完整操作序列
+     * <p>用于揭开盖子时把成品菜肴还原为进行中的摆盘：以菜肴摆盘步骤携带的操作序列
      * 填充流程，候选配方留待后续（世界可用时）恢复。</p>
      *
-     * @param recipe 要恢复的配方
+     * @param actions 配方的完整操作序列
      * @return 恢复成功返回 {@code true}
      */
-    public boolean restoreFromRecipe(PlatingRecipe recipe) {
-        if (recipe == null) {
+    public boolean restoreActions(List<PlayerAction> actions) {
+        if (actions == null || actions.isEmpty()) {
             return false;
         }
 
         this.performedActions.clear();
-        this.performedActions.addAll(recipe.getActions());
+        this.performedActions.addAll(actions);
 
         resetCandidateState();
         return true;
@@ -226,9 +214,9 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
                 return false;
             }
 
-            Item containerType = plate.getContainerType();
+            Identifier containerId = plate.getContainerId();
             List<PlatingRecipe> candidates = allRecipes.stream()
-                    .filter(recipe -> recipe.getContainer() == containerType)
+                    .filter(recipe -> recipe.getContainerId().equals(containerId))
                     .filter(recipe -> recipe.getActionCount() > 0
                             && recipe.getActionAt(0).matches(firstAction))
                     .toList();
@@ -270,9 +258,9 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
                 return false;
             }
 
-            Item containerType = plate.getContainerType();
+            Identifier containerId = plate.getContainerId();
             List<PlatingRecipe> candidates = allRecipes.stream()
-                    .filter(recipe -> recipe.getContainer() == containerType)
+                    .filter(recipe -> recipe.getContainerId().equals(containerId))
                     .filter(recipe -> recipe.matchesPrefix(performedActions))
                     .toList();
 
@@ -602,7 +590,7 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
         if (matchedRecipe != null) {
             info.append("Matched Recipe: ").append(matchedRecipe.getId().getPath()).append("\n");
             info.append("Recipe Actions: ").append(matchedRecipe.getActionCount()).append("\n");
-            info.append("Output Dish: ").append(matchedRecipe.getDishes()).append("\n");
+            info.append("Output Dish: ").append(matchedRecipe.getDishName()).append("\n");
         } else {
             info.append("Matched Recipe: <none>\n");
         }

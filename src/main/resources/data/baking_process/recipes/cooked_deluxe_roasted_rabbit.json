@@ -1,6 +1,6 @@
 {
   "type": "baking_process:stove",
-  "ingredient": "content|baking_process:deluxe_roasted_rabbit",
-  "result": "content|baking_process:cooked_deluxe_roasted_rabbit",
+  "ingredient": "culinary|baking_process:deluxe_roasted_rabbit",
+  "result": "culinary|baking_process:cooked_deluxe_roasted_rabbit",
   "stoveTime": 18000
 }

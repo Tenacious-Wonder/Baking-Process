@@ -9,13 +9,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * 食材条目：原料的来源、分类与食物属性。
- *
- * <p>由食材表配置（{@code food_ingredients}）承载，同时供食物属性计算（{@link DishFoodCalculator}）、
- * 通用摆盘组合校验与定序摆盘的操作序列映射使用。</p>
+ * 食材条目：原料的来源、分类与食物属性，由食材表配置（{@code food_ingredients}）承载。
  *
  * <p>{@link #cooked()} 为<b>烤熟后</b>属性（加工基准，必填）；{@link #raw()} 为<b>直接吃</b>属性
- * （可选，缺失 = 不可直接吃，{@link #rawOrNone()} 返回零值）。可直接食用的摆盘配方用 {@code raw} 计算。</p>
+ * （可选，缺失 = 不可直接吃）。可直接食用的摆盘配方用 {@code raw} 计算。</p>
  *
  * @param source   原料来源
  * @param id       原料 id（物品或内容物注册表 id）

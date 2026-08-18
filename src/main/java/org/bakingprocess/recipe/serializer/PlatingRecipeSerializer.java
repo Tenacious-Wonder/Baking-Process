@@ -3,16 +3,12 @@ package org.bakingprocess.recipe.serializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import net.minecraft.item.Item;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import org.bakingprocess.recipe.PlatingRecipe;
 import org.twcore.api.process.PlayerAction;
-import org.twcore.content.Content;
-import org.twcore.registry.TWRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +25,9 @@ import java.util.List;
  *     "add_item|minecraft:beef",
  *     "add_item|minecraft:sweet_berries",
  *   ],
- *   "result": "baking_process:beef_berries_soup"
+ *   "dish_name": "baking_process:beef_berries",
+ *   "eat_count": 2,
+ *   "edible": false
  * }
  * }</pre>
  *
@@ -39,7 +37,9 @@ import java.util.List;
  *   <tr><td>type</td><td>string</td><td>是</td><td>配方类型，必须为"baking_process:plating"</td></tr>
  *   <tr><td>container</td><td>string</td><td>是</td><td>容器物品ID</td></tr>
  *   <tr><td>actions</td><td>string[]</td><td>是</td><td>操作序列，每个字符串格式为"操作类型|参数1|参数2..."</td></tr>
- *   <tr><td>result</td><td>string</td><td>是</td><td>输出菜肴的内容ID</td></tr>
+ *   <tr><td>dish_name</td><td>string</td><td>是</td><td>目标菜标识（显示名与模型派生的依据）</td></tr>
+ *   <tr><td>eat_count</td><td>int</td><td>是</td><td>目标菜口数（edible=false 时为熟菜口数）</td></tr>
+ *   <tr><td>edible</td><td>bool</td><td>否</td><td>摆完是否直接可食，默认 false</td></tr>
  * </table>
  *
  * @see PlatingRecipe
@@ -49,10 +49,11 @@ public class PlatingRecipeSerializer implements RecipeSerializer<PlatingRecipe> 
 
     @Override
     public PlatingRecipe read(Identifier id, JsonObject json) {
-        // 1. 读取容器物品
-        String containerId = JsonHelper.getString(json, "container");
-        Item container = Registries.ITEM.getOrEmpty(new Identifier(containerId))
-                .orElseThrow(() -> new JsonParseException("Unknown container item: " + containerId));
+        // 1. 读取容器标识
+        Identifier containerId = Identifier.tryParse(JsonHelper.getString(json, "container"));
+        if (containerId == null) {
+            throw new JsonParseException("Invalid container id in plating recipe: " + id);
+        }
 
         // 2. 读取操作列表
         if (!json.has("actions")) {
@@ -66,28 +67,22 @@ public class PlatingRecipeSerializer implements RecipeSerializer<PlatingRecipe> 
             actions.add(action);
         }
 
-        // 3. 读取输出结果
-        String resultId = JsonHelper.getString(json, "result");
-        Identifier result = Identifier.tryParse(resultId);
-        if (result == null) {
-            throw new JsonParseException("Invalid result ID: " + resultId);
+        // 3. 读取目标菜数据
+        Identifier dishName = Identifier.tryParse(JsonHelper.getString(json, "dish_name"));
+        if (dishName == null) {
+            throw new JsonParseException("Invalid dish name in plating recipe: " + id);
         }
-
-        Content output = TWRegistries.CONTENT.get(result);
-        if (output == null) {
-            throw new JsonParseException("No content found: " + resultId);
-        }
+        int eatCount = JsonHelper.getInt(json, "eat_count");
+        boolean edible = JsonHelper.getBoolean(json, "edible", false);
 
         // 4. 创建并返回配方对象
-        return new PlatingRecipe(id, container, actions, output);
+        return new PlatingRecipe(id, containerId, actions, dishName, eatCount, edible);
     }
 
     @Override
     public PlatingRecipe read(Identifier id, PacketByteBuf buf) {
-        // 1. 读取容器物品
+        // 1. 读取容器标识
         Identifier containerId = buf.readIdentifier();
-        Item container = Registries.ITEM.getOrEmpty(containerId)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown container item: " + containerId));
 
         // 2. 读取操作列表
         int actionCount = buf.readVarInt();
@@ -98,20 +93,19 @@ public class PlatingRecipeSerializer implements RecipeSerializer<PlatingRecipe> 
             actions.add(action);
         }
 
-        // 3. 读取输出结果
-        Content output = TWRegistries.CONTENT.get(buf.readIdentifier());
-        if (output == null) {
-            throw new IllegalArgumentException("No output found");
-        }
+        // 3. 读取目标菜数据
+        Identifier dishName = buf.readIdentifier();
+        int eatCount = buf.readVarInt();
+        boolean edible = buf.readBoolean();
 
         // 4. 创建并返回配方对象
-        return new PlatingRecipe(id, container, actions, output);
+        return new PlatingRecipe(id, containerId, actions, dishName, eatCount, edible);
     }
 
     @Override
     public void write(PacketByteBuf buf, PlatingRecipe recipe) {
-        // 1. 写入容器物品ID
-        buf.writeIdentifier(Registries.ITEM.getId(recipe.getContainer()));
+        // 1. 写入容器标识
+        buf.writeIdentifier(recipe.getContainerId());
 
         // 2. 写入操作列表
         List<PlayerAction> actions = recipe.getActions();
@@ -120,7 +114,9 @@ public class PlatingRecipeSerializer implements RecipeSerializer<PlatingRecipe> 
             buf.writeString(action.toString());
         }
 
-        // 3. 写入输出内容ID
-        buf.writeIdentifier(TWRegistries.CONTENT.getId(recipe.getDishes()));
+        // 3. 写入目标菜数据
+        buf.writeIdentifier(recipe.getDishName());
+        buf.writeVarInt(recipe.getEatCount());
+        buf.writeBoolean(recipe.isEdible());
     }
 }

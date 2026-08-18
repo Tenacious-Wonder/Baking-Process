@@ -1,6 +1,6 @@
 {
   "type": "baking_process:stove",
-  "ingredient": "content|baking_process:roasted_mushrooms",
-  "result": "content|baking_process:cooked_roasted_mushrooms",
+  "ingredient": "culinary|baking_process:roasted_mushrooms",
+  "result": "culinary|baking_process:cooked_roasted_mushrooms",
   "stoveTime": 12000
 }

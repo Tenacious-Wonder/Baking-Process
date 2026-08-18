@@ -1,6 +1,6 @@
 {
   "type": "baking_process:stove",
-  "ingredient": "content|baking_process:grilled_fish_potatoes",
-  "result": "content|baking_process:cooked_grilled_fish_potatoes",
+  "ingredient": "culinary|baking_process:grilled_fish_potatoes",
+  "result": "culinary|baking_process:cooked_grilled_fish_potatoes",
   "stoveTime": 12000
 }

@@ -10,5 +10,6 @@
     "add_item|minecraft:glow_berries",
     "add_item|minecraft:glow_berries"
   ],
-  "result": "baking_process:fry_salmon_cubes"
+  "dish_name": "baking_process:fry_salmon_cubes",
+  "eat_count": 4
 }

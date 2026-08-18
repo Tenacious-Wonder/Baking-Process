@@ -20,55 +20,26 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <h1>一道菜肴（Culinary）的数据对象。</h1>
- * <p>
- * Culinary 承载一道菜从原料到成品的完整加工历史，是加工、转移、展示与存档共用的
- * <b>值对象</b>：它自身没有独立的身份，只是随 {@code ServingVessel} 流转、可被完整拷贝
- * 的数据团。一道菜的<b>权威归属</b>是持有它的容器，而不是某个常驻的 Culinary 实例。
- * </p>
+ * 一道菜肴：从原料到成品的加工历史与动态状态，随容器流转、可被完整拷贝的<b>值对象</b>。
  *
- * <h2>二元数据模型</h2>
+ * <p><b>二元数据模型：</b></p>
  * <ul>
- *     <li><b>步骤链</b>（{@code steps}）：只追加、不可变的加工历史，由最新一步
- *         （{@link #getLatestStep()}）派生这道菜"是什么"——显示名、可食性、总口数、
- *         吃的行为；</li>
- *     <li><b>动态状态</b>（{@link CulinaryState}）：无法由步骤决定、但跟随这道菜的
- *         可读写事实（如已吃口数），决定这道菜"现在吃到哪了"。</li>
+ *     <li><b>步骤链</b>（{@code steps}）：只追加的加工历史，最新一步（{@link #getLatestStep()}）
+ *         派生这道菜"是什么"——显示名、可食性、总口数、吃的行为；</li>
+ *     <li><b>动态状态</b>（{@link CulinaryState}）：跟随这道菜的可读写事实（如已吃口数），
+ *         决定"现在吃到哪了"。</li>
  * </ul>
  *
- * <h2>值语义与生命周期</h2>
- * <ul>
- *     <li>本对象不承诺"内存地址不变"：加工、转移、拷贝都可能产生新的 Culinary 实例；
- *         对一道菜的实际读写一律经由持有它的 {@code ServingVessel} 容器进行；</li>
- *     <li>需要把菜肴交给别处时，使用 {@link #copy()} 得到完整深拷贝，
- *         修改拷贝不影响原对象；</li>
- *     <li>状态可随时通过 {@link #writeNbt} / {@link #readNbt} 在 NBT 中完整保存与恢复
- *         （加工步骤列表 + 动态状态）。</li>
- * </ul>
+ * <p><b>归属与写权限：</b>一道菜的权威归属是持有它的容器（{@link ServingVessel}），
+ * 对菜的实际读写一律经容器进行；加工（{@link #addStep}）不可回退，被吃过至少一口
+ * （{@link #isConsumed()}）后不允许再加工。交给别处用 {@link #copy()} 深拷贝，
+ * 展示用 {@link #asReadOnly()} 快照（{@link CulinaryView}）。</p>
  *
- * <h2>食用与锁定</h2>
- * <ul>
- *     <li>被吃过至少一口（{@link #isConsumed()} 为真）即视为已食用，此后不允许再追加
- *         任何加工步骤（见 {@link #addStep}）；</li>
- *     <li>需要把菜肴展示给 GUI 时，必须使用 {@link #asReadOnly()} 的只读快照
- *         （{@link CulinaryView}），<b>不要将真实菜肴对象交给渲染代码</b>。</li>
- * </ul>
- *
- * <h2>步骤类型体系</h2>
- * <p>
- * {@link ProcessingStep} 是步骤抽象基类，
- * 每种具体步骤通过 {@link ProcessingStep#getType()} 找到自己的 {@link ProcessingType}，
- * 由该类型提供序列化 Codec。所有 ProcessingType 注册于
- * {@link org.bakingprocess.registry.ModProcessingTypes}，Culinary 序列化步骤时
- * 通过注册表在"类型 id"和"步骤 Codec"之间互相转换。
- * </p>
- *
+ * @see ServingVessel
  * @see CulinaryState
  * @see CulinaryView
  * @see ProcessingStep
  * @see ProcessingType
- * @see ServingVessel
- * @see org.bakingprocess.registry.ModProcessingTypes
  */
 public final class Culinary {
     /** 加工步骤列表。 */
@@ -213,6 +184,15 @@ public final class Culinary {
      */
     public boolean isConsumed() {
         return state.isConsumed();
+    }
+
+    /**
+     * 这道菜当前的标识（身份），由最新一步决定；尚未加工过则返回 {@code null}。
+     */
+    @Nullable
+    public Identifier getIdentifier() {
+        ProcessingStep latest = getLatestStep();
+        return latest == null ? null : latest.getIdentifier();
     }
 
     /**

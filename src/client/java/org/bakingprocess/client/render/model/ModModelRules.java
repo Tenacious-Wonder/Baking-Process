@@ -6,7 +6,6 @@ import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.bakingprocess.BakingProcess;
-import org.bakingprocess.content.DishesContent;
 import org.bakingprocess.content.ShapedDoughContent;
 import org.bakingprocess.item.FlourItem;
 import org.bakingprocess.registry.ModContents;
@@ -110,25 +109,22 @@ public final class ModModelRules {
         ModelRule.register("dishes", params -> {
             requireParams(params, 2, "dishes|<containerId>|<dishId>");
             Item container = requireItem(params.get(0));
-            Content dish = requireContent(params.get(1));
-            return List.of(ModModelId.createDishesModelId(container, dish));
+            Identifier dishId = parseIdentifier(params.get(1), "dish id");
+            return List.of(ModModelId.createDishesModelId(container, dishId));
         });
 
         // 食用阶段
         ModelRule.register("dishes_eat", params -> {
             requireParams(params, 3, "dishes_eat|<containerId>|<dishId>|<maxEaten>");
             Item container = requireItem(params.get(0));
-            Content dish = requireContent(params.get(1));
-            if (!(dish instanceof DishesContent dishesContent)) {
-                throw new IllegalArgumentException("Not a dishes content: " + params.get(1));
-            }
+            Identifier dishId = parseIdentifier(params.get(1), "dish id");
             int maxEaten = parseInt(params.get(2), "max eaten count");
             if (maxEaten < 1) {
                 throw new IllegalArgumentException("Max eaten count must be at least 1: " + maxEaten);
             }
             List<Identifier> models = new ArrayList<>();
             for (int eaten = 1; eaten <= maxEaten; eaten++) {
-                models.add(ModModelId.createEatStageModelId(container, dishesContent, eaten));
+                models.add(ModModelId.createEatStageModelId(container, dishId, eaten));
             }
             return models;
         });
@@ -147,12 +143,12 @@ public final class ModModelRules {
         ModelRule.register("plating", params -> {
             requireParams(params, 3, "plating|<containerId>|<dishId>|<action1>;<action2>;...");
             Item container = requireItem(params.get(0));
-            Content dish = params.get(1).isEmpty() ? null : requireContent(params.get(1));
+            Identifier dishId = params.get(1).isEmpty() ? null : parseIdentifier(params.get(1), "dish id");
             List<PlayerAction> actions = parseActions(params.get(2));
 
             PlatingModelManager modelManager = PlatingModelManager.getInstance();
-            if (dish != null) {
-                modelManager.registerRecipeModel(container, actions, dish);
+            if (dishId != null) {
+                modelManager.registerRecipeModel(container, actions, dishId);
             }
             return modelManager.generateAllPrefixModels(container, actions);
         });
@@ -198,44 +194,44 @@ public final class ModModelRules {
         rules.add("cutting|baking_process:hard_bread|1");
 
         // 摆盘菜肴放置模型
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.BEEF_BERRIES);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_BEEF_BERRIES);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.ROASTED_MUSHROOMS);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_ROASTED_MUSHROOMS);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.HONEY_ROASTED_BEEF);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_HONEY_ROASTED_BEEF);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.FRY_SALMON_CUBES);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_FRY_SALMON_CUBES);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.GRILLED_FISH_POTATOES);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_GRILLED_FISH_POTATOES);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.DELUXE_ROASTED_RABBIT);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_DELUXE_ROASTED_RABBIT);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.HONEY_ROASTED_MUTTON);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_HONEY_ROASTED_MUTTON);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.DELUXE_ROAST_CHICKEN);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_DELUXE_ROAST_CHICKEN);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.SALT_BAKED_LAMB_CHOPS);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_SALT_BAKED_LAMB_CHOPS);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.HONEY_MADE_RABBIT_LEG);
-        addDishesRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_HONEY_MADE_RABBIT_LEG);
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("beef_berries"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("cooked_beef_berries"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("roasted_mushrooms"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("cooked_roasted_mushrooms"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("honey_roasted_beef"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("cooked_honey_roasted_beef"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("fry_salmon_cubes"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("cooked_fry_salmon_cubes"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("grilled_fish_potatoes"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("cooked_grilled_fish_potatoes"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("deluxe_roasted_rabbit"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("cooked_deluxe_roasted_rabbit"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("honey_roasted_mutton"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("cooked_honey_roasted_mutton"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("deluxe_roast_chicken"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("cooked_deluxe_roast_chicken"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("salt_baked_lamb_chops"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("cooked_salt_baked_lamb_chops"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("honey_made_rabbit_leg"));
+        addDishesRule(rules, ModItems.IRON_PLATE, dishId("cooked_honey_made_rabbit_leg"));
 
-        // 食用阶段模型
-        addEatRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_BEEF_BERRIES);
-        addEatRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_ROASTED_MUSHROOMS);
-        addEatRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_HONEY_ROASTED_BEEF);
-        addEatRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_FRY_SALMON_CUBES);
-        addEatRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_GRILLED_FISH_POTATOES);
-        addEatRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_DELUXE_ROASTED_RABBIT);
-        addEatRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_HONEY_ROASTED_MUTTON);
-        addEatRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_DELUXE_ROAST_CHICKEN);
-        addEatRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_SALT_BAKED_LAMB_CHOPS);
-        addEatRule(rules, ModItems.IRON_PLATE, ModContents.COOKED_HONEY_MADE_RABBIT_LEG);
+        // 食用阶段模型（maxEaten = 熟菜口数 - 1，与配方 json 的 eat_count 对应）
+        addEatRule(rules, ModItems.IRON_PLATE, dishId("cooked_beef_berries"), 1);
+        addEatRule(rules, ModItems.IRON_PLATE, dishId("cooked_roasted_mushrooms"), 3);
+        addEatRule(rules, ModItems.IRON_PLATE, dishId("cooked_honey_roasted_beef"), 2);
+        addEatRule(rules, ModItems.IRON_PLATE, dishId("cooked_fry_salmon_cubes"), 3);
+        addEatRule(rules, ModItems.IRON_PLATE, dishId("cooked_grilled_fish_potatoes"), 3);
+        addEatRule(rules, ModItems.IRON_PLATE, dishId("cooked_deluxe_roasted_rabbit"), 3);
+        addEatRule(rules, ModItems.IRON_PLATE, dishId("cooked_honey_roasted_mutton"), 3);
+        addEatRule(rules, ModItems.IRON_PLATE, dishId("cooked_deluxe_roast_chicken"), 3);
+        addEatRule(rules, ModItems.IRON_PLATE, dishId("cooked_salt_baked_lamb_chops"), 4);
+        addEatRule(rules, ModItems.IRON_PLATE, dishId("cooked_honey_made_rabbit_leg"), 4);
 
         // 摆盘流程：注册配方映射并生成全部前缀模型
         addPlatingRule(rules, ModItems.IRON_PLATE,
                 List.of(new AddItemPlayerAction(Items.BEEF),
                         new AddItemPlayerAction(Items.SWEET_BERRIES)),
-                ModContents.BEEF_BERRIES);
+                dishId("beef_berries"));
 
         addPlatingRule(rules, ModItems.IRON_PLATE,
                 List.of(new AddItemPlayerAction(Items.RED_MUSHROOM),
@@ -243,7 +239,7 @@ public final class ModModelRules {
                         new AddItemPlayerAction(Items.BROWN_MUSHROOM),
                         new AddItemPlayerAction(Items.BROWN_MUSHROOM),
                         new AddItemPlayerAction(ModItems.SALT_FLOUR)),
-                ModContents.ROASTED_MUSHROOMS);
+                dishId("roasted_mushrooms"));
 
         addPlatingRule(rules, ModItems.IRON_PLATE,
                 List.of(new AddItemPlayerAction(Items.BEEF),
@@ -251,7 +247,7 @@ public final class ModModelRules {
                         new AddContentPlayerAction(Contents.HONEY),
                         new AddItemPlayerAction(ModItems.CARROT_SLICES),
                         new AddItemPlayerAction(ModItems.CARROT_SLICES)),
-                ModContents.HONEY_ROASTED_BEEF);
+                dishId("honey_roasted_beef"));
 
         addPlatingRule(rules, ModItems.IRON_PLATE,
                 List.of(new AddItemPlayerAction(ModItems.SALMON_CUBES),
@@ -261,13 +257,13 @@ public final class ModModelRules {
                         new AddItemPlayerAction(Items.GLOW_BERRIES),
                         new AddItemPlayerAction(Items.GLOW_BERRIES),
                         new AddItemPlayerAction(Items.GLOW_BERRIES)),
-                ModContents.FRY_SALMON_CUBES);
+                dishId("fry_salmon_cubes"));
 
         addPlatingRule(rules, ModItems.IRON_PLATE,
                 List.of(new AddItemPlayerAction(ModItems.POTATO_CUBES),
                         new AddItemPlayerAction(ModItems.POTATO_CUBES),
                         new AddItemPlayerAction(Items.COD)),
-                ModContents.GRILLED_FISH_POTATOES);
+                dishId("grilled_fish_potatoes"));
 
         addPlatingRule(rules, ModItems.IRON_PLATE,
                 List.of(new AddItemPlayerAction(Items.RABBIT),
@@ -276,7 +272,7 @@ public final class ModModelRules {
                         new AddItemPlayerAction(ModItems.CARROT_SLICES),
                         new AddItemPlayerAction(ModItems.CARROT_SLICES),
                         new AddItemPlayerAction(Items.SWEET_BERRIES)),
-                ModContents.DELUXE_ROASTED_RABBIT);
+                dishId("deluxe_roasted_rabbit"));
 
         addPlatingRule(rules, ModItems.IRON_PLATE,
                 List.of(new AddItemPlayerAction(Items.MUTTON),
@@ -285,7 +281,7 @@ public final class ModModelRules {
                         new AddItemPlayerAction(ModItems.CARROT_SLICES),
                         new AddItemPlayerAction(ModItems.CARROT_SLICES),
                         new AddItemPlayerAction(ModItems.CARROT_HEAD)),
-                ModContents.HONEY_ROASTED_MUTTON);
+                dishId("honey_roasted_mutton"));
 
         addPlatingRule(rules, ModItems.IRON_PLATE,
                 List.of(new AddItemPlayerAction(Items.CHICKEN),
@@ -295,7 +291,7 @@ public final class ModModelRules {
                         new AddItemPlayerAction(ModItems.SALT_FLOUR),
                         new AddContentPlayerAction(Contents.HONEY),
                         new AddItemPlayerAction(ModItems.CARROT_HEAD)),
-                ModContents.DELUXE_ROAST_CHICKEN);
+                dishId("deluxe_roast_chicken"));
 
         addPlatingRule(rules, ModItems.IRON_PLATE,
                 List.of(new AddItemPlayerAction(ModItems.SALT_FLOUR),
@@ -307,7 +303,7 @@ public final class ModModelRules {
                         new AddItemPlayerAction(ModItems.SALT_CUBES),
                         new AddItemPlayerAction(ModItems.SALT_CUBES),
                         new AddItemPlayerAction(ModItems.CARROT_HEAD)),
-                ModContents.SALT_BAKED_LAMB_CHOPS);
+                dishId("salt_baked_lamb_chops"));
 
         addPlatingRule(rules, ModItems.IRON_PLATE,
                 List.of(new AddItemPlayerAction(ModItems.CARROT_SLICES),
@@ -319,7 +315,7 @@ public final class ModModelRules {
                         new AddContentPlayerAction(Contents.HONEY),
                         new AddItemPlayerAction(ModItems.SALT_FLOUR),
                         new AddItemPlayerAction(Items.SWEET_BERRIES)),
-                ModContents.HONEY_MADE_RABBIT_LEG);
+                dishId("honey_made_rabbit_leg"));
 
         // 定型面团
         addShapedDoughRule(rules, ModContents.TOAST_EMBRYO);
@@ -341,29 +337,28 @@ public final class ModModelRules {
         rules.add("cutting|" + Registries.ITEM.getId(item) + "|" + maxCuts);
     }
 
-    private static void addDishesRule(List<String> rules, Item container, Content dish) {
-        rules.add("dishes|" + Registries.ITEM.getId(container) + "|" + TWRegistries.CONTENT.getId(dish));
+    private static void addDishesRule(List<String> rules, Item container, Identifier dishId) {
+        rules.add("dishes|" + Registries.ITEM.getId(container) + "|" + dishId);
     }
 
-    private static void addEatRule(List<String> rules, Item container, Content dish) {
-        if (!(dish instanceof DishesContent dishesContent)) {
-            return;
-        }
-        int maxEaten = dishesContent.getEatCount() - 1;
+    private static void addEatRule(List<String> rules, Item container, Identifier dishId, int maxEaten) {
         if (maxEaten < 1) {
             return;
         }
-        rules.add("dishes_eat|" + Registries.ITEM.getId(container) + "|"
-                + TWRegistries.CONTENT.getId(dish) + "|" + maxEaten);
+        rules.add("dishes_eat|" + Registries.ITEM.getId(container) + "|" + dishId + "|" + maxEaten);
     }
 
     private static void addPlatingRule(List<String> rules, Item container,
-                                       List<PlayerAction> actions, Content dish) {
+                                       List<PlayerAction> actions, Identifier dishId) {
         String encodedActions = actions.stream()
                 .map(ModModelRules::encodeAction)
                 .collect(Collectors.joining(";"));
-        rules.add("plating|" + Registries.ITEM.getId(container) + "|"
-                + TWRegistries.CONTENT.getId(dish) + "|" + encodedActions);
+        rules.add("plating|" + Registries.ITEM.getId(container) + "|" + dishId + "|" + encodedActions);
+    }
+
+    /** 构造本模组命名空间下的菜标识。 */
+    private static Identifier dishId(String path) {
+        return new Identifier(BakingProcess.MOD_ID, path);
     }
 
     private static void addShapedDoughRule(List<String> rules, Content content) {
