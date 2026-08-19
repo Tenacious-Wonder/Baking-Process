@@ -39,3 +39,9 @@ hs_err_*.log
 replay_*.log
 *.hprof
 *.jfr
+
+# 设计稿（不提交 git，仅工作区留存）
+
+*设计稿*.md
+*摆盘配方*.md
+
