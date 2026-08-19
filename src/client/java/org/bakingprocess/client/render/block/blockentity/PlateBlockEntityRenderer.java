@@ -20,7 +20,6 @@ import org.bakingprocess.block.entity.PlateBlockEntity;
 import org.bakingprocess.client.render.model.ModModelId;
 import org.bakingprocess.client.render.model.PlatingModelManager;
 import org.bakingprocess.culinary.Culinary;
-import org.bakingprocess.culinary.step.ProcessingStep;
 
 public class PlateBlockEntityRenderer implements BlockEntityRenderer<PlateBlockEntity> {
     private final BakedModelManager modelManager;
@@ -45,9 +44,8 @@ public class PlateBlockEntityRenderer implements BlockEntityRenderer<PlateBlockE
         // 有菜时按当前菜标识分派模型；吃过的菜显示对应食用阶段模型
         Culinary dish = entity.getCulinary();
         if (dish != null) {
-            ProcessingStep latest = dish.getLatestStep();
-            if (latest != null) {
-                Identifier dishId = latest.getIdentifier();
+            Identifier dishId = dish.getIdentifier();
+            if (dishId != null) {
                 int eaten = dish.getEatenCount();
                 int total = dish.getTotalEats();
                 if (eaten > 0 && eaten < total) {

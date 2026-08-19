@@ -7,6 +7,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.bakingprocess.culinary.carrier.ServingVessel;
@@ -172,6 +173,15 @@ public final class Culinary {
             return null;
         }
         return steps.get(steps.size() - 1);
+    }
+
+    /**
+     * 这道菜当前的显示名称：由最新一步派生；尚未加工过（空盘）时
+     * 返回 {@code culinary.empty} 翻译键对应的文本。
+     */
+    public Text getDisplayName() {
+        ProcessingStep latest = getLatestStep();
+        return latest != null ? latest.getDisplayName() : Text.translatable("culinary.empty");
     }
 
     // ==================== 当前状态 ====================

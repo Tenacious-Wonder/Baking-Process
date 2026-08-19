@@ -35,7 +35,6 @@ import org.bakingprocess.block.entity.PlateBlockEntity;
 import org.bakingprocess.culinary.Culinary;
 import org.bakingprocess.culinary.carrier.ItemStackVessel;
 import org.bakingprocess.culinary.carrier.ServingVessel;
-import org.bakingprocess.culinary.step.ProcessingStep;
 import org.bakingprocess.registry.ModItems;
 import org.jetbrains.annotations.Nullable;
 import org.twcore.api.process.PlayerAction;
@@ -180,15 +179,13 @@ public class PlateBlock extends Block implements BlockEntityProvider {
     public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options) {
         Culinary dish = readCulinaryFromStack(stack);
 
-        if (dish != null) {
-            ProcessingStep latest = dish.getLatestStep();
-            if (latest != null) {
-                Text text = latest.getDisplayName();
-                if (text instanceof MutableText mutableText) {
-                    mutableText.formatted(Formatting.ITALIC, Formatting.DARK_GRAY);
-                }
-                tooltip.add(text);
+        // 仅有加工步骤（成菜）的盘子物品才显示菜名；空盘无步骤不显示
+        if (dish != null && dish.getIdentifier() != null) {
+            Text text = dish.getDisplayName();
+            if (text instanceof MutableText mutableText) {
+                mutableText.formatted(Formatting.ITALIC, Formatting.DARK_GRAY);
             }
+            tooltip.add(text);
         }
     }
 
