@@ -18,6 +18,9 @@ public final class DishFoodCalculator {
     /**
      * 计算一组食材的最终食物属性。
      *
+     * <p><b>装饰完全跳过</b>：装饰条目（{@link CulinaryIngredient#isDecoration()}）
+     * 不累加 hunger/saturation，也不计入"种类数 x"倍率——对食物数值零影响。</p>
+     *
      * @param ingredients 食材列表（由摆盘操作序列映射而来）
      * @param useRaw      是否使用"直接吃"属性（可食用的摆盘配方）；否则使用"烤熟后"属性（加工基准）
      * @return 最终食物属性（饥饿值整数，饱和度保留两位小数）
@@ -26,14 +29,17 @@ public final class DishFoodCalculator {
         int hunger = 0;
         float saturation = 0f;
         for (CulinaryIngredient ingredient : ingredients) {
+            if (ingredient.isDecoration()) {
+                continue;
+            }
             SimpleFoodComponent values = useRaw ? ingredient.rawOrNone() : ingredient.cooked();
             hunger += values.Hunger();
             saturation += values.SaturationModifier();
         }
 
-        // 倍率：按"种类"（去重）计数，不按数量
+        // 倍率：按"种类"（去重）计数，不按数量；装饰不计入
         long ingredientKinds = ingredients.stream()
-                .filter(ingredient -> !ingredient.isSeasoning())
+                .filter(ingredient -> !ingredient.isDecoration() && !ingredient.isSeasoning())
                 .map(CulinaryIngredient::id)
                 .distinct()
                 .count();
