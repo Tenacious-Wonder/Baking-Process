@@ -1,0 +1,6 @@
+{
+  "type": "baking_process:stove",
+  "ingredient": "culinary|baking_process:generic/raw",
+  "result": "culinary|baking_process:cooked_generic/raw",
+  "stoveTime": 12000
+}

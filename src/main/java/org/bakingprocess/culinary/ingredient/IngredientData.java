@@ -63,20 +63,13 @@ public sealed interface IngredientData
         }
     }
 
-    /** 按食材分类大类返回对应的条目数据 Codec。 */
+    /** 按食材分类的大类返回对应的条目数据 Codec。 */
     static Codec<IngredientData> codecFor(IngredientCategory category) {
-        if (category instanceof IngredientCategory.Main) {
-            return MainData.CODEC.xmap(data -> (IngredientData) data, data -> (MainData) data);
-        }
-        if (category instanceof IngredientCategory.Side) {
-            return SideData.CODEC.xmap(data -> (IngredientData) data, data -> (SideData) data);
-        }
-        if (category instanceof IngredientCategory.Seasoning) {
-            return SeasoningData.CODEC.xmap(data -> (IngredientData) data, data -> (SeasoningData) data);
-        }
-        if (category instanceof IngredientCategory.Decoration) {
-            return DecorationData.CODEC.xmap(data -> (IngredientData) data, data -> (DecorationData) data);
-        }
-        throw new IllegalArgumentException("Unknown category: " + category);
+        return switch (category.kind()) {
+            case MAIN -> MainData.CODEC.xmap(data -> (IngredientData) data, data -> (MainData) data);
+            case SIDE -> SideData.CODEC.xmap(data -> (IngredientData) data, data -> (SideData) data);
+            case SEASONING -> SeasoningData.CODEC.xmap(data -> (IngredientData) data, data -> (SeasoningData) data);
+            case DECORATION -> DecorationData.CODEC.xmap(data -> (IngredientData) data, data -> (DecorationData) data);
+        };
     }
 }

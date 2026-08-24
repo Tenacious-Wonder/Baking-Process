@@ -3,16 +3,24 @@ package org.bakingprocess.culinary.step;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.bakingprocess.config.IngredientTableData;
+import org.bakingprocess.culinary.ingredient.CulinaryIngredient;
 import org.bakingprocess.culinary.ingredient.DishFoodCalculator;
+import org.bakingprocess.culinary.ingredient.IngredientCategory;
+import org.bakingprocess.culinary.ingredient.IngredientSource;
 import org.bakingprocess.registry.ModProcessingTypes;
 import org.bakingprocess.util.SimpleFoodComponent;
 import org.twcore.api.process.PlayerAction;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <h1>摆盘加工步骤</h1>
@@ -36,7 +44,8 @@ public class PlatingStep extends ProcessingStep {
                     .fieldOf("actions").forGetter(PlatingStep::getActions),
             Identifier.CODEC.fieldOf("id").forGetter(PlatingStep::getIdentifier),
             Codec.INT.fieldOf("eat_count").forGetter(PlatingStep::getEatCount),
-            Codec.BOOL.optionalFieldOf("edible", false).forGetter(PlatingStep::isEdible)
+            Codec.BOOL.optionalFieldOf("edible", false).forGetter(PlatingStep::isEdible),
+            Codec.BOOL.optionalFieldOf("generic", false).forGetter(PlatingStep::isGeneric)
     ).apply(instance, PlatingStep::new));
 
     // ==================== 字段 ====================
@@ -49,18 +58,72 @@ public class PlatingStep extends ProcessingStep {
     private final int eatCount;
     /** 摆完是否直接可食。 */
     private final boolean edible;
+    /** 是否无序摆盘（有序菜谱=false，无序通用配方=true；决定显示名生成方式）。 */
+    private final boolean generic;
 
     /**
      * @param actions    摆盘操作序列
      * @param identifier 目标菜标识
      * @param eatCount   目标菜口数
      * @param edible     摆完是否直接可食
+     * @param generic    是否无序摆盘
      */
-    public PlatingStep(List<PlayerAction> actions, Identifier identifier, int eatCount, boolean edible) {
+    public PlatingStep(List<PlayerAction> actions, Identifier identifier, int eatCount, boolean edible, boolean generic) {
         this.actions = List.copyOf(actions);
         this.identifier = identifier;
         this.eatCount = eatCount;
         this.edible = edible;
+        this.generic = generic;
+    }
+
+    // ==================== 菜肴名称 ====================
+
+    /**
+     * 生成无序菜肴的菜名本体（不含"未烤制"前缀）。
+     *
+     * @param actions 摆放的原料序列（未加工的原始放入顺序）
+     * @return 菜名本体文本
+     */
+    public static Text display(List<PlayerAction> actions) {
+        StringBuilder mains = new StringBuilder();
+        StringBuilder sides = new StringBuilder();
+        Set<Identifier> seenMains = new HashSet<>();
+        Set<Identifier> seenSides = new HashSet<>();
+
+        for (CulinaryIngredient ingredient : IngredientTableData.current().fromActions(actions)) {
+            if (ingredient.isDecoration() || ingredient.isSeasoning()) {
+                continue; // 装饰与调料暂不进入命名（调料位置规则待定）
+            }
+            if (ingredient.category().kind() == IngredientCategory.Kind.MAIN) {
+                if (seenMains.add(ingredient.id())) {
+                    mains.append(nameOf(ingredient));
+                }
+            } else if (ingredient.category().kind() == IngredientCategory.Kind.SIDE) {
+                if (seenSides.add(ingredient.id())) {
+                    sides.append(nameOf(ingredient));
+                }
+            }
+        }
+
+        String mainPart = mains.toString();
+        String sidePart = sides.toString();
+
+        if (mainPart.isEmpty()) {
+            return Text.translatable("culinary.generic.side", sidePart);
+        }
+        if (sidePart.isEmpty()) {
+            return Text.translatable("culinary.generic.main", mainPart);
+        }
+        return Text.translatable("culinary.generic", mainPart, sidePart);
+    }
+
+    /** 原料的本地化名；内容物来源暂用注册表 id 字符串。 */
+    private static String nameOf(CulinaryIngredient ingredient) {
+        if (ingredient.source() == IngredientSource.ITEM) {
+            Item item = Registries.ITEM.getOrEmpty(ingredient.id()).orElse(null);
+            return item != null ? item.getName().getString() : ingredient.id().toString();
+        }
+        return ingredient.id().toString();
     }
 
     // ==================== ProcessingStep 实现 ====================
@@ -68,6 +131,24 @@ public class PlatingStep extends ProcessingStep {
     @Override
     public Identifier getIdentifier() {
         return identifier;
+    }
+
+    @Override
+    public Text getDisplayName() {
+        // 生菜显示名 = "未烤制"前缀 + 菜名本体
+        return RAW_PREFIX.copy().append(getSuffixName());
+    }
+
+    /**
+     * 菜名本体（不含"未烤制"前缀）：
+     * 有序 = 菜标识对应的语言键（{@code culinary.<标识>}）；
+     * 无序 = 按摆放内容动态生成。供 {@code BakingStep} 推导熟菜显示名复用。
+     */
+    public Text getSuffixName() {
+        if (generic) {
+            return display(actions);
+        }
+        return Text.translatable("culinary." + getIdentifier().toTranslationKey());
     }
 
     @Override
@@ -106,6 +187,11 @@ public class PlatingStep extends ProcessingStep {
     /** 目标菜口数。 */
     public int getEatCount() {
         return eatCount;
+    }
+
+    /** 是否无序摆盘（决定显示名按内容生成）。 */
+    public boolean isGeneric() {
+        return generic;
     }
 
     // ==================== Codec 辅助 ====================

@@ -1,0 +1,155 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"sweet_berries": "block/sweet_berries",
+		"sweet_berries_leaf": "block/sweet_berries_leaf",
+		"sweet_berries_stem": "block/sweet_berries_stem"
+	},
+	"elements": [
+        {
+            "from": [11.98268, 1, 6.9],
+            "to": [14.98268, 4, 9.9],
+            "faces": {
+                "north": {"uv": [0, 0, 3, 3], "texture": "#sweet_berries"},
+                "east": {"uv": [0, 3, 3, 6], "texture": "#sweet_berries"},
+                "south": {"uv": [3, 0, 6, 3], "texture": "#sweet_berries"},
+                "west": {"uv": [3, 3, 6, 6], "texture": "#sweet_berries"},
+                "up": {"uv": [3, 9, 0, 6], "texture": "#sweet_berries"},
+                "down": {"uv": [9, 0, 6, 3], "texture": "#sweet_berries"}
+            }
+        },
+        {
+            "from": [13.48268, 5, 5.4],
+            "to": [13.48268, 8, 8.4],
+            "faces": {
+                "north": {"uv": [0, 0, 0, 6], "texture": "#sweet_berries"},
+                "east": {"uv": [0, 0, 6, 6], "texture": "#sweet_berries_stem"},
+                "south": {"uv": [0, 0, 0, 6], "texture": "#sweet_berries"},
+                "west": {"uv": [0, 6, 6, 12], "texture": "#sweet_berries_stem"},
+                "up": {"uv": [0, 6, 0, 0], "texture": "#sweet_berries"},
+                "down": {"uv": [0, 0, 0, 6], "texture": "#sweet_berries"}
+            }
+        },
+        {
+            "from": [13.48268, 4, 7.2],
+            "to": [13.48268, 5.5, 9.6],
+            "rotation": {"angle": -45, "axis": "y", "origin": [13.48268, 4, 8.4]},
+            "faces": {
+                "north": {"uv": [0, 0, 0, 4], "texture": "#sweet_berries"},
+                "east": {"uv": [6, 0, 11, 4], "texture": "#sweet_berries_stem"},
+                "south": {"uv": [0, 0, 0, 4], "texture": "#sweet_berries"},
+                "west": {"uv": [6, 4, 11, 8], "texture": "#sweet_berries"},
+                "up": {"uv": [0, 5, 0, 0], "texture": "#sweet_berries"},
+                "down": {"uv": [0, 0, 0, 5], "texture": "#sweet_berries"}
+            }
+        },
+        {
+            "from": [13.48268, 4, 7.2],
+            "to": [13.48268, 5.5, 9.6],
+            "rotation": {"angle": 45, "axis": "y", "origin": [13.48268, 4, 8.4]},
+            "faces": {
+                "north": {"uv": [0, 0, 0, 4], "texture": "#sweet_berries"},
+                "east": {"uv": [6, 8, 11, 12], "texture": "#sweet_berries_stem"},
+                "south": {"uv": [0, 0, 0, 4], "texture": "#sweet_berries"},
+                "west": {"uv": [0, 12, 5, 16], "texture": "#sweet_berries_stem"},
+                "up": {"uv": [0, 5, 0, 0], "texture": "#sweet_berries"},
+                "down": {"uv": [0, 0, 0, 5], "texture": "#sweet_berries"}
+            }
+        },
+        {
+            "from": [12.98268, 2.7, 12.5],
+            "to": [12.98268, 6.7, 16.5],
+            "rotation": {"angle": -22.5, "axis": "y", "origin": [12.98268, 2.7, 12.5]},
+            "faces": {
+                "north": {"uv": [0, 0, 0, 8], "texture": "#sweet_berries"},
+                "east": {"uv": [0, 0, 8, 8], "texture": "#sweet_berries_leaf"},
+                "south": {"uv": [0, 0, 0, 8], "texture": "#sweet_berries"},
+                "west": {"uv": [0, 8, 8, 16], "texture": "#sweet_berries_leaf"},
+                "up": {"uv": [0, 8, 0, 0], "texture": "#sweet_berries"},
+                "down": {"uv": [0, 0, 0, 8], "texture": "#sweet_berries"}
+            }
+        },
+        {
+            "from": [12.98268, 4, 11.6],
+            "to": [12.98268, 5.5, 14],
+            "rotation": {"angle": -45, "axis": "y", "origin": [12.98268, 4, 12.8]},
+            "faces": {
+                "north": {"uv": [0, 0, 0, 4], "texture": "#sweet_berries"},
+                "east": {"uv": [6, 0, 11, 4], "texture": "#sweet_berries_stem"},
+                "south": {"uv": [0, 0, 0, 4], "texture": "#sweet_berries"},
+                "west": {"uv": [6, 4, 11, 8], "texture": "#sweet_berries_stem"},
+                "up": {"uv": [0, 5, 0, 0], "texture": "#sweet_berries"},
+                "down": {"uv": [0, 0, 0, 5], "texture": "#sweet_berries"}
+            }
+        },
+        {
+            "from": [12.98268, 4, 11.6],
+            "to": [12.98268, 5.5, 14],
+            "rotation": {"angle": 45, "axis": "y", "origin": [12.98268, 4, 12.8]},
+            "faces": {
+                "north": {"uv": [0, 0, 0, 4], "texture": "#sweet_berries"},
+                "east": {"uv": [6, 8, 11, 12], "texture": "#sweet_berries"},
+                "south": {"uv": [0, 0, 0, 4], "texture": "#sweet_berries"},
+                "west": {"uv": [0, 12, 5, 16], "texture": "#sweet_berries_stem"},
+                "up": {"uv": [0, 5, 0, 0], "texture": "#sweet_berries"},
+                "down": {"uv": [0, 0, 0, 5], "texture": "#sweet_berries"}
+            }
+        },
+        {
+            "from": [11.48268, 1, 11.3],
+            "to": [14.48268, 4, 14.3],
+            "rotation": {"angle": -45, "axis": "y", "origin": [12.88268, 4, 12.8]},
+            "faces": {
+                "north": {"uv": [0, 0, 3, 3], "texture": "#sweet_berries"},
+                "east": {"uv": [0, 3, 3, 6], "texture": "#sweet_berries"},
+                "south": {"uv": [3, 0, 6, 3], "texture": "#sweet_berries"},
+                "west": {"uv": [3, 3, 6, 6], "texture": "#sweet_berries"},
+                "up": {"uv": [3, 9, 0, 6], "texture": "#sweet_berries"},
+                "down": {"uv": [9, 0, 6, 3], "texture": "#sweet_berries"}
+            }
+        },
+        {
+            "from": [8.52857, 1.2, 12.52794],
+            "to": [10.52857, 3.2, 14.52794],
+            "rotation": {"angle": -22.5, "axis": "y", "origin": [8.88268, 1.2, 13.4]},
+            "faces": {
+                "north": {"uv": [0, 0, 3, 3], "texture": "#sweet_berries"},
+                "east": {"uv": [0, 3, 3, 6], "texture": "#sweet_berries"},
+                "south": {"uv": [3, 0, 6, 3], "texture": "#sweet_berries"},
+                "west": {"uv": [3, 3, 6, 6], "texture": "#sweet_berries"},
+                "up": {"uv": [3, 9, 0, 6], "texture": "#sweet_berries"},
+                "down": {"uv": [9, 0, 6, 3], "texture": "#sweet_berries"}
+            }
+        }
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [0, -180, 0],
+			"translation": [0, 3.5, -3.75],
+			"scale": [0.71, 0.71, 0.71]
+		},
+		"thirdperson_lefthand": {
+			"translation": [0, 6.5, 0]
+		},
+		"firstperson_righthand": {
+			"translation": [0, 8.25, -5]
+		},
+		"firstperson_lefthand": {
+			"translation": [0, 7.25, 0]
+		},
+		"ground": {
+			"translation": [0, 4, 0],
+			"scale": [0.72, 0.72, 0.73]
+		},
+		"gui": {
+			"rotation": [37, 45, 0],
+			"translation": [0, 3.5, 0],
+			"scale": [0.73, 0.73, 0.73]
+		},
+		"fixed": {
+			"rotation": [-90, 0, 0],
+			"translation": [0, 0.25, -6.75]
+		}
+	}
+}

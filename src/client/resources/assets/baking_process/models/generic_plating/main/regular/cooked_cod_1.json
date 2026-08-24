@@ -1,0 +1,6 @@
+{
+	"parent": "baking_process:generic_plating/main/regular/cod_1",
+	"textures": {
+		"cod": "block/cooked_cod"
+	}
+}

@@ -1,0 +1,6 @@
+{
+  "type": "baking_process:stove",
+  "ingredient": "culinary|baking_process:generic/snack",
+  "result": "culinary|baking_process:cooked_generic/snack",
+  "stoveTime": 12000
+}

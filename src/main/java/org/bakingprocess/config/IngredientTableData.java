@@ -71,32 +71,43 @@ public record IngredientTableData(List<CulinaryIngredient> ingredients) {
 
     public static final IngredientTableData DEFAULT = new IngredientTableData(List.of(
             // ===== 主菜（常规） =====
-            main("minecraft:beef", IngredientCategory.Main.Size.REGULAR, food(8, 0.8f), food(3, 0.3f)),
-            main("minecraft:porkchop", IngredientCategory.Main.Size.REGULAR, food(8, 0.8f), food(3, 0.3f)),
-            main("minecraft:chicken", IngredientCategory.Main.Size.REGULAR, food(6, 0.6f), food(2, 0.3f)),
-            main("minecraft:mutton", IngredientCategory.Main.Size.REGULAR, food(6, 0.8f), food(2, 0.3f)),
-            main("minecraft:rabbit", IngredientCategory.Main.Size.REGULAR, food(5, 0.6f), food(3, 0.3f)),
-            main("minecraft:cod", IngredientCategory.Main.Size.REGULAR, food(5, 0.6f), food(2, 0.1f)),
-            main("minecraft:salmon", IngredientCategory.Main.Size.REGULAR, food(6, 0.8f), food(2, 0.1f)),
+            main("minecraft:beef", IngredientCategory.MAIN_REGULAR, food(8, 0.8f), food(3, 0.3f)),
+            main("minecraft:porkchop", IngredientCategory.MAIN_REGULAR, food(8, 0.8f), food(3, 0.3f)),
+            main("minecraft:chicken", IngredientCategory.MAIN_REGULAR, food(6, 0.6f), food(2, 0.3f)),
+            main("minecraft:mutton", IngredientCategory.MAIN_REGULAR, food(6, 0.8f), food(2, 0.3f)),
+            main("minecraft:rabbit", IngredientCategory.MAIN_REGULAR, food(5, 0.6f), food(3, 0.3f)),
+            main("minecraft:cod", IngredientCategory.MAIN_REGULAR, food(5, 0.6f), food(2, 0.1f)),
+            main("minecraft:salmon", IngredientCategory.MAIN_REGULAR, food(6, 0.8f), food(2, 0.1f)),
 
             // ===== 配菜 =====
-            side("minecraft:potato", IngredientCategory.Side.Size.SMALL, food(5, 0.6f), food(1, 0.3f)),
-            side("minecraft:carrot", IngredientCategory.Side.Size.SMALL, food(6, 1.2f), food(3, 0.6f)),
-            side("minecraft:brown_mushroom", IngredientCategory.Side.Size.SMALL, food(6, 0.6f), null),
-            side("minecraft:red_mushroom", IngredientCategory.Side.Size.SMALL, food(6, 0.6f), null),
-            side("minecraft:sweet_berries", IngredientCategory.Side.Size.SMALL, food(2, 0.1f), food(2, 0.1f)),
-            side("minecraft:glow_berries", IngredientCategory.Side.Size.SMALL, food(2, 0.1f), food(2, 0.1f)),
+            side("minecraft:potato", IngredientCategory.SIDE_SMALL, food(5, 0.6f), food(1, 0.3f)),
+            side("minecraft:carrot", IngredientCategory.SIDE_SMALL, food(6, 1.2f), food(3, 0.6f)),
+            side("minecraft:brown_mushroom", IngredientCategory.SIDE_SMALL, food(6, 0.6f), null),
+            side("minecraft:red_mushroom", IngredientCategory.SIDE_SMALL, food(6, 0.6f), null),
+            side("minecraft:glow_berries", IngredientCategory.SIDE_SMALL, food(2, 0.1f), food(2, 0.1f)),
+            side("baking_process:separate_potato_cubes", IngredientCategory.SIDE_SMALL, food(1, 0.3f), food(1, 0.3f)),
+            side("baking_process:beetroot_slices", IngredientCategory.SIDE_SMALL, food(1, 0.15f), food(1, 0.15f)),
+            side("baking_process:cod_cubes", IngredientCategory.SIDE_SMALL, food(1, 0.05f), food(1, 0.05f)),
+            side("baking_process:cooked_cod_cubes", IngredientCategory.SIDE_SMALL, food(2, 0.3f), food(2, 0.3f)),
+
+            // ===== 中型配菜（切割产物 + 浆果，数值照搬 ModFoodComponents） =====
+            side("baking_process:carrot_slices", IngredientCategory.SIDE_MEDIUM, food(1, 0.2f), food(1, 0.2f)),
+            side("baking_process:potato_cubes", IngredientCategory.SIDE_MEDIUM, food(1, 0.3f), food(1, 0.3f)),
+            side("baking_process:cooked_potato_cubes", IngredientCategory.SIDE_MEDIUM, food(5, 0.6f), food(5, 0.6f)),
+            side("baking_process:salmon_cubes", IngredientCategory.SIDE_MEDIUM, food(1, 0.1f), food(1, 0.1f)),
+            side("baking_process:cooked_salmon_cubes", IngredientCategory.SIDE_MEDIUM, food(2, 0.4f), food(2, 0.4f)),
+            side("minecraft:sweet_berries", IngredientCategory.SIDE_MEDIUM, food(2, 0.1f), food(2, 0.1f)),
+            side("baking_process:apple_slices", IngredientCategory.SIDE_MEDIUM, food(1, 0.15f), food(1, 0.15f)),
+            side("minecraft:tropical_fish", IngredientCategory.SIDE_MEDIUM, food(2, 0.3f), food(1, 0.1f)),
 
             // ===== 调料 =====
-            seasoning("baking_process:salt_flour", IngredientCategory.Seasoning.Form.POWDER, food(0, 0.05f)),
-            seasoning("baking_process:salt_cubes", IngredientCategory.Seasoning.Form.SOLID, food(0, 0.05f)),
-            seasoning("minecraft:honey_bottle", IngredientCategory.Seasoning.Form.LIQUID, food(6, 0.1f)),
+            seasoning("baking_process:salt_flour", IngredientCategory.SEASONING_POWDER, food(0, 0.05f)),
+            seasoning("baking_process:salt_cubes", IngredientCategory.SEASONING_SOLID, food(0, 0.05f)),
+            seasoning("minecraft:honey_bottle", IngredientCategory.SEASONING_LIQUID, food(6, 0.1f)),
 
             // ===== 装饰 =====
-            // 占位装饰（maxFreeCount=0）：需无序配方明写
-            decoration("baking_process:parsley", 0),
             // 非占位装饰（maxFreeCount>0）：任何菜的最后追加，每菜最多一种、同种最多此数
-            decoration("baking_process:carrot_top", 2)
+            decoration("baking_process:carrot_head", 2)
     ));
 
     /** 读取当前生效的食材表 */
@@ -160,27 +171,27 @@ public record IngredientTableData(List<CulinaryIngredient> ingredients) {
 
     // ==================== 默认数据构造辅助 ====================
 
-    private static CulinaryIngredient main(String id, IngredientCategory.Main.Size size,
+    private static CulinaryIngredient main(String id, IngredientCategory category,
                                            SimpleFoodComponent cooked, @Nullable SimpleFoodComponent raw) {
         return new CulinaryIngredient(IngredientSource.ITEM, requireId(id),
-                new IngredientCategory.Main(size), new IngredientData.MainData(cooked, raw));
+                category, new IngredientData.MainData(cooked, raw));
     }
 
-    private static CulinaryIngredient side(String id, IngredientCategory.Side.Size size,
+    private static CulinaryIngredient side(String id, IngredientCategory category,
                                            SimpleFoodComponent cooked, @Nullable SimpleFoodComponent raw) {
         return new CulinaryIngredient(IngredientSource.ITEM, requireId(id),
-                new IngredientCategory.Side(size), new IngredientData.SideData(cooked, raw));
+                category, new IngredientData.SideData(cooked, raw));
     }
 
-    private static CulinaryIngredient seasoning(String id, IngredientCategory.Seasoning.Form form,
+    private static CulinaryIngredient seasoning(String id, IngredientCategory category,
                                                 SimpleFoodComponent food) {
         return new CulinaryIngredient(IngredientSource.ITEM, requireId(id),
-                new IngredientCategory.Seasoning(form), new IngredientData.SeasoningData(food));
+                category, new IngredientData.SeasoningData(food));
     }
 
     private static CulinaryIngredient decoration(String id, int maxFreeCount) {
         return new CulinaryIngredient(IngredientSource.ITEM, requireId(id),
-                new IngredientCategory.Decoration(), new IngredientData.DecorationData(maxFreeCount));
+                IngredientCategory.DECORATION, new IngredientData.DecorationData(maxFreeCount));
     }
 
     private static Identifier requireId(String id) {

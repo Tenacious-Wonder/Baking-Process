@@ -1,0 +1,6 @@
+{
+	"parent": "baking_process:generic_plating/main/regular/salmon_1",
+	"textures": {
+		"salmon": "block/cooked_salmon"
+	}
+}

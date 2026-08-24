@@ -6,11 +6,16 @@ import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.bakingprocess.BakingProcess;
+import org.bakingprocess.config.IngredientTableData;
 import org.bakingprocess.content.ShapedDoughContent;
+import org.bakingprocess.culinary.ingredient.CulinaryIngredient;
+import org.bakingprocess.culinary.ingredient.IngredientCategory;
+import org.bakingprocess.culinary.ingredient.IngredientSource;
 import org.bakingprocess.item.FlourItem;
 import org.bakingprocess.registry.ModContents;
 import org.bakingprocess.registry.ModItems;
 import org.dfood.block.FoodBlocks;
+import org.jetbrains.annotations.Nullable;
 import org.twcore.TWCore;
 import org.twcore.api.config.TwConfig;
 import org.twcore.api.process.PlayerAction;
@@ -37,6 +42,8 @@ import java.util.stream.Collectors;
  *   <li>食用阶段模型 {@code dishes_eat} ： {@code <containerId>|<dishId>|<maxEaten>} ；</li>
  *   <li>定型面团模型 {@code shaped_dough} ： {@code <contentId>} ；</li>
  *   <li>摆盘流程模型 {@code plating} ： {@code <containerId>|<dishId>|<action1>;<action2>;...} 规则顺序不可调整）；</li>
+ *   <li>无序摆盘食材模型 {@code generic_plating} ： {@code all} 或 {@code <source>:<id>...}，按食材类别槽位上限
+ *       自动展开生熟模型（主菜 {@code _1}、中型配菜 {@code _1~_2}、小型配菜 {@code _1~_4}）。</li>
  * </ul>
  */
 public final class ModModelRules {
@@ -153,6 +160,65 @@ public final class ModModelRules {
             return modelManager.generateAllPrefixModels(container, actions);
         });
 
+        // 无序摆盘食材模型：参数为食材来源+id（如 item:minecraft:beef），或 all（遍历当前食材表全部主菜/配菜）。
+        // 按类别槽位上限自动展开生熟模型（主菜 1、中型配菜 2、小型配菜 4；调料/装饰不生成）。
+        ModelRule.register("generic_plating", params -> {
+            requireParams(params, 1, "generic_plating|all 或 generic_plating|<source>:<id>...");
+            List<Identifier> models = new ArrayList<>();
+            if (params.size() == 1 && "all".equals(params.get(0))) {
+                for (CulinaryIngredient ingredient : IngredientTableData.current().ingredients()) {
+                    addGenericPlatingModels(models, ingredient);
+                }
+            } else {
+                for (String param : params) {
+                    CulinaryIngredient ingredient = findIngredient(param);
+                    if (ingredient != null) {
+                        addGenericPlatingModels(models, ingredient);
+                    }
+                }
+            }
+            return models;
+        });
+
+    }
+
+    // ==================== generic_plating 辅助 ====================
+
+    /** 把食材展开为全部槽位模型 id（生 + 熟）；调料/装饰不生成。 */
+    private static void addGenericPlatingModels(List<Identifier> models, CulinaryIngredient ingredient) {
+        int maxSlots = maxSlots(ingredient.category());
+        if (maxSlots < 1) {
+            return;
+        }
+        String base = "generic_plating/" + ingredient.category().asString() + "/";
+        String path = ingredient.id().getPath();
+        for (int slot = 1; slot <= maxSlots; slot++) {
+            models.add(new Identifier(BakingProcess.MOD_ID, base + path + "_" + slot));
+            models.add(new Identifier(BakingProcess.MOD_ID, base + "cooked_" + path + "_" + slot));
+        }
+    }
+
+    /** 槽位上限：主菜 1、中型配菜 2、小型配菜 4；调料与装饰本期不参与。 */
+    private static int maxSlots(IngredientCategory category) {
+        return switch (category) {
+            case MAIN_REGULAR, MAIN_LARGE -> 1;
+            case SIDE_MEDIUM -> 2;
+            case SIDE_SMALL -> 4;
+            default -> 0;
+        };
+    }
+
+    /** 解析 {@code <source>:<id>} 参数并在当前食材表查找；参数非法时抛异常，食材不在表中返回 {@code null}。 */
+    @Nullable
+    private static CulinaryIngredient findIngredient(String param) {
+        for (IngredientSource<?> source : IngredientSource.values()) {
+            String prefix = source.getId() + ":";
+            if (param.startsWith(prefix)) {
+                Identifier id = parseIdentifier(param.substring(prefix.length()), "ingredient id");
+                return IngredientTableData.current().find(source, id);
+            }
+        }
+        throw new IllegalArgumentException("Unknown ingredient source in: " + param);
     }
 
     // ==================== 默认规则生成 ====================
@@ -322,6 +388,9 @@ public final class ModModelRules {
         addShapedDoughRule(rules, ModContents.TOAST);
         addShapedDoughRule(rules, ModContents.CAKE_EMBRYO);
         addShapedDoughRule(rules, ModContents.BAKED_CAKE_EMBRYO);
+
+        // 无序摆盘食材模型：all = 遍历当前食材表全部主菜/配菜，按槽位上限自动加载（主菜 _1、中型配菜 _1~_2、小型配菜 _1~_4）
+        rules.add("generic_plating|all");
 
         // 案板菜刀
         rules.add("plain_model|" + BakingProcess.MOD_ID + "|other/on_board_kitchen_knife");

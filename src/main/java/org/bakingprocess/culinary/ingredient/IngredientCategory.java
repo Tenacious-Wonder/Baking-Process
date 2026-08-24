@@ -1,102 +1,100 @@
 package org.bakingprocess.culinary.ingredient;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
+import net.minecraft.util.StringIdentifiable;
 
 import java.util.Arrays;
-import java.util.Locale;
-import java.util.function.Function;
 
 /**
- * <h1>食材分类（纯分类）</h1>
- * <p>主菜 / 配菜 / 调料 / 装饰，各自拥有独立的子分类；本接口<b>不携带任何数据字段</b>，
- * 是纯粹的类别标签，可直接用作无序配方 {@code requirements} 的 key 与匹配分组键。</p>
- * <ul>
- *     <li>{@link Main}：常规 / 大型主菜；</li>
- *     <li>{@link Side}：中型 / 小型配菜；</li>
- *     <li>{@link Seasoning}：固体 / 粉状 / 液态调料；</li>
- *     <li>{@link Decoration}：装饰（单一大类，无子类；占位/非占位由条目数据
- *         {@link IngredientData.DecorationData#maxFreeCount()} 表达）。</li>
- * </ul>
+ * <h1>食材分类（枚举）</h1>
+ * <p>主菜 / 配菜 / 调料 / 装饰及其子分类的平铺枚举；每个常量携带序列化 id
+ * （如 {@code main/regular}）与所属原料大类 {@link Kind}。</p>
  *
- * <p>分类对应的<b>条目数据</b>见 {@link IngredientData}：按大类分派，各自持有字段与 CODEC。</p>
+ * <p>分类对应的<b>条目数据</b>见 {@link IngredientData}：按 {@link #kind()} 分派，
+ * 各子类持有自己的字段与 CODEC（主菜/配菜生熟双属性、调料单属性、装饰仅追加上限）。</p>
  *
  * @see IngredientData
  */
-public sealed interface IngredientCategory
-        permits IngredientCategory.Main, IngredientCategory.Side,
-                IngredientCategory.Seasoning, IngredientCategory.Decoration {
+public enum IngredientCategory implements StringIdentifiable {
+    // ===== 主菜 =====
+    MAIN_REGULAR("main/regular", Kind.MAIN),
+    MAIN_LARGE("main/large", Kind.MAIN),
 
-    /** 主菜：常规 / 大型。 */
-    record Main(Size size) implements IngredientCategory {
-        public enum Size { REGULAR, LARGE }
+    // ===== 配菜 =====
+    SIDE_MEDIUM("side/medium", Kind.SIDE),
+    SIDE_SMALL("side/small", Kind.SIDE),
+
+    // ===== 调料 =====
+    SEASONING_SOLID("seasoning/solid", Kind.SEASONING),
+    SEASONING_POWDER("seasoning/powder", Kind.SEASONING),
+    SEASONING_LIQUID("seasoning/liquid", Kind.SEASONING),
+
+    // ===== 装饰（占位/非占位由条目数据表达） =====
+    DECORATION("decoration", Kind.DECORATION);
+
+    /** 原料大类：主菜 / 配菜 / 调料 / 装饰，用于大类级约束（如无序配方中"调料总量"）。 */
+    public enum Kind implements StringIdentifiable {
+        MAIN("main"),
+        SIDE("side"),
+        SEASONING("seasoning"),
+        DECORATION("decoration");
+
+        private final String id;
+
+        Kind(String id) {
+            this.id = id;
+        }
+
+        @Override
+        public String asString() {
+            return id;
+        }
+
+        /** 按字符串 id 查找。 */
+        public static Kind fromId(String id) {
+            return Arrays.stream(values())
+                    .filter(value -> value.id.equals(id))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown ingredient kind: " + id));
+        }
     }
 
-    /** 配菜：中型 / 小型（装饰已单开为大类，不再属于配菜）。 */
-    record Side(Size size) implements IngredientCategory {
-        public enum Size { MEDIUM, SMALL }
+    private final String id;
+    private final Kind kind;
+
+    IngredientCategory(String id, Kind kind) {
+        this.id = id;
+        this.kind = kind;
     }
 
-    /** 调料：固体 / 粉状 / 液态。 */
-    record Seasoning(Form form) implements IngredientCategory {
-        public enum Form { SOLID, POWDER, LIQUID }
+    @Override
+    public String asString() {
+        return id;
     }
 
-    /** 装饰：单一大类，无子类；占位（0）/ 非占位（&gt;0）由条目数据表达。 */
-    record Decoration() implements IngredientCategory {}
+    /** 所属原料大类。 */
+    public Kind kind() {
+        return kind;
+    }
 
     /** 是否调料（食物属性计算的倍率中计为"调料种数"）。 */
-    default boolean isSeasoning() {
-        return this instanceof Seasoning;
+    public boolean isSeasoning() {
+        return kind == Kind.SEASONING;
     }
 
-    /** 是否装饰（属性计算完全跳过、无序中为成品尾缀）。 */
-    default boolean isDecoration() {
-        return this instanceof Decoration;
+    /** 是否装饰（属性计算完全跳过；无序中为成品尾缀）。 */
+    public boolean isDecoration() {
+        return kind == Kind.DECORATION;
     }
 
-    /** 序列化 Codec：以 "大类/子类" 表示，如 {@code main/regular}、{@code seasoning/liquid}；
-     * 装饰无子类，序列化为单个 {@code decoration}。 */
-    Codec<IngredientCategory> CODEC = Codec.STRING.comapFlatMap(IngredientCategory::parse, IngredientCategory::stringify);
-
-    private static DataResult<IngredientCategory> parse(String value) {
-        if (value.equals("decoration")) {
-            return DataResult.success(new Decoration());
-        }
-        String[] parts = value.split("/", 2);
-        if (parts.length != 2) {
-            return DataResult.error(() -> "Invalid ingredient category: " + value);
-        }
-        return switch (parts[0]) {
-            case "main" -> parseVariant(Main.Size.class, parts[1], Main::new);
-            case "side" -> parseVariant(Side.Size.class, parts[1], Side::new);
-            case "seasoning" -> parseVariant(Seasoning.Form.class, parts[1], Seasoning::new);
-            default -> DataResult.error(() -> "Unknown category kind: " + parts[0]);
-        };
-    }
-
-    private static String stringify(IngredientCategory category) {
-        if (category instanceof Main main) {
-            return "main/" + main.size().name().toLowerCase(Locale.ROOT);
-        }
-        if (category instanceof Side side) {
-            return "side/" + side.size().name().toLowerCase(Locale.ROOT);
-        }
-        if (category instanceof Seasoning seasoning) {
-            return "seasoning/" + seasoning.form().name().toLowerCase(Locale.ROOT);
-        }
-        if (category instanceof Decoration) {
-            return "decoration";
-        }
-        throw new IllegalStateException("Unknown ingredient category: " + category);
-    }
-
-    private static <E extends Enum<E>, R extends IngredientCategory> DataResult<IngredientCategory> parseVariant(
-            Class<E> enumClass, String name, Function<E, R> factory) {
-        return Arrays.stream(enumClass.getEnumConstants())
-                .filter(variant -> variant.name().equalsIgnoreCase(name))
+    /** 按字符串 id 查找（网络 / 配方序列化用）。 */
+    public static IngredientCategory fromString(String value) {
+        return Arrays.stream(values())
+                .filter(category -> category.id.equals(value))
                 .findFirst()
-                .map(variant -> DataResult.<IngredientCategory>success(factory.apply(variant)))
-                .orElseGet(() -> DataResult.error(() -> "Unknown category variant: " + name));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid ingredient category: " + value));
     }
+
+    /** 序列化 Codec：按 {@link #asString()} 的 id（非 name），常量改名不破坏数据。 */
+    public static final com.mojang.serialization.Codec<IngredientCategory> CODEC =
+            StringIdentifiable.createCodec(IngredientCategory::values);
 }

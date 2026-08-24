@@ -1,0 +1,11 @@
+{
+  "type": "baking_process:generic_plating",
+  "container": "baking_process:iron_plate",
+  "dish_class": "seasoned",
+  "dish_name": "baking_process:generic/seasoned",
+  "requirements": {
+    "main/regular": 1,
+    "side/medium": [1, 2],
+    "seasoning": [0, 3]
+  }
+}

@@ -8,6 +8,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.context.LootContextParameterSet;
 import net.minecraft.loot.context.LootContextParameters;
@@ -151,6 +152,15 @@ public class PlateBlock extends Block implements BlockEntityProvider {
                 plateBlockEntity.coverWithLid();
             }
         }
+    }
+
+    /**
+     * 放置时记录玩家水平朝向，供渲染端按朝向旋转摆盘内容。
+     */
+    @Override
+    @Nullable
+    public BlockState getPlacementState(ItemPlacementContext ctx) {
+        return this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing());
     }
 
     @Override

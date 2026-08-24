@@ -20,6 +20,9 @@ import org.bakingprocess.culinary.CulinaryView;
  */
 public abstract class ProcessingStep {
 
+    /** "未烤制"前缀：生菜步骤显示名 = 该前缀 + 菜名本体，有序与无序共用。 */
+    protected static final Text RAW_PREFIX = Text.translatable("culinary.prefix.raw");
+
     /** 经历这一步加工后，这道菜的标识（身份）；每个步骤声明自己的结果身份。 */
     public abstract Identifier getIdentifier();
 
@@ -28,12 +31,9 @@ public abstract class ProcessingStep {
 
     /**
      * 这一步加工在 GUI / 提示中的显示名称。
-     *
-     * <p>默认按结果标识翻译（{@code content.<标识>}，标识用 {@link Identifier#toTranslationKey()} 的点号形式），
-     * 需要特殊显示名的步骤可覆写。</p>
      */
     public Text getDisplayName() {
-        return Text.translatable("content." + getIdentifier().toTranslationKey());
+        return Text.translatable("culinary." + getIdentifier().toTranslationKey());
     }
 
     /** 本步骤所属的加工类型，用于序列化调度与类型识别。 */

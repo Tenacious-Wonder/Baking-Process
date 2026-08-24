@@ -1,0 +1,6 @@
+{
+	"parent": "baking_process:generic_plating/side/medium/carrot_slices_1",
+	"textures": {
+		"carrot": "baking_process:block/roasted_carrot"
+	}
+}

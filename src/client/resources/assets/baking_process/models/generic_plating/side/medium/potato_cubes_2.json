@@ -1,0 +1,63 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"potato": "baking_process:block/potato_cubes"
+	},
+	"elements": [
+        {
+            "from": [1.81732, 0.7, 1.77612],
+            "to": [4.51732, 4.7, 7.77612],
+            "rotation": {"angle": -22.5, "axis": "y", "origin": [4.6, 2.7, 5]},
+            "faces": {
+                "north": {"uv": [9, 1, 11, 2], "texture": "#potato"},
+                "east": {"uv": [3, 2, 0, 0], "texture": "#potato"},
+                "south": {"uv": [9, 2, 11, 3], "texture": "#potato"},
+                "west": {"uv": [3, 2, 0, 4], "texture": "#potato"},
+                "up": {"uv": [6, 6.5, 9, 7.5], "texture": "#potato"},
+                "down": {"uv": [3, 7.5, 6, 8.5], "texture": "#potato"}
+            }
+        },
+        {
+            "from": [1.38268, 1, 7.42388],
+            "to": [3.38268, 5, 13.42388],
+            "faces": {
+                "north": {"uv": [7.5, 7.5, 9, 9.5], "texture": "#potato"},
+                "east": {"uv": [3, 0, 6, 2], "texture": "#potato"},
+                "south": {"uv": [6, 7.5, 7.5, 9.5], "texture": "#potato"},
+                "west": {"uv": [3, 2, 6, 4], "texture": "#potato"},
+                "up": {"uv": [9, 3.5, 6, 2], "texture": "#potato"},
+                "down": {"uv": [6, 6, 3, 7.5], "texture": "#potato"}
+            }
+        }
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [0, -180, 0],
+			"translation": [0, 3.5, -3.75],
+			"scale": [0.71, 0.71, 0.71]
+		},
+		"thirdperson_lefthand": {
+			"translation": [0, 6.5, 0]
+		},
+		"firstperson_righthand": {
+			"translation": [0, 8.25, -5]
+		},
+		"firstperson_lefthand": {
+			"translation": [0, 7.25, 0]
+		},
+		"ground": {
+			"translation": [0, 4, 0],
+			"scale": [0.72, 0.72, 0.73]
+		},
+		"gui": {
+			"rotation": [37, 45, 0],
+			"translation": [0, 3.5, 0],
+			"scale": [0.73, 0.73, 0.73]
+		},
+		"fixed": {
+			"rotation": [-90, 0, 0],
+			"translation": [0, 0.25, -6.75]
+		}
+	}
+}

@@ -1,0 +1,10 @@
+{
+  "type": "baking_process:generic_plating",
+  "container": "baking_process:iron_plate",
+  "dish_class": "raw",
+  "dish_name": "baking_process:generic/raw",
+  "requirements": {
+    "main/regular": 1,
+    "side/small": [0, 4]
+  }
+}

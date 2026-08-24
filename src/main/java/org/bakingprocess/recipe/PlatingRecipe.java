@@ -123,7 +123,7 @@ public class PlatingRecipe implements Recipe<PlatingRecipe.PlatingInventory> {
      * 生成摆盘加工步骤：菜标识、口数与可食性均来自配方。
      */
     public PlatingStep createStep() {
-        return new PlatingStep(actions, dishName, eatCount, edible);
+        return new PlatingStep(actions, dishName, eatCount, edible, false);
     }
 
     /**

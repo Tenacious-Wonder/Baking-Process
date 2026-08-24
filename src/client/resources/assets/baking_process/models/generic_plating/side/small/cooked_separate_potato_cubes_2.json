@@ -1,0 +1,6 @@
+{
+	"parent": "baking_process:generic_plating/side/small/separate_potato_cubes_2",
+	"textures": {
+		"potato_cubes": "baking_process:block/baked_potato_cubes"
+	}
+}

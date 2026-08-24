@@ -24,9 +24,10 @@ import org.bakingprocess.block.process.EatDishesProcess;
 import org.bakingprocess.block.process.PlatingProcess;
 import org.bakingprocess.culinary.Culinary;
 import org.bakingprocess.culinary.CulinaryHandle;
+import org.bakingprocess.culinary.carrier.ServingVessel;
 import org.bakingprocess.culinary.step.PlatingStep;
 import org.bakingprocess.culinary.step.ProcessingStep;
-import org.bakingprocess.recipe.PlatingRecipe;
+import org.bakingprocess.recipe.PlatingCandidate;
 import org.bakingprocess.registry.ModBlockEntityTypes;
 import org.bakingprocess.registry.ModItems;
 import org.jetbrains.annotations.Nullable;
@@ -127,9 +128,9 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
     @Nullable
     private Culinary resolveCulinary() {
         if (platingProcess.isActive()) {
-            PlatingRecipe recipe = platingProcess.getMatchedRecipe();
-            if (recipe != null) {
-                return Culinary.create().addStep(recipe.createStep());
+            PlatingCandidate candidate = platingProcess.getMatchedCandidate();
+            if (candidate != null) {
+                return Culinary.create().addStep(candidate.createStep(platingProcess.getPerformedActions()));
             }
             return null;
         }
@@ -239,8 +240,8 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
      * 尝试摆盘。
      */
     public ActionResult tryPlating(PlayerEntity player, Hand hand, BlockHitResult hit) {
-        // 检查是否满足摆盘条件
-        if (eatProcess.isActive() || resolveCulinary() != null || getCachedState().get(PlateBlock.IS_COVERED)) {
+        // 检查是否满足摆盘条件：匹配不阻塞继续放入（盖盖才完成），仅阻挡食用流程与已盖盖
+        if (eatProcess.isActive() || getCachedState().get(PlateBlock.IS_COVERED)) {
             return ActionResult.PASS;
         }
 
@@ -316,9 +317,9 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
     }
 
     @Override
-    public void onPlatingComplete(World world, BlockPos pos, PlatingRecipe recipe, PlayerEntity player, Hand hand, HitResult hit) {
-        // 用配方生成摆盘步骤并接纳为菜肴
-        tryAddCulinary(Culinary.create().addStep(recipe.createStep()));
+    public void onPlatingComplete(World world, BlockPos pos, PlatingStep step, PlayerEntity player, Hand hand, HitResult hit) {
+        // 用摆盘步骤接纳为菜肴
+        tryAddCulinary(Culinary.create().addStep(step));
 
         // 消耗一个完成物品
         if (!player.isCreative()) {

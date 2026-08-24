@@ -1,0 +1,6 @@
+{
+	"parent": "baking_process:generic_plating/main/regular/mutton_1",
+	"textures": {
+		"mutton": "block/cooked_mutton"
+	}
+}

@@ -1,0 +1,51 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"potato_cubes": "baking_process:block/potato_cubes"
+	},
+	"elements": [
+        {
+            "from": [1.81732, 0.7, 1.77612],
+            "to": [4.51732, 4.7, 7.77612],
+            "rotation": {"angle": -22.5, "axis": "y", "origin": [4.6, 2.7, 5]},
+            "faces": {
+                "north": {"uv": [9, 1, 11, 2], "texture": "#potato_cubes"},
+                "east": {"uv": [3, 2, 0, 0], "texture": "#potato_cubes"},
+                "south": {"uv": [9, 2, 11, 3], "texture": "#potato_cubes"},
+                "west": {"uv": [3, 2, 0, 4], "texture": "#potato_cubes"},
+                "up": {"uv": [6, 6.5, 9, 7.5], "texture": "#potato_cubes"},
+                "down": {"uv": [3, 7.5, 6, 8.5], "texture": "#potato_cubes"}
+            }
+        }
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [0, -180, 0],
+			"translation": [0, 3.5, -3.75],
+			"scale": [0.71, 0.71, 0.71]
+		},
+		"thirdperson_lefthand": {
+			"translation": [0, 6.5, 0]
+		},
+		"firstperson_righthand": {
+			"translation": [0, 8.25, -5]
+		},
+		"firstperson_lefthand": {
+			"translation": [0, 7.25, 0]
+		},
+		"ground": {
+			"translation": [0, 4, 0],
+			"scale": [0.72, 0.72, 0.73]
+		},
+		"gui": {
+			"rotation": [37, 45, 0],
+			"translation": [0, 3.5, 0],
+			"scale": [0.73, 0.73, 0.73]
+		},
+		"fixed": {
+			"rotation": [-90, 0, 0],
+			"translation": [0, 0.25, -6.75]
+		}
+	}
+}

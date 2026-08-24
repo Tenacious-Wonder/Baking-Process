@@ -3,6 +3,7 @@ package org.bakingprocess.culinary.step;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.bakingprocess.culinary.CulinaryView;
@@ -21,7 +22,8 @@ import java.util.List;
  * <h2>从摆盘步骤推导并固化</h2>
  * <p>加入一道菜时（{@link #onAdded}）读取既有历史中的 {@link PlatingStep}，推导烤熟后的表现：
  * 口数沿用目标菜口数、食物属性按原料"烤熟后"属性（{@code cooked}）经
- * {@link DishFoodCalculator} 计算、菜标识由摆盘标识派生（路径加 {@code cooked_} 前缀）。</p>
+ * {@link DishFoodCalculator} 计算、菜标识由摆盘标识派生（路径加 {@code cooked_} 前缀）。
+ * 熟菜显示名沿用摆盘步骤的<b>菜名本体</b>（不含"未烤制"前缀），无需再存操作序列。</p>
  */
 public class BakingStep extends ProcessingStep {
 
@@ -30,7 +32,10 @@ public class BakingStep extends ProcessingStep {
             Codec.INT.fieldOf("bake_time").forGetter(BakingStep::getBakeTime),
             Codec.INT.fieldOf("eat_count").forGetter(BakingStep::getEatCount),
             Identifier.CODEC.fieldOf("cooked_id").forGetter(BakingStep::getIdentifier),
-            SimpleFoodComponent.CODEC.fieldOf("food").forGetter(BakingStep::getCookedFood)
+            SimpleFoodComponent.CODEC.fieldOf("food").forGetter(BakingStep::getCookedFood),
+            Codec.STRING.fieldOf("suffix_name")
+                    .xmap(BakingStep::parseSuffixName, BakingStep::stringifySuffixName)
+                    .forGetter(step -> step.suffixName)
     ).apply(instance, BakingStep::fromDerived));
 
     // ==================== 字段 ====================
@@ -45,6 +50,8 @@ public class BakingStep extends ProcessingStep {
     private Identifier cookedIdentifier;
     /** 烤熟后的食物属性。 */
     private SimpleFoodComponent cookedFood;
+    /** 菜名本体（沿自摆盘步骤，熟菜显示名 = 本体）。 */
+    private Text suffixName;
     /** 是否已完成推导。 */
     private boolean derived;
 
@@ -60,6 +67,12 @@ public class BakingStep extends ProcessingStep {
     @Override
     public Identifier getIdentifier() {
         return cookedIdentifier;
+    }
+
+    /** 熟菜显示名：从摆盘步骤沿用的菜名本体（不含"未烤制"前缀）。 */
+    @Override
+    public Text getDisplayName() {
+        return suffixName;
     }
 
     @Override
@@ -103,6 +116,8 @@ public class BakingStep extends ProcessingStep {
                 plating.getIdentifier().getNamespace(),
                 "cooked_" + plating.getIdentifier().getPath()
         );
+        // 熟菜显示名沿用摆盘步骤的菜名本体（无需存操作序列）
+        this.suffixName = plating.getSuffixName();
         List<CulinaryIngredient> ingredients = IngredientTableData.current().fromActions(plating.getActions());
         this.cookedFood = DishFoodCalculator.calculate(ingredients, false);
         this.derived = true;
@@ -129,12 +144,21 @@ public class BakingStep extends ProcessingStep {
 
     /** 从已推导字段构造（反序列化路径）。 */
     private static BakingStep fromDerived(int bakeTime, int eatCount, Identifier cookedIdentifier,
-                                          SimpleFoodComponent cookedFood) {
+                                          SimpleFoodComponent cookedFood, Text suffixName) {
         BakingStep step = new BakingStep(bakeTime);
         step.eatCount = eatCount;
         step.cookedIdentifier = cookedIdentifier;
         step.cookedFood = cookedFood;
+        step.suffixName = suffixName;
         step.derived = true;
         return step;
+    }
+
+    private static Text parseSuffixName(String json) {
+        return Text.Serializer.fromJson(json);
+    }
+
+    private static String stringifySuffixName(Text text) {
+        return Text.Serializer.toJson(text);
     }
 }

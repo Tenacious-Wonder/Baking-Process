@@ -1,0 +1,81 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"beetroot_slices": "baking_process:block/beetroot_slices"
+	},
+	"elements": [
+		{
+			"from": [11.6, 1.4, 7],
+			"to": [15.6, 2.4, 11],
+			"rotation": {"angle": 22.5, "axis": "z", "origin": [13.6, 1.5, 9]},
+			"faces": {
+				"north": {"uv": [8, 4, 9, 8], "rotation": 270, "texture": "#beetroot_slices"},
+				"east": {"uv": [4, 10, 0, 9], "texture": "#beetroot_slices"},
+				"south": {"uv": [8, 8, 9, 12], "rotation": 90, "texture": "#beetroot_slices"},
+				"west": {"uv": [13, 4, 9, 5], "rotation": 180, "texture": "#beetroot_slices"},
+				"up": {"uv": [15, 13, 11, 9], "rotation": 90, "texture": "#beetroot_slices"},
+				"down": {"uv": [15, 9, 11, 13], "rotation": 90, "texture": "#beetroot_slices"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [0, -180, 0],
+			"translation": [0, 3.5, -3.75],
+			"scale": [0.71, 0.71, 0.71]
+		},
+		"thirdperson_lefthand": {
+			"translation": [0, 6.5, 0]
+		},
+		"firstperson_righthand": {
+			"translation": [0, 8.25, -5]
+		},
+		"firstperson_lefthand": {
+			"translation": [0, 7.25, 0]
+		},
+		"ground": {
+			"translation": [0, 4, 0],
+			"scale": [0.72, 0.72, 0.73]
+		},
+		"gui": {
+			"rotation": [37, 45, 0],
+			"translation": [0, 3.5, 0],
+			"scale": [0.73, 0.73, 0.73]
+		},
+		"fixed": {
+			"rotation": [-90, 0, 0],
+			"translation": [0, 0.25, -6.75]
+		}
+	},
+	"groups": [
+		{
+			"name": "group",
+			"origin": [8, 8, 8],
+			"scope": 0,
+			"color": 0,
+			"children": []
+		},
+		{
+			"name": "group",
+			"origin": [8, 8, 8],
+			"scope": 0,
+			"color": 0,
+			"children": []
+		},
+		{
+			"name": "group",
+			"origin": [8, 8, 8],
+			"scope": 0,
+			"color": 0,
+			"children": []
+		},
+		{
+			"name": "group",
+			"origin": [8, 8, 8],
+			"scope": 0,
+			"color": 0,
+			"children": [0]
+		}
+	]
+}

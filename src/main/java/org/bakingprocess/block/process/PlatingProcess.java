@@ -8,7 +8,12 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.bakingprocess.block.entity.PlatableBlockEntity;
+import org.bakingprocess.culinary.step.PlatingStep;
+import org.bakingprocess.recipe.GenericPlatingCandidate;
+import org.bakingprocess.recipe.GenericPlatingRecipe;
+import org.bakingprocess.recipe.PlatingCandidate;
 import org.bakingprocess.recipe.PlatingRecipe;
+import org.bakingprocess.recipe.RecipePlatingCandidate;
 import org.bakingprocess.registry.ModRecipeTypes;
 import org.jetbrains.annotations.Nullable;
 import org.twcore.api.process.AbstractProcess;
@@ -23,8 +28,8 @@ import org.twcore.process.step.StepExecutionContext;
 import org.twcore.process.step.StepResult;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * <h1>摆盘流程</h1>
@@ -33,12 +38,13 @@ import java.util.stream.Collectors;
  * <h2>职责</h2>
  * <ul>
  *     <li>按顺序持有玩家已执行的操作（只追加，不允许跳过 / 回填）；</li>
- *     <li>用当前序列做配方前缀匹配收窄候选，序列完整时记录精确匹配配方供完成步骤使用。</li>
+ *     <li>候选池中<b>有序与无序候选并行共存</b>：每次追加先试有序、后试无序，
+ *         任一轨可继续即接受；完成时有序优先，无序取"最直接"（冗余维度最少）。</li>
  * </ul>
  *
  * <h2>状态与恢复</h2>
  * <ul>
- *     <li>候选配方在首次放入或世界就绪（{@code setWorld}）时建立；</li>
+ *     <li>候选在首次放入或世界就绪（{@code setWorld}）时建立；</li>
  *     <li>操作序列随 NBT 持久化，重启后自动恢复；</li>
  *     <li>移除中间步骤会连锁移除其后所有操作。</li>
  * </ul>
@@ -52,12 +58,12 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
     /** 操作序列：按顺序执行的玩家操作，由本流程统一管理 */
     private final List<PlayerAction> performedActions = new ArrayList<>();
 
-    /** 当前步骤的候选配方列表 */
-    private final List<PlatingRecipe> candidateRecipes = new ArrayList<>();
+    /** 当前候选池：有序与无序候选并行共存 */
+    private final List<PlatingCandidate> candidateRecipes = new ArrayList<>();
 
-    /** 当前完全匹配的配方（如果存在） */
+    /** 当前完全匹配的候选（有序优先；存在时完成步骤使用） */
     @Nullable
-    private PlatingRecipe matchedRecipe = null;
+    private PlatingCandidate matchedCandidate = null;
 
     /** 标志：是否正在匹配配方，防止重入 */
     private boolean isMatchingRecipes = false;
@@ -199,42 +205,51 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
         return true;
     }
 
-    // ==================== 候选配方与匹配 ====================
+    // ==================== 候选与匹配 ====================
 
     /**
-     * 首次放入物品：以第一步操作筛选初始候选配方。
-     *
-     * <p>当盘子为空、玩家放入第一个物品时调用，找出所有容器匹配且第一步操作
-     * 与所放物品一致的配方，作为本次摆盘的候选集合。</p>
+     * 建立候选池：取出容器匹配的有序配方与无序规则，包装为候选，
+     * 按当前操作序列过滤出合法者。
      *
      * @param world 世界实例
      * @param plate 摆盘方块实体
-     * @param firstAction 玩家放入的第一个操作
-     * @return 如果找到至少一个候选配方返回 {@code true}
+     * @return 找到至少一个候选返回 {@code true}
      */
-    private boolean initializeCandidatesWithFirstAction(World world, PlatableBlockEntity plate, PlayerAction firstAction) {
+    private boolean initializeCandidates(World world, PlatableBlockEntity plate) {
         isMatchingRecipes = true;
         try {
             RecipeManager recipeManager = world.getRecipeManager();
-            List<PlatingRecipe> allRecipes = recipeManager.listAllOfType(ModRecipeTypes.PLATING);
-
-            if (allRecipes.isEmpty() || firstAction == null) {
-                return false;
-            }
-
+            List<PlayerAction> actions = getPerformedActions();
             Identifier containerId = plate.getContainerId();
-            List<PlatingRecipe> candidates = allRecipes.stream()
-                    .filter(recipe -> recipe.getContainerId().equals(containerId))
-                    .filter(recipe -> recipe.getActionCount() > 0
-                            && recipe.getActionAt(0).matches(firstAction))
-                    .toList();
 
+            List<PlatingCandidate> candidates = new ArrayList<>();
+            for (PlatingRecipe recipe : recipeManager.listAllOfType(ModRecipeTypes.PLATING)) {
+                if (recipe.getContainerId().equals(containerId)) {
+                    candidates.add(new RecipePlatingCandidate(recipe));
+                }
+            }
+            for (GenericPlatingRecipe rule : recipeManager.listAllOfType(ModRecipeTypes.GENERIC_PLATING)) {
+                if (rule.getContainerId().equals(containerId)) {
+                    candidates.add(new GenericPlatingCandidate(rule));
+                }
+            }
             if (candidates.isEmpty()) {
                 return false;
             }
 
+            // 按当前序列过滤：空序列保留全部；否则保留"当前序列合法"的候选
+            List<PlatingCandidate> accepted = actions.isEmpty()
+                    ? candidates
+                    : candidates.stream().filter(candidate -> candidate.matchesPrefix(actions)).toList();
+            if (accepted.isEmpty()) {
+                return false;
+            }
+
             candidateRecipes.clear();
-            candidateRecipes.addAll(candidates);
+            candidateRecipes.addAll(accepted);
+
+            // 恢复/建立后同步检查完全匹配（揭盖还原、进世界恢复时 matched 得以恢复）
+            checkForExactMatch();
             return true;
         } finally {
             isMatchingRecipes = false;
@@ -242,49 +257,14 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
     }
 
     /**
-     * 根据当前已执行的操作序列恢复候选配方。
-     *
-     * <p>以操作序列为前缀匹配所有配方，并检查是否存在完全匹配。
-     * 用于世界就绪（{@code setWorld}）后恢复游戏重启前的摆盘进度，也可作为兜底手段。</p>
+     * 根据当前已执行的操作序列建立候选池（世界就绪 / 重启兜底共用）。
      *
      * @param world 世界实例
      * @param plate 摆盘方块实体
-     * @return 如果找到至少一个候选配方返回 {@code true}
+     * @return 找到至少一个候选返回 {@code true}
      */
     public boolean restoreCandidates(World world, PlatableBlockEntity plate) {
-        isMatchingRecipes = true;
-        try {
-            RecipeManager recipeManager = world.getRecipeManager();
-            List<PlatingRecipe> allRecipes = recipeManager.listAllOfType(ModRecipeTypes.PLATING);
-
-            if (allRecipes.isEmpty()) {
-                return false;
-            }
-
-            List<PlayerAction> performedActions = getPerformedActions();
-            if (performedActions.isEmpty()) {
-                return false;
-            }
-
-            Identifier containerId = plate.getContainerId();
-            List<PlatingRecipe> candidates = allRecipes.stream()
-                    .filter(recipe -> recipe.getContainerId().equals(containerId))
-                    .filter(recipe -> recipe.matchesPrefix(performedActions))
-                    .toList();
-
-            if (candidates.isEmpty()) {
-                return false;
-            }
-
-            candidateRecipes.clear();
-            candidateRecipes.addAll(candidates);
-
-            // 检查完全匹配，恢复已匹配的配方
-            checkForExactMatch(plate, world);
-            return true;
-        } finally {
-            isMatchingRecipes = false;
-        }
+        return initializeCandidates(world, plate);
     }
 
     /**
@@ -292,7 +272,7 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
      *
      * <p>由方块实体的 {@code setWorld} 重写调用：仅当流程处于活动状态
      * （游戏重启前摆盘尚未完成）且候选列表为空（尚未建立）时，按当前操作序列
-     * 恢复候选配方与精确匹配。</p>
+     * 建立候选池。</p>
      *
      * @param world 世界实例
      * @param entity 摆盘方块实体
@@ -306,48 +286,41 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
     }
 
     /**
-     * 根据下一步操作过滤候选配方。
-     *
-     * @param nextAction 下一步要执行的操作
-     * @param performedActions 已执行的操作列表
-     * @return 过滤后的候选配方列表，只包含下一步匹配的配方
+     * 按下一步操作过滤候选池：保留加入 next 后仍合法的候选。
      */
-    private List<PlatingRecipe> filterCandidatesByNextAction(PlayerAction nextAction, List<PlayerAction> performedActions) {
+    private List<PlatingCandidate> filterCandidatesByNextAction(PlayerAction nextAction, List<PlayerAction> actions) {
         return candidateRecipes.stream()
-                .filter(recipe -> {
-                    // 如果已执行操作数量 >= 配方操作数量，不是有效候选
-                    if (performedActions.size() >= recipe.getActionCount()) {
-                        return false;
-                    }
-
-                    // 检查已执行操作是否是配方的有效前缀
-                    if (!recipe.matchesPrefix(performedActions)) {
-                        return false;
-                    }
-
-                    // 检查下一步是否匹配
-                    PlayerAction nextRecipeAction = recipe.getNextAction(performedActions.size());
-                    return nextRecipeAction != null && nextAction.matches(nextRecipeAction);
-                })
-                .collect(Collectors.toList());
+                .filter(candidate -> candidate.canContinue(actions, nextAction))
+                .toList();
     }
 
     /**
-     * 检查当前摆盘状态是否有完全匹配的配方。
+     * 检查候选池中是否存在完全匹配的候选：有序优先，无序取"最直接"（冗余维度最少）。
      */
-    public void checkForExactMatch(PlatableBlockEntity plate, World world) {
-        matchedRecipe = candidateRecipes.stream()
-                .filter(recipe -> recipe.matches(new PlatingRecipe.PlatingInventory(this, plate), world))
-                .findFirst()
+    public void checkForExactMatch() {
+        List<PlayerAction> actions = getPerformedActions();
+
+        for (PlatingCandidate candidate : candidateRecipes) {
+            if (candidate instanceof RecipePlatingCandidate && candidate.isComplete(actions)) {
+                matchedCandidate = candidate;
+                return;
+            }
+        }
+
+        matchedCandidate = candidateRecipes.stream()
+                .filter(candidate -> candidate instanceof GenericPlatingCandidate && candidate.isComplete(actions))
+                .min(Comparator
+                        .comparingInt((PlatingCandidate candidate) -> ((GenericPlatingCandidate) candidate).redundantDimensions(actions))
+                        .thenComparing(candidate -> candidate.getId().toString()))
                 .orElse(null);
     }
 
     /**
-     * 重置候选配方状态，等待下一次初始化。
+     * 重置候选状态，等待下一次初始化。
      */
     private void resetCandidateState() {
         candidateRecipes.clear();
-        matchedRecipe = null;
+        matchedCandidate = null;
         isMatchingRecipes = false;
     }
 
@@ -360,8 +333,7 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
      * <ol>
      *   <li>防止配方匹配重入</li>
      *   <li>从上下文创建本次交互对应的操作（空手则直接通过）</li>
-     *   <li>候选列表未初始化时：首次放入物品按第一步筛选初始配方；
-     *       已有操作序列（重启兜底）则按当前序列恢复候选</li>
+     *   <li>候选池为空（尚未建立）时：空盘按第一步筛选，已有操作序列按当前序列恢复</li>
      *   <li>按本次操作过滤候选，执行操作并检查是否完全匹配</li>
      * </ol>
      */
@@ -389,32 +361,24 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
                 return StepResult.continueSameStep(ActionResult.PASS);
             }
 
-            // 候选列表为空（尚未建立）时，按当前状态建立候选
+            // 候选池为空（尚未建立）时建立候选
             if (candidateRecipes.isEmpty()) {
-                if (getStepCount() == 0) {
-                    // 首次放入物品：以第一步操作筛选初始候选配方
-                    if (!initializeCandidatesWithFirstAction(context.world(), plate, expectedAction)) {
-                        resetCandidateState();
-                        return StepResult.fail(STEP_PERFORM_ACTION, ActionResult.FAIL);
-                    }
-                } else {
-                    // 重启后的兜底：按当前操作序列恢复候选（正常情况下 setWorld 已完成）
-                    if (!restoreCandidates(context.world(), plate)) {
-                        resetCandidateState();
-                        return StepResult.fail(STEP_PERFORM_ACTION, ActionResult.FAIL);
-                    }
+                if (!initializeCandidates(context.world(), plate)) {
+                    resetCandidateState();
+                    return StepResult.fail(STEP_PERFORM_ACTION, ActionResult.FAIL);
                 }
             }
 
-            // 按下一步操作过滤候选配方
-            List<PlatingRecipe> matchingRecipes = filterCandidatesByNextAction(expectedAction, getPerformedActions());
-            if (matchingRecipes.isEmpty()) {
+            // 按本次操作过滤候选（有序前缀 / 无序可完成，至少一轨能通才接受）
+            List<PlatingCandidate> matching = filterCandidatesByNextAction(expectedAction, getPerformedActions());
+            if (matching.isEmpty()) {
+                // 失败：已放原料保留，候选重置等待重新建立
                 resetCandidateState();
                 return StepResult.fail(STEP_PERFORM_ACTION, ActionResult.FAIL);
             }
 
             candidateRecipes.clear();
-            candidateRecipes.addAll(matchingRecipes);
+            candidateRecipes.addAll(matching);
 
             return executeAction(context, plate, expectedAction, getStepCount());
         }
@@ -440,15 +404,15 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
             action.consume(context);
             plate.markDirty();
 
-            // 检查是否有完全匹配的配方
-            checkForExactMatch(plate, null);
+            // 检查是否有完全匹配的候选
+            checkForExactMatch();
 
             return StepResult.continueSameStep(ActionResult.SUCCESS);
         }
     }
 
     /**
-     * 完成流程步骤，处理配方的完成和输出。
+     * 完成流程步骤：用完全匹配的候选生成摆盘步骤并完成。
      */
     private class CompleteStep implements Step<T> {
         @Override
@@ -461,17 +425,17 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
                 return StepResult.fail(STEP_PERFORM_ACTION, ActionResult.FAIL);
             }
 
-            // 检查是否有完全匹配的配方
-            if (matchedRecipe == null) {
-                // 如果没有匹配的配方，但玩家手持完成物品，尝试重新检查
-                checkForExactMatch(plate, context.world());
-                if (matchedRecipe == null) {
+            // 检查是否有完全匹配的候选
+            if (matchedCandidate == null) {
+                checkForExactMatch();
+                if (matchedCandidate == null) {
                     return StepResult.fail(STEP_PERFORM_ACTION, ActionResult.FAIL);
                 }
             }
 
-            // 执行完成逻辑
-            plate.onPlatingComplete(context.world(), context.pos(), matchedRecipe, context.player(), context.hand(), context.hit());
+            // 用玩家实际放入的序列生成摆盘步骤并完成
+            PlatingStep step = matchedCandidate.createStep(getPerformedActions());
+            plate.onPlatingComplete(context.world(), context.pos(), step, context.player(), context.hand(), context.hit());
             return StepResult.complete(ActionResult.SUCCESS);
         }
     }
@@ -482,7 +446,7 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
      * 步骤获取前的预处理钩子。
      *
      * <p>作为 {@link #restoreAfterWorldSet} 的兜底：候选列表未初始化且已有操作序列时，
-     * 按当前序列恢复候选；若玩家手持完成物品且存在完全匹配的配方，直接跳转到完成步骤。</p>
+     * 按当前序列恢复候选；若玩家手持完成物品且存在完全匹配的候选，直接跳转到完成步骤。</p>
      */
     @Override
     protected void beforeGetStep(StepExecutionContext<T> context) {
@@ -494,9 +458,9 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
             restoreCandidates(context.world(), plate);
         }
 
-        // 手持完成物品且存在完全匹配的配方时，跳转到完成步骤
+        // 手持完成物品且存在完全匹配的候选时，跳转到完成步骤
         if (plate.isCompletionItem(heldItem) && !heldItem.isEmpty()) {
-            if (matchedRecipe != null) {
+            if (matchedCandidate != null) {
                 jumpToStep(STEP_COMPLETE);
             }
         }
@@ -538,7 +502,7 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
     /**
      * 从NBT读取流程状态。
      *
-     * <p>操作序列直接从 NBT 恢复；候选配方列表依赖世界无法序列化，
+     * <p>操作序列直接从 NBT 恢复；候选依赖世界无法序列化，
      * 会在世界就绪（{@code setWorld}）后通过 {@link #restoreAfterWorldSet} 恢复。</p>
      *
      * @param nbt 要读取的NBT复合标签
@@ -554,30 +518,30 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
     // ==================== 状态查询方法 ====================
 
     /**
-     * 获取当前候选配方数量。
+     * 获取当前候选数量。
      */
     public int getCandidateRecipeCount() {
         return candidateRecipes.size();
     }
 
     /**
-     * 获取当前匹配的配方。
+     * 获取当前完全匹配的候选（有序优先）。
      */
-    public @Nullable PlatingRecipe getMatchedRecipe() {
-        return matchedRecipe;
+    public @Nullable PlatingCandidate getMatchedCandidate() {
+        return matchedCandidate;
     }
 
     /**
-     * 检查是否已找到完全匹配的配方。
+     * 检查是否已找到完全匹配的候选。
      */
     public boolean hasExactMatch() {
-        return matchedRecipe != null;
+        return matchedCandidate != null;
     }
 
     /**
-     * 检查候选配方是否已建立。
+     * 检查候选是否已建立。
      *
-     * <p>候选列表由当前操作序列推导，未建立与"候选列表为空"等价：
+     * <p>候选由当前操作序列推导，未建立与"候选为空"等价：
      * 建立成功后候选必然非空，失败或重置后候选为空。</p>
      */
     public boolean isCandidatesInitialized() {
@@ -591,36 +555,35 @@ public class PlatingProcess<T extends BlockEntity & PlatableBlockEntity> extends
         // 操作序列信息
         info.append("Performed Actions: ").append(performedActions.size()).append("\n");
 
-        // 候选配方信息
-        info.append("Candidate Recipes: ").append(candidateRecipes.size()).append("\n");
+        // 候选信息
+        info.append("Candidates: ").append(candidateRecipes.size()).append("\n");
 
-        // 匹配的配方信息
-        if (matchedRecipe != null) {
-            info.append("Matched Recipe: ").append(matchedRecipe.getId().getPath()).append("\n");
-            info.append("Recipe Actions: ").append(matchedRecipe.getActionCount()).append("\n");
-            info.append("Output Dish: ").append(matchedRecipe.getDishName()).append("\n");
+        // 匹配的候选信息
+        if (matchedCandidate != null) {
+            info.append("Matched Candidate: ").append(matchedCandidate.getId().getPath()).append("\n");
         } else {
-            info.append("Matched Recipe: <none>\n");
+            info.append("Matched Candidate: <none>\n");
         }
 
         // 初始化状态
         info.append("Candidates Initialized: ").append(isCandidatesInitialized()).append("\n");
 
         // 匹配状态
-        info.append("Matching Recipes: ").append(isMatchingRecipes).append("\n");
+        info.append("Matching: ").append(isMatchingRecipes).append("\n");
 
-        // 候选配方详情（仅显示前3个，避免输出过长）
+        // 候选详情（仅显示前3个，避免输出过长）
         if (!candidateRecipes.isEmpty()) {
-            info.append("Candidate Recipe List:\n");
+            info.append("Candidate List:\n");
             int limit = Math.min(candidateRecipes.size(), 3);
             for (int i = 0; i < limit; i++) {
-                PlatingRecipe recipe = candidateRecipes.get(i);
+                PlatingCandidate candidate = candidateRecipes.get(i);
                 info.append("  ").append(i + 1).append(". ")
-                        .append(recipe.getId().getPath())
-                        .append(" (actions: ").append(recipe.getActionCount()).append(")\n");
+                        .append(candidate.getId().getPath())
+                        .append(candidate instanceof RecipePlatingCandidate ? " (ordered)" : " (generic)")
+                        .append("\n");
             }
             if (candidateRecipes.size() > limit) {
-                info.append("  ... and ").append(candidateRecipes.size() - limit).append(" more recipes not shown\n");
+                info.append("  ... and ").append(candidateRecipes.size() - limit).append(" more not shown\n");
             }
         }
         return info.toString();

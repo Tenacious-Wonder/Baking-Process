@@ -1,0 +1,6 @@
+{
+  "type": "baking_process:stove",
+  "ingredient": "culinary|baking_process:generic/seasoned",
+  "result": "culinary|baking_process:cooked_generic/seasoned",
+  "stoveTime": 12000
+}
