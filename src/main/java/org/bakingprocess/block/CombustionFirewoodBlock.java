@@ -42,7 +42,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * 表示正在燃烧或者已经燃尽的柴火堆
+ * 表示正在燃烧或已经燃尽的柴火堆方块。
+ * <p>由未点燃的 {@link FirewoodBlock} 点燃转化而来。{@link #COMBUSTION_STATE} 承载 7 种
+ * 模型外观，用于区分首次 / 非首次 / 再次添柴与各燃尽阶段的视觉；实际的燃烧阶段与循环归属
+ * 由 {@link CombustionFirewoodBlockEntity} 依据能量推导。燃尽态被右键时破坏并掉落产物，
+ * 燃烧中手持柴火右键可添柴。</p>
+ *
  * @see FirewoodBlock
  */
 public class CombustionFirewoodBlock extends BlockWithEntity {
@@ -62,19 +67,19 @@ public class CombustionFirewoodBlock extends BlockWithEntity {
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        // 检查方块是否已完全熄灭
         if (isCompletelyExtinguished(world, pos, state)) {
             // 客户端只返回成功，服务端执行实际破坏逻辑
             if (!world.isClient()) {
                 world.breakBlock(pos, false, player);
-                LootContextParameterSet.Builder builder = new LootContextParameterSet.Builder((ServerWorld)world)
+                LootContextParameterSet.Builder builder = new LootContextParameterSet.Builder((ServerWorld) world)
                         .add(LootContextParameters.ORIGIN, pos.toCenterPos())
                         .add(LootContextParameters.TOOL, Items.AIR.getDefaultStack())
                         .addOptional(LootContextParameters.THIS_ENTITY, player);
                 List<ItemStack> drops = this.getDroppedStacks(state, builder);
+
                 for (ItemStack foodItem : drops) {
                     // 尝试放入玩家物品栏，放不下则掉落在地上
-                    if (!player.isCreative() && !player.giveItemStack(foodItem)){
+                    if (!player.isCreative() && !player.giveItemStack(foodItem)) {
                         player.dropItem(foodItem, false);
                     }
                 }
@@ -124,7 +129,6 @@ public class CombustionFirewoodBlock extends BlockWithEntity {
             return ActionResult.FAIL;
         }
 
-        // 尝试添柴
         boolean success = firewoodEntity.addFirewood();
         if (!success) {
             return ActionResult.FAIL;
@@ -144,53 +148,76 @@ public class CombustionFirewoodBlock extends BlockWithEntity {
         CombustionState currentState = state.get(COMBUSTION_STATE);
 
         // 只有在燃烧状态下才显示粒子效果和声音
-        if (currentState.isBurning()) {
-            // 营火燃烧声音
-            if (random.nextInt(5) == 0) {
-                world.playSound(
-                        pos.getX() + 0.5,
-                        pos.getY() + 0.5,
-                        pos.getZ() + 0.5,
-                        SoundEvents.BLOCK_CAMPFIRE_CRACKLE,
-                        SoundCategory.BLOCKS,
-                        1.0F,
-                        1.0F,
-                        true
-                );
-            }
+        if (!currentState.isBurning()) {
+            return;
+        }
 
-            // 烟雾粒子
-            if (random.nextInt(5) == 0) {
-                for(int i = 0; i < random.nextInt(1) + 1; ++i) {
-                    world.addParticle(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,
-                            pos.getX() + 0.5 + random.nextDouble() / 3.0 * (random.nextBoolean() ? 1 : -1),
-                            pos.getY() + random.nextDouble() + random.nextDouble(),
-                            pos.getZ() + 0.5 + random.nextDouble() / 3.0 * (random.nextBoolean() ? 1 : -1),
-                            0.0, 0.07, 0.0);
-                }
-            }
+        if (random.nextInt(5) == 0) {
+            playCrackleSound(world, pos);
+        }
+        if (random.nextInt(5) == 0) {
+            spawnSignalSmoke(world, pos, random);
+        }
+        if (random.nextInt(3) == 0) {
+            spawnSparkParticles(world, pos, random);
+        }
+        if (random.nextInt(4) == 0) {
+            spawnFlameParticles(world, pos, random);
+        }
+    }
 
-            // 火花粒子
-            if (random.nextInt(3) == 0) {
-                for(int i = 0; i < random.nextInt(2) + 1; ++i) {
-                    world.addParticle(ParticleTypes.LAVA,
-                            pos.getX() + 0.5 + random.nextDouble() / 4.0 * (random.nextBoolean() ? 1 : -1),
-                            pos.getY() + 0.4,
-                            pos.getZ() + 0.5 + random.nextDouble() / 4.0 * (random.nextBoolean() ? 1 : -1),
-                            random.nextFloat() / 2.0F, 0.04, random.nextFloat() / 2.0F);
-                }
-            }
+    /**
+     * 播放营火燃烧的噼啪声
+     */
+    private void playCrackleSound(World world, BlockPos pos) {
+        world.playSound(
+                pos.getX() + 0.5,
+                pos.getY() + 0.5,
+                pos.getZ() + 0.5,
+                SoundEvents.BLOCK_CAMPFIRE_CRACKLE,
+                SoundCategory.BLOCKS,
+                1.0F,
+                1.0F,
+                true
+        );
+    }
 
-            // 火焰粒子
-            if (random.nextInt(4) == 0) {
-                for(int i = 0; i < random.nextInt(2) + 1; ++i) {
-                    world.addParticle(ParticleTypes.FLAME,
-                            pos.getX() + 0.5 + random.nextDouble() / 2.0 * (random.nextBoolean() ? 1 : -1),
-                            pos.getY() + 0.2,
-                            pos.getZ() + 0.5 + random.nextDouble() / 2.0 * (random.nextBoolean() ? 1 : -1),
-                            0.0, 0.04, 0.0);
-                }
-            }
+    /**
+     * 生成上升的营火信号烟雾
+     */
+    private void spawnSignalSmoke(World world, BlockPos pos, Random random) {
+        for (int i = 0; i < random.nextInt(1) + 1; ++i) {
+            world.addParticle(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,
+                    pos.getX() + 0.5 + random.nextDouble() / 3.0 * (random.nextBoolean() ? 1 : -1),
+                    pos.getY() + random.nextDouble() + random.nextDouble(),
+                    pos.getZ() + 0.5 + random.nextDouble() / 3.0 * (random.nextBoolean() ? 1 : -1),
+                    0.0, 0.07, 0.0);
+        }
+    }
+
+    /**
+     * 生成四溅的火星
+     */
+    private void spawnSparkParticles(World world, BlockPos pos, Random random) {
+        for (int i = 0; i < random.nextInt(2) + 1; ++i) {
+            world.addParticle(ParticleTypes.LAVA,
+                    pos.getX() + 0.5 + random.nextDouble() / 4.0 * (random.nextBoolean() ? 1 : -1),
+                    pos.getY() + 0.4,
+                    pos.getZ() + 0.5 + random.nextDouble() / 4.0 * (random.nextBoolean() ? 1 : -1),
+                    random.nextFloat() / 2.0F, 0.04, random.nextFloat() / 2.0F);
+        }
+    }
+
+    /**
+     * 生成跳动的小火焰
+     */
+    private void spawnFlameParticles(World world, BlockPos pos, Random random) {
+        for (int i = 0; i < random.nextInt(2) + 1; ++i) {
+            world.addParticle(ParticleTypes.FLAME,
+                    pos.getX() + 0.5 + random.nextDouble() / 2.0 * (random.nextBoolean() ? 1 : -1),
+                    pos.getY() + 0.2,
+                    pos.getZ() + 0.5 + random.nextDouble() / 2.0 * (random.nextBoolean() ? 1 : -1),
+                    0.0, 0.04, 0.0);
         }
     }
 
@@ -198,7 +225,7 @@ public class CombustionFirewoodBlock extends BlockWithEntity {
     public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
         CombustionState currentState = state.get(COMBUSTION_STATE);
 
-        if (currentState.isBurning() && entity instanceof LivingEntity && !EnchantmentHelper.hasFrostWalker((LivingEntity)entity)) {
+        if (currentState.isBurning() && entity instanceof LivingEntity && !EnchantmentHelper.hasFrostWalker((LivingEntity) entity)) {
             entity.damage(world.getDamageSources().inFire(), 1);
         }
 
@@ -246,7 +273,6 @@ public class CombustionFirewoodBlock extends BlockWithEntity {
      */
     @Override
     public List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
-        // 检查是否为熄灭状态
         CombustionState combustionState = state.get(COMBUSTION_STATE);
         if (!combustionState.isBurning()) {
             // 只在熄灭状态时调用父类方法生成掉落物
@@ -262,24 +288,42 @@ public class CombustionFirewoodBlock extends BlockWithEntity {
     }
 
     public enum CombustionState implements StringIdentifiable {
-        /** 3: 首次点燃 - 燃烧上面两根木棍 */
+        /**
+         * 3: 首次点燃 - 燃烧上面两根木棍
+         */
         FIRST_IGNITED("first_ignited", 0, true, 1.0f),
-        /** 4: 首次燃烧过半 - 上面两根木棍碳化 */
+        /**
+         * 4: 首次燃烧过半 - 上面两根木棍碳化
+         */
         FIRST_HALF("first_half", 1, true, 0.5f),
-        /** 4燃尽: 首次燃尽 - 完全碳化 */
+        /**
+         * 4燃尽: 首次燃尽 - 完全碳化
+         */
         FIRST_EXTINGUISHED("first_extinguished", 2, false, 0.0f),
-        /** 5: 非首次点燃 - 在碳化木棍上添加新木棍 */
+        /**
+         * 5: 非首次点燃 - 在碳化木棍上添加新木棍
+         */
         AGAIN_IGNITED("again_ignited", 3, true, 1.0f),
-        /** 6: 非首次燃烧过半 - 新添加的木棍碳化 */
+        /**
+         * 6: 非首次燃烧过半 - 新添加的木棍碳化
+         */
         AGAIN_HALF("again_half", 4, true, 0.5f),
-        /** 7: 再次添柴 - 在碳化木棍上再次添加新木棍 */
+        /**
+         * 7: 再次添柴 - 在碳化木棍上再次添加新木棍
+         */
         REIGNITED("reignited", 5, true, 1.0f),
-        /** 6燃尽: 非首次燃尽 - 完全碳化 */
+        /**
+         * 6燃尽: 非首次燃尽 - 完全碳化
+         */
         AGAIN_EXTINGUISHED("again_extinguished", 6, false, 0.0f);
 
+        /** 序列化使用的字符串标识 */
         private final String id;
+        /** 渲染帧索引 */
         private final int index;
+        /** 是否处于燃烧状态 */
         private final boolean burning;
+        /** 粒子/视觉强度提示（当前未接入渲染） */
         private final float particleIntensity;
 
         CombustionState(String id, int index, boolean burning, float particleIntensity) {
