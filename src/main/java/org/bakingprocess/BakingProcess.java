@@ -8,6 +8,7 @@ import org.bakingprocess.util.BakingProcessUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.twcore.api.TwModManager;
+import org.twcore.api.blockvolume.BlockVolumeRegistry;
 import org.twcore.api.config.TwConfig;
 import org.twcore.api.event.TwCoreRegisterEvent;
 import org.twcore.api.sound.Item2BlockSounds;
@@ -36,7 +37,11 @@ public class BakingProcess implements ModInitializer {
         AddItemPlayerAction.REMAPPING.put(ModItems.SALMON_CUBES, "msa");
         AddItemPlayerAction.REMAPPING.put(ModItems.SALT_CUBES, "sac");
         AddItemPlayerAction.REMAPPING.put(ModItems.CARROT_HEAD, "cad");
+
         ((AbstractMappedContainer) ContainerTypes.POTION).registerContentMapping(Contents.MILK, ModItems.MILK_POTION);
+
         Item2BlockSounds.registerParser(BakingProcessUtils::getSoundGroupFromItem);
+
+        BlockVolumeRegistry.register(ModBlocks.HEAT_RESISTANT_SLATE);
     }
 }

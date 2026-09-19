@@ -31,9 +31,9 @@ public class ModBlockEntityTypes {
     );
 
     // UpPlaceBlock
-    public static final BlockEntityType<HeatResistantSlateBlockPileEntity> HEAT_RESISTANT_SLATE = create("heat_resistant_slate",
+    public static final BlockEntityType<HeatResistantSlateBlockEntity> HEAT_RESISTANT_SLATE = create("heat_resistant_slate",
             BlockEntityType.Builder.create(
-                    HeatResistantSlateBlockPileEntity::new,
+                    HeatResistantSlateBlockEntity::new,
                     ModBlocks.HEAT_RESISTANT_SLATE
             )
     );
