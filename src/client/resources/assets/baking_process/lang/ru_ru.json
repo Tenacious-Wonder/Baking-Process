@@ -12,14 +12,14 @@
   "block.baking_process.flour_sack": "Мешок с мукой",
 
   "block.baking_process.grinding_stone": "Жернов",
-  "block.baking_process.toast_mold": "Форма для тоста",
   "block.baking_process.heat_resistant_slate": "Жаростойкий сланец",
   "block.baking_process.combustion_firewood": "Дрова",
   "block.baking_process.firewood": "Дрова",
   "block.baking_process.iron_plate": "Железная пластина",
+  "block.baking_process.frying_pan": "Сковорода",
+  "block.baking_process.grill": "Гриль",
 
   "block.baking_process.iron_garnish_dishes": "Железные декоративные тарелки",
-  "block.baking_process.wooden_shelf": "Деревянная полка",
   "block.baking_process.cutting_board": "Разделочная доска",
   "block.baking_process.iron_pots": "Железный горшок",
   "item.baking_process.plate_lid": "Крышка для тарелки",
@@ -33,7 +33,6 @@
   "block.baking_process.hard_bread": "Твёрдый хлеб",
   "block.baking_process.small_bread_embryo": "Маленькое хлебное тесто",
   "block.baking_process.small_bread": "Маленький хлеб",
-  "block.baking_process.cake_embryo": "Тесто для торта",
   "block.baking_process.baguette": "Багет",
   "block.baking_process.baguette_embryo": "Тесто для багета",
   "item.baking_process.toast_dough": "Тесто для тоста",
@@ -73,7 +72,14 @@
 
   "block.baking_process.clay_pots_embryo": "Необожжённый глиняный горшок",
   "block.baking_process.clay_pots": "Глиняный горшок",
-  "block.baking_process.flower_pot_embryo": "Необожжённый цветочный горшок",
+
+  "block.baking_process.crippled_rabbit_stew": "Недоеденный тушёный кролик",
+  "block.baking_process.crippled_mushroom_stew": "Недоеденный грибной суп",
+  "block.baking_process.crippled_beetroot_soup": "Недоеденный свекольный суп",
+  "block.baking_process.crippled_suspicious_stew": "Недоеденное подозрительное рагу",
+  "block.baking_process.crippled_milk_bucket": "Частично наполненное ведро молока",
+  "block.baking_process.crippled_water_bucket": "Частично наполненное ведро воды",
+  "block.baking_process.soup_hard_bread_boat": "Лодка из твёрдого хлеба с супом",
 
   "subtitles.baking_process.stove_baking": "Печь: Выпечка",
   "subtitle.baking_process.stone_grinding": "Жернов: Измельчение",

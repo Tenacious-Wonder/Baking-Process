@@ -12,14 +12,14 @@
   "block.baking_process.flour_sack": "Saco de Harina",
 
   "block.baking_process.grinding_stone": "Piedra de Moler",
-  "block.baking_process.toast_mold": "Molde para Tostadas",
   "block.baking_process.heat_resistant_slate": "Pizarra Resistente al Calor",
   "block.baking_process.combustion_firewood": "Leña",
   "block.baking_process.firewood": "Leña",
   "block.baking_process.iron_plate": "Placa de Hierro",
+  "block.baking_process.frying_pan": "Sartén",
+  "block.baking_process.grill": "Parrilla",
 
   "block.baking_process.iron_garnish_dishes": "Platos Decorativos de Hierro",
-  "block.baking_process.wooden_shelf": "Estante de Madera",
   "block.baking_process.cutting_board": "Tabla de Cortar",
   "block.baking_process.iron_pots": "Olla de Hierro",
   "item.baking_process.plate_lid": "Tapa de Plato",
@@ -33,7 +33,6 @@
   "block.baking_process.hard_bread": "Pan Duro",
   "block.baking_process.small_bread_embryo": "Masa de Pan Pequeño",
   "block.baking_process.small_bread": "Pan Pequeño",
-  "block.baking_process.cake_embryo": "Masa de Pastel",
   "block.baking_process.baguette": "Baguette",
   "block.baking_process.baguette_embryo": "Masa de Baguette",
   "item.baking_process.toast_dough": "Masa para Tostadas",
@@ -73,7 +72,14 @@
 
   "block.baking_process.clay_pots_embryo": "Olla de Barro Sin Cocer",
   "block.baking_process.clay_pots": "Olla de Barro",
-  "block.baking_process.flower_pot_embryo": "Maceta Sin Cocer",
+
+  "block.baking_process.crippled_rabbit_stew": "Estofado de conejo a medio comer",
+  "block.baking_process.crippled_mushroom_stew": "Estofado de champiñones a medio comer",
+  "block.baking_process.crippled_beetroot_soup": "Sopa de remolacha a medio comer",
+  "block.baking_process.crippled_suspicious_stew": "Estofado sospechoso a medio comer",
+  "block.baking_process.crippled_milk_bucket": "Cubo de leche parcialmente lleno",
+  "block.baking_process.crippled_water_bucket": "Cubo de agua parcialmente lleno",
+  "block.baking_process.soup_hard_bread_boat": "Barco de Pan Duro Lleno",
 
   "subtitles.baking_process.stove_baking": "Horno: Horneando",
   "subtitle.baking_process.stone_grinding": "Piedra de moler: Moliendo",

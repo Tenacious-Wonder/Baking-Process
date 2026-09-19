@@ -12,7 +12,6 @@
   "block.baking_process.flour_sack": "Flour Sack",
 
   "block.baking_process.grinding_stone": "Grinding Stone",
-  "block.baking_process.toast_mold": "Toast Mold",
   "block.baking_process.heat_resistant_slate": "Heat-Resistant Slate",
   "block.baking_process.combustion_firewood": "Firewood",
   "block.baking_process.firewood": "Firewood",
@@ -21,7 +20,6 @@
   "block.baking_process.grill": "Grill",
 
   "block.baking_process.iron_garnish_dishes": "Iron Garnish Dishes",
-  "block.baking_process.wooden_shelf": "Wooden Shelf",
   "block.baking_process.cutting_board": "Cutting Board",
   "block.baking_process.iron_pots": "Iron Pot",
   "item.baking_process.plate_lid": "Plate Lid",
@@ -35,7 +33,6 @@
   "block.baking_process.hard_bread": "Hard Bread",
   "block.baking_process.small_bread_embryo": "Small Bread Dough",
   "block.baking_process.small_bread": "Small Bread",
-  "block.baking_process.cake_embryo": "Cake Dough",
   "block.baking_process.baguette": "Baguette",
   "block.baking_process.baguette_embryo": "Baguette Dough",
   "item.baking_process.toast_dough": "Toast Dough",
@@ -75,7 +72,14 @@
 
   "block.baking_process.clay_pots_embryo": "Unfired Clay Pot",
   "block.baking_process.clay_pots": "Clay Pot",
-  "block.baking_process.flower_pot_embryo": "Unfired Flower Pot",
+
+  "block.baking_process.crippled_rabbit_stew": "Eaten Rabbit Stew",
+  "block.baking_process.crippled_mushroom_stew": "Eaten Mushroom Stew",
+  "block.baking_process.crippled_beetroot_soup": "Eaten Beetroot Soup",
+  "block.baking_process.crippled_suspicious_stew": "Eaten Suspicious Stew",
+  "block.baking_process.crippled_milk_bucket": "Partially Filled Milk Bucket",
+  "block.baking_process.crippled_water_bucket": "Partially Filled Water Bucket",
+  "block.baking_process.soup_hard_bread_boat": "Filled Hard Bread Boat",
 
   "subtitles.baking_process.stove_baking": "Stove: Baking",
   "subtitle.baking_process.stone_grinding": "Grinding Stone: Grinding",

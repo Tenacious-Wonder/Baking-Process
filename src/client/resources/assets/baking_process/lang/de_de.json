@@ -12,14 +12,14 @@
   "block.baking_process.flour_sack": "Mehlsack",
 
   "block.baking_process.grinding_stone": "Mahlstein",
-  "block.baking_process.toast_mold": "Toastform",
   "block.baking_process.heat_resistant_slate": "Hitzebeständiger Schiefer",
   "block.baking_process.combustion_firewood": "Brennholz",
   "block.baking_process.firewood": "Brennholz",
   "block.baking_process.iron_plate": "Eisenplatte",
+  "block.baking_process.frying_pan": "Bratpfanne",
+  "block.baking_process.grill": "Grill",
 
   "block.baking_process.iron_garnish_dishes": "Eisen-Garnierteller",
-  "block.baking_process.wooden_shelf": "Holzregal",
   "block.baking_process.cutting_board": "Schneidebrett",
   "block.baking_process.iron_pots": "Eisentopf",
   "item.baking_process.plate_lid": "Tellerdeckel",
@@ -33,7 +33,6 @@
   "block.baking_process.hard_bread": "Hartbrot",
   "block.baking_process.small_bread_embryo": "Kleiner Brotteig",
   "block.baking_process.small_bread": "Kleines Brot",
-  "block.baking_process.cake_embryo": "Kuchenteig",
   "block.baking_process.baguette": "Baguette",
   "block.baking_process.baguette_embryo": "Baguette-Teig",
   "item.baking_process.toast_dough": "Toast-Teig",
@@ -73,7 +72,14 @@
 
   "block.baking_process.clay_pots_embryo": "Ungebrannter Tontopf",
   "block.baking_process.clay_pots": "Tontopf",
-  "block.baking_process.flower_pot_embryo": "Ungebrannter Blumentopf",
+
+  "block.baking_process.crippled_rabbit_stew": "Angegessener Kanincheneintopf",
+  "block.baking_process.crippled_mushroom_stew": "Angegessene Pilzsuppe",
+  "block.baking_process.crippled_beetroot_soup": "Angegessene Rote-Bete-Suppe",
+  "block.baking_process.crippled_suspicious_stew": "Angegessener Seltsamer Eintopf",
+  "block.baking_process.crippled_milk_bucket": "Teilweise gefüllter Milcheimer",
+  "block.baking_process.crippled_water_bucket": "Teilweise gefüllter Wassereimer",
+  "block.baking_process.soup_hard_bread_boat": "Gefülltes Hartbrot-Boot",
 
   "subtitles.baking_process.stove_baking": "Ofen: Backen",
   "subtitle.baking_process.stone_grinding": "Mahlstein: Mahlen",

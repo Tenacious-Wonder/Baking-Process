@@ -12,14 +12,14 @@
   "block.baking_process.flour_sack": "粉袋",
 
   "block.baking_process.grinding_stone": "石臼",
-  "block.baking_process.toast_mold": "食パン型",
   "block.baking_process.heat_resistant_slate": "耐熱石板",
   "block.baking_process.combustion_firewood": "薪",
   "block.baking_process.firewood": "薪",
   "block.baking_process.iron_plate": "鉄板",
+  "block.baking_process.frying_pan": "フライパン",
+  "block.baking_process.grill": "グリル",
 
   "block.baking_process.iron_garnish_dishes": "鉄製飾り皿",
-  "block.baking_process.wooden_shelf": "木製棚",
   "block.baking_process.cutting_board": "まな板",
   "block.baking_process.iron_pots": "鉄鉢",
   "item.baking_process.plate_lid": "皿蓋",
@@ -33,7 +33,6 @@
   "block.baking_process.hard_bread": "ハードパン",
   "block.baking_process.small_bread_embryo": "小さなパン生地",
   "block.baking_process.small_bread": "小さなパン",
-  "block.baking_process.cake_embryo": "ケーキ生地",
   "block.baking_process.baguette": "バゲット",
   "block.baking_process.baguette_embryo": "バゲット生地",
   "item.baking_process.toast_dough": "食パン生地",
@@ -73,7 +72,14 @@
 
   "block.baking_process.clay_pots_embryo": "素焼き前の陶器の鉢",
   "block.baking_process.clay_pots": "陶器の鉢",
-  "block.baking_process.flower_pot_embryo": "素焼き前の植木鉢",
+
+  "block.baking_process.crippled_rabbit_stew": "食べかけのウサギシチュー",
+  "block.baking_process.crippled_mushroom_stew": "食べかけのキノコシチュー",
+  "block.baking_process.crippled_beetroot_soup": "食べかけのビートルートスープ",
+  "block.baking_process.crippled_suspicious_stew": "食べかけの怪しげなシチュー",
+  "block.baking_process.crippled_milk_bucket": "飲みかけのミルク入りバケツ",
+  "block.baking_process.crippled_water_bucket": "飲みかけの水入りバケツ",
+  "block.baking_process.soup_hard_bread_boat": "スープ入りハードパンボート",
 
   "subtitles.baking_process.stove_baking": "オーブン:焼成",
   "subtitle.baking_process.stone_grinding": "石臼:回転",

@@ -12,14 +12,14 @@
   "block.baking_process.flour_sack": "Sac de Farine",
 
   "block.baking_process.grinding_stone": "Meule",
-  "block.baking_process.toast_mold": "Moule à Pain de Mie",
   "block.baking_process.heat_resistant_slate": "Ardoise Résistante à la Chaleur",
   "block.baking_process.combustion_firewood": "Bois de Chauffage",
   "block.baking_process.firewood": "Bois de Chauffage",
   "block.baking_process.iron_plate": "Plaque de Fer",
+  "block.baking_process.frying_pan": "Poêle",
+  "block.baking_process.grill": "Gril",
 
   "block.baking_process.iron_garnish_dishes": "Assiettes Décoratives en Fer",
-  "block.baking_process.wooden_shelf": "Étagère en Bois",
   "block.baking_process.cutting_board": "Planche à Découper",
   "block.baking_process.iron_pots": "Pot en Fer",
   "item.baking_process.plate_lid": "Couvercle d'Assiette",
@@ -33,7 +33,6 @@
   "block.baking_process.hard_bread": "Pain Dur",
   "block.baking_process.small_bread_embryo": "Pâte à Petit Pain",
   "block.baking_process.small_bread": "Petit Pain",
-  "block.baking_process.cake_embryo": "Pâte à Gâteau",
   "block.baking_process.baguette": "Baguette",
   "block.baking_process.baguette_embryo": "Pâte à Baguette",
   "item.baking_process.toast_dough": "Pâte à Pain de Mie",
@@ -73,7 +72,14 @@
 
   "block.baking_process.clay_pots_embryo": "Pot en Argile Cru",
   "block.baking_process.clay_pots": "Pot en Argile",
-  "block.baking_process.flower_pot_embryo": "Pot à Fleurs Cru",
+
+  "block.baking_process.crippled_rabbit_stew": "Ragoût de lapin entamé",
+  "block.baking_process.crippled_mushroom_stew": "Soupe de champignons entamée",
+  "block.baking_process.crippled_beetroot_soup": "Soupe de betterave entamée",
+  "block.baking_process.crippled_suspicious_stew": "Ragoût suspect entamé",
+  "block.baking_process.crippled_milk_bucket": "Seau de lait partiellement rempli",
+  "block.baking_process.crippled_water_bucket": "Seau d'eau partiellement rempli",
+  "block.baking_process.soup_hard_bread_boat": "Bateau en Pain Dur Rempli",
 
   "subtitles.baking_process.stove_baking": "Four : Cuisson",
   "subtitle.baking_process.stone_grinding": "Meule : Broyage",

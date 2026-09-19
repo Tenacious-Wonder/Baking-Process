@@ -12,14 +12,14 @@
   "block.baking_process.flour_sack": "가루 자루",
 
   "block.baking_process.grinding_stone": "맷돌",
-  "block.baking_process.toast_mold": "식빵 틀",
   "block.baking_process.heat_resistant_slate": "내열 석판",
   "block.baking_process.combustion_firewood": "장작",
   "block.baking_process.firewood": "장작",
   "block.baking_process.iron_plate": "철판",
+  "block.baking_process.frying_pan": "프라이팬",
+  "block.baking_process.grill": "그릴",
 
   "block.baking_process.iron_garnish_dishes": "철제 장식 접시",
-  "block.baking_process.wooden_shelf": "나무 선반",
   "block.baking_process.cutting_board": "도마",
   "block.baking_process.iron_pots": "철 그릇",
   "item.baking_process.plate_lid": "접시 뚜껑",
@@ -33,7 +33,6 @@
   "block.baking_process.hard_bread": "하드 브레드",
   "block.baking_process.small_bread_embryo": "작은 빵 반죽",
   "block.baking_process.small_bread": "작은 빵",
-  "block.baking_process.cake_embryo": "케이크 반죽",
   "block.baking_process.baguette": "바게트",
   "block.baking_process.baguette_embryo": "바게트 반죽",
   "item.baking_process.toast_dough": "식빵 반죽",
@@ -73,7 +72,14 @@
 
   "block.baking_process.clay_pots_embryo": "구워지지 않은 질그릇",
   "block.baking_process.clay_pots": "질그릇",
-  "block.baking_process.flower_pot_embryo": "구워지지 않은 화분",
+
+  "block.baking_process.crippled_rabbit_stew": "먹다 남은 토끼 스튜",
+  "block.baking_process.crippled_mushroom_stew": "먹다 남은 버섯 스튜",
+  "block.baking_process.crippled_beetroot_soup": "먹다 남은 비트 수프",
+  "block.baking_process.crippled_suspicious_stew": "먹다 남은 수상한 스튜",
+  "block.baking_process.crippled_milk_bucket": "반쯤 남은 우유 양동이",
+  "block.baking_process.crippled_water_bucket": "반쯤 남은 물 양동이",
+  "block.baking_process.soup_hard_bread_boat": "수프가 담긴 하드 브레드 보트",
 
   "subtitles.baking_process.stove_baking": "오븐: 굽기",
   "subtitle.baking_process.stone_grinding": "맷돌: 갈기",

@@ -12,14 +12,14 @@
   "block.baking_process.flour_sack": "粉塵袋",
 
   "block.baking_process.grinding_stone": "石磨",
-  "block.baking_process.toast_mold": "吐司胚模具",
   "block.baking_process.heat_resistant_slate": "耐熱石板",
   "block.baking_process.combustion_firewood": "柴火",
   "block.baking_process.firewood": "柴火",
   "block.baking_process.iron_plate": "鐵盤",
+  "block.baking_process.frying_pan": "平底鍋",
+  "block.baking_process.grill": "烤架",
 
   "block.baking_process.iron_garnish_dishes": "鐵飾餐盤",
-  "block.baking_process.wooden_shelf": "木架子",
   "block.baking_process.cutting_board": "砧板",
   "block.baking_process.iron_pots": "鐵盆",
   "item.baking_process.plate_lid": "盤蓋",
@@ -33,7 +33,6 @@
   "block.baking_process.hard_bread": "硬麵包",
   "block.baking_process.small_bread_embryo": "小麵包胚",
   "block.baking_process.small_bread": "小麵包",
-  "block.baking_process.cake_embryo": "蛋糕胚",
   "block.baking_process.baguette": "長棍麵包",
   "block.baking_process.baguette_embryo": "長棍麵包胚",
   "item.baking_process.toast_dough": "吐司麵團",
@@ -73,7 +72,14 @@
 
   "block.baking_process.clay_pots_embryo": "陶盆胚",
   "block.baking_process.clay_pots": "陶盆",
-  "block.baking_process.flower_pot_embryo": "花盆胚",
+
+  "block.baking_process.crippled_rabbit_stew": "被食用的兔肉湯",
+  "block.baking_process.crippled_mushroom_stew": "被食用的蘑菇湯",
+  "block.baking_process.crippled_beetroot_soup": "被食用的甜菜湯",
+  "block.baking_process.crippled_suspicious_stew": "被食用的可疑燉湯",
+  "block.baking_process.crippled_milk_bucket": "不滿的牛奶桶",
+  "block.baking_process.crippled_water_bucket": "不滿的水桶",
+  "block.baking_process.soup_hard_bread_boat": "裝有湯的硬麵包船",
 
   "subtitles.baking_process.stove_baking": "爐子:烘烤",
   "subtitle.baking_process.stone_grinding": "石磨:轉動",
