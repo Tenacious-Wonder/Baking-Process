@@ -118,6 +118,14 @@ public class CutRecipe implements Recipe<Inventory> {
     }
 
     /**
+     * 切菜是设备配方，不在原版配方书的分类体系中；标记忽略可避免客户端每次加载都报告未知配方分类。
+     */
+    @Override
+    public boolean isIgnoredInRecipeBook() {
+        return true;
+    }
+
+    /**
      * 获取完成切割后的输出数量
      */
     public int getOutputCount() {

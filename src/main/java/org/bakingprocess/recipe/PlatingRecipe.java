@@ -242,6 +242,14 @@ public class PlatingRecipe implements Recipe<PlatingRecipe.PlatingInventory> {
     }
 
     /**
+     * 装盘是设备配方，不在原版配方书的分类体系中；标记忽略可避免客户端每次加载都报告未知配方分类。
+     */
+    @Override
+    public boolean isIgnoredInRecipeBook() {
+        return true;
+    }
+
+    /**
      * 获取下一个操作（如果有）。
      */
     @Nullable

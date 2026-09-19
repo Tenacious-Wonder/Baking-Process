@@ -27,6 +27,15 @@ public abstract class SimpleCraftRecipe implements Recipe<Inventory> {
         return defaultedList;
     }
 
+    /**
+     * 简易加工是设备配方，不在原版配方书的分类体系中；标记忽略可避免客户端每次加载都报告未知配方分类，
+     * 该标记随本类一并作用于研磨等子类配方。
+     */
+    @Override
+    public boolean isIgnoredInRecipeBook() {
+        return true;
+    }
+
     @Override
     public boolean matches(Inventory inventory, World world) {
         return this.input.test(inventory.getStack(0));
