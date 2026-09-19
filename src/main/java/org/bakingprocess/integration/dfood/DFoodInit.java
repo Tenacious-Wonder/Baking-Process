@@ -78,5 +78,48 @@ public class DFoodInit {
         Shapes.shapeMap.put("baking_process:flower_pot_embryo",new int[][]{
                 {1, 1, 7}, {2, 4, 1}
         });
+
+        // 切片食物
+        Shapes.shapeMap.put("baking_process:carrot_slices", new int[][]{
+                {1, 1, 11}, {2, 3, 12}
+        });
+        Shapes.shapeMap.put("baking_process:beetroot_slices", new int[][]{
+                {1, 1, 9}, {2, 2, 11}, {3, 10, 12}
+        });
+        Shapes.shapeMap.put("baking_process:separate_potato_cubes", new int[][]{
+                {1, 1, 11}, {2, 3, 12}, {4, 4, 2}
+        });
+        Shapes.shapeMap.put("baking_process:potato_cubes", new int[][]{
+                {1, 1, 12}
+        });
+        Shapes.shapeMap.put("baking_process:separate_baked_potato_cubes", new int[][]{
+                {1, 1, 11}, {2, 3, 12}, {4, 4, 2}
+        });
+        Shapes.shapeMap.put("baking_process:baked_potato_cubes", new int[][]{
+                {1, 1, 12}
+        });
+        Shapes.shapeMap.put("baking_process:apple_slices", new int[][]{
+                {1, 2, 2}
+        });
+        Shapes.shapeMap.put("baking_process:cod_cubes", new int[][]{
+                {1, 1, 11}, {2, 4, 12}
+        });
+        Shapes.shapeMap.put("baking_process:cooked_cod_cubes", new int[][]{
+                {1, 1, 11}, {2, 4, 12}
+        });
+        Shapes.shapeMap.put("baking_process:salmon_cubes", new int[][]{
+                {1, 1, 11}, {2, 2, 12}, {3, 3, 2}
+        });
+        Shapes.shapeMap.put("baking_process:cooked_salmon_cubes", new int[][]{
+                {1, 1, 11}, {2, 2, 12}, {3, 3, 2}
+        });
+        Shapes.shapeMap.put("baking_process:kitchen_waste", new int[][]{
+                {1, 1, 2}
+        });
+
+        // 调料
+        Shapes.shapeMap.put("baking_process:salt_cubes", new int[][]{
+                {1, 1, 9}, {2, 2, 11}, {3, 10, 12}
+        });
     }
 }
