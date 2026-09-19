@@ -1,0 +1,36 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"particle": "baking_process:block/beetroot_slices",
+		"all": "baking_process:block/beetroot_slices"
+	},
+	"elements": [
+		{
+			"from": [6, 0.25, 6],
+			"to": [10, 1.25, 10],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0.15, 8]},
+			"faces": {
+				"north": {"uv": [12, 3, 8, 4], "texture": "#all"},
+				"east": {"uv": [7, 7, 8, 11], "rotation": 270, "texture": "#all"},
+				"south": {"uv": [4, 9, 0, 8], "rotation": 180, "texture": "#all"},
+				"west": {"uv": [7, 3, 8, 7], "rotation": 90, "texture": "#all"},
+				"up": {"uv": [15, 9, 11, 13], "rotation": 180, "texture": "#all"},
+				"down": {"uv": [15, 13, 11, 9], "texture": "#all"}
+			}
+		},
+		{
+			"from": [6, 1.25, 6],
+			"to": [10, 2.25, 10],
+			"rotation": {"angle": -22.5, "axis": "y", "origin": [8, 1.15, 8]},
+			"faces": {
+				"north": {"uv": [12, 3, 8, 4], "texture": "#all"},
+				"east": {"uv": [7, 7, 8, 11], "rotation": 270, "texture": "#all"},
+				"south": {"uv": [4, 9, 0, 8], "rotation": 180, "texture": "#all"},
+				"west": {"uv": [7, 3, 8, 7], "rotation": 90, "texture": "#all"},
+				"up": {"uv": [15, 9, 11, 13], "rotation": 180, "texture": "#all"},
+				"down": {"uv": [15, 13, 11, 9], "texture": "#all"}
+			}
+		}
+	]
+}

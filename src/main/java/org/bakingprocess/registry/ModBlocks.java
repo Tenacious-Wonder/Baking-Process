@@ -167,7 +167,7 @@ public class ModBlocks {
                     .build());
     public static final Block BEETROOT_SLICES = registerBlock("beetroot_slices",
             FoodBlock.Builder.create()
-                    .maxFood(1)
+                    .maxFood(10)
                     .useItemTranslationKey(false)
                     .settings(DFoodUtils.getFoodBlockSettings())
                     .build());
@@ -244,7 +244,7 @@ public class ModBlocks {
     // 调料
     public static final Block SALT_CUBES = registerBlock("salt_cubes",
             FoodBlock.Builder.create()
-                    .maxFood(2)
+                    .maxFood(10)
                     .useItemTranslationKey(true)
                     .settings(DFoodUtils.getFoodBlockSettings())
                     .build());
