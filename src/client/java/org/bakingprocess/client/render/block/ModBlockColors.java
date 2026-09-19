@@ -36,7 +36,7 @@ public class ModBlockColors {
             return -1;
         }
 
-        // 检查是否是放在木架子上的粉尘袋
+        // 粉尘袋被放到置物面上时，颜色取自它所在槽位的内容
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof UpPlaceBlockEntity shelfBlockEntity) {
             // 处理架子上的粉尘袋染色
