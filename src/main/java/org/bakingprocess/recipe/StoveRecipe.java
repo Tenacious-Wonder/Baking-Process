@@ -10,11 +10,14 @@ import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.bakingprocess.culinary.Culinary;
 import org.bakingprocess.culinary.carrier.ItemStackVessel;
+import org.bakingprocess.culinary.carrier.ServingVessel;
 import org.bakingprocess.culinary.step.BakingStep;
 import org.bakingprocess.registry.ModRecipeSerializers;
 import org.bakingprocess.registry.ModRecipeTypes;
 import org.twcore.api.content.ContainerUtil;
 import org.twcore.content.Content;
+
+import java.util.Optional;
 
 /**
  * <h1>烤炉配方</h1>
@@ -22,11 +25,17 @@ import org.twcore.content.Content;
  *
  * <h2>culinary 适配</h2>
  * <ul>
- *     <li><b>输入</b>为菜标识：槽位堆栈需能转为 {@link ItemStackVessel}，
- *         且菜肴身份（{@link Culinary#getIdentifier()}）与标识一致；</li>
+ *     <li><b>输入</b>为菜标识：匹配对象是<b>菜肴容器</b>（{@link ServingVessel}）——
+ *         世界中的容器（如盘子方块实体）直接匹配，物品容器（{@link ItemStackVessel}）
+ *         由物品入口包装后走同一套语义；容器内菜肴身份与标识一致即匹配；</li>
  *     <li><b>输出</b>为菜标识：烤制完成生成 {@link BakingStep} 应用到容器内菜肴
  *         （时长来自配方，名称与口数由 {@code BakingStep} 从摆盘步骤推导）。</li>
  * </ul>
+ *
+ * <h2>权威认证</h2>
+ * <p>设备（如烤架）面对容器内菜肴时，先经 {@link #getFirstDishMatch} 查询认证配方
+ * （决定"能否烤、烤多久"）；认证通过、进度满后由 {@link #applyCulinaryOutput}
+ * 产生并应用烘烤步骤——烘烤步骤只能由配方产生。</p>
  */
 public class StoveRecipe implements Recipe<Inventory> {
 
@@ -72,17 +81,20 @@ public class StoveRecipe implements Recipe<Inventory> {
         if (input instanceof Component.ContentComp comp) {
             return comp.content().equals(ContainerUtil.extractContent(stack));
         }
-        if (input instanceof Component.CulinaryComp comp) {
-            return matchesCulinary(stack, comp.dishId());
-        }
-        return false;
+        // 菜输入：把槽位物品当作菜肴容器匹配（与盘子方块实体同一套语义）
+        return ItemStackVessel.of(stack).map(this::matchesDish).orElse(false);
     }
 
-    /** 槽位堆栈能否转为容器且菜肴身份与目标标识一致。 */
-    private static boolean matchesCulinary(ItemStack stack, Identifier dishId) {
-        ItemStackVessel vessel = ItemStackVessel.of(stack).orElse(null);
-        Culinary dish = vessel != null ? vessel.getCulinary() : null;
-        return dish != null && dishId.equals(dish.getIdentifier());
+    /**
+     * 菜肴输入是否匹配当前容器内的菜：仅当输入为菜标识（CulinaryComp）且与容器菜肴的
+     * 当前标识一致时匹配。面向世界中的菜肴容器（如盘子方块实体）与物品容器通用。
+     */
+    public boolean matchesDish(ServingVessel vessel) {
+        if (!(input instanceof Component.CulinaryComp comp)) {
+            return false;
+        }
+        Culinary dish = vessel.getCulinary();
+        return dish != null && comp.dishId().equals(dish.getIdentifier());
     }
 
     @Override
@@ -98,13 +110,37 @@ public class StoveRecipe implements Recipe<Inventory> {
                     .map(containerStack -> containerStack.replaceContent(comp.content()))
                     .orElse(stack);
         }
-        if (output instanceof Component.CulinaryComp comp) {
+        if (output instanceof Component.CulinaryComp) {
             // 就地加工：对容器内菜肴应用烘烤步骤（时长来自配方）
-            ItemStackVessel.of(stack).ifPresent(vessel ->
-                    vessel.getCulinaryHandle().applyStep(new BakingStep(bakingTime)));
+            ItemStackVessel.of(stack).ifPresent(this::applyCulinaryOutput);
             return stack;
         }
         return ItemStack.EMPTY;
+    }
+
+    /**
+     * 把菜肴输出（烘烤步骤）应用到容器：构造时长来自配方的 {@link BakingStep} 并交由
+     * 容器句柄执行；容器不认可（无菜、摆盘流程活动、菜肴已食用）时返回 {@code false}。
+     */
+    public boolean applyCulinaryOutput(ServingVessel vessel) {
+        if (!(output instanceof Component.CulinaryComp)) {
+            return false;
+        }
+        return vessel.getCulinaryHandle().applyStep(new BakingStep(bakingTime));
+    }
+
+    /**
+     * 查找第一个认证当前容器内菜肴的炉子配方（菜肴输入的配方）。
+     *
+     * <p>这是"容器内菜能否被烤、烤多久"的权威查询：设备先经本方法认证，
+     * 认证通过后才可应用 {@link #applyCulinaryOutput} 产生烘烤步骤。</p>
+     *
+     * @return 匹配的配方；没有任何炉子配方认证这道菜时为空
+     */
+    public static Optional<StoveRecipe> getFirstDishMatch(ServingVessel vessel, World world) {
+        return world.getRecipeManager().listAllOfType(ModRecipeTypes.STOVE).stream()
+                .filter(recipe -> recipe.matchesDish(vessel))
+                .findFirst();
     }
 
     @Override

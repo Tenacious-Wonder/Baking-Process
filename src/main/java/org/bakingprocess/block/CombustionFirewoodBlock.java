@@ -35,6 +35,7 @@ import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import org.dfood.block.FoodBlock;
 import org.bakingprocess.block.entity.CombustionFirewoodBlockEntity;
+import org.bakingprocess.block.entity.GrillBlockEntity;
 import org.bakingprocess.registry.ModBlockEntityTypes;
 import org.bakingprocess.registry.ModItems;
 import org.jetbrains.annotations.Nullable;
@@ -42,13 +43,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * 表示正在燃烧或已经燃尽的柴火堆方块。
- * <p>由未点燃的 {@link FirewoodBlock} 点燃转化而来。{@link #COMBUSTION_STATE} 承载 7 种
- * 模型外观，用于区分首次 / 非首次 / 再次添柴与各燃尽阶段的视觉；实际的燃烧阶段与循环归属
- * 由 {@link CombustionFirewoodBlockEntity} 依据能量推导。燃尽态被右键时破坏并掉落产物，
- * 燃烧中手持柴火右键可添柴。</p>
+ * 正在燃烧（或已燃尽）的柴火堆方块。
+ * <p>由未点燃的柴火堆用打火石点燃而来：烧着的时候会发光、冒火星、烫伤碰到它的生物；
+ * 手持柴火右键可以续柴；烧成灰烬后右键会收走它，按战利品表掉落木炭。
+ * 烧到哪个阶段（满火 / 保温 / 灰烬）由方块实体按剩余能量自动切换外观。</p>
  *
  * @see FirewoodBlock
+ * @see CombustionFirewoodBlockEntity
  */
 public class CombustionFirewoodBlock extends BlockWithEntity {
     public static final DirectionProperty HORIZONTAL_FACING = Properties.HORIZONTAL_FACING;
@@ -65,24 +66,34 @@ public class CombustionFirewoodBlock extends BlockWithEntity {
         return FirewoodBlock.SHAPE;
     }
 
+    // ==================== 实体解析与玩家交互 ====================
+
+    /**
+     * 获取某位置的燃烧柴火堆。
+     * <p>注意：返回的可能是烤架的虚拟柴火堆（不在真实世界里），只能读取热量、
+     * 能量等数据，不能调用它身上任何需要世界的交互。</p>
+     *
+     * @return 位置上是真实燃烧方块时返回它自己的方块实体，
+     * 是烤架方块时返回烤架内部的虚拟柴火堆，两者都不是返回 {@code null}。
+     */
+    @Nullable
+    public static CombustionFirewoodBlockEntity getCombustionEntity(World world, BlockPos pos) {
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+        if (blockEntity instanceof CombustionFirewoodBlockEntity firewoodEntity) {
+            return firewoodEntity;
+        }
+        if (blockEntity instanceof GrillBlockEntity grillEntity) {
+            return grillEntity.getFirewoodPile();
+        }
+        return null;
+    }
+
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (isCompletelyExtinguished(world, pos, state)) {
-            // 客户端只返回成功，服务端执行实际破坏逻辑
+            // 客户端只返回成功，服务端执行实际移除（真实破坏方块 / 虚拟清灰）
             if (!world.isClient()) {
-                world.breakBlock(pos, false, player);
-                LootContextParameterSet.Builder builder = new LootContextParameterSet.Builder((ServerWorld) world)
-                        .add(LootContextParameters.ORIGIN, pos.toCenterPos())
-                        .add(LootContextParameters.TOOL, Items.AIR.getDefaultStack())
-                        .addOptional(LootContextParameters.THIS_ENTITY, player);
-                List<ItemStack> drops = this.getDroppedStacks(state, builder);
-
-                for (ItemStack foodItem : drops) {
-                    // 尝试放入玩家物品栏，放不下则掉落在地上
-                    if (!player.isCreative() && !player.giveItemStack(foodItem)) {
-                        player.dropItem(foodItem, false);
-                    }
-                }
+                removeExtinguishedFirewood(world, pos, state, player);
             }
             return ActionResult.SUCCESS;
         }
@@ -97,35 +108,71 @@ public class CombustionFirewoodBlock extends BlockWithEntity {
     }
 
     /**
-     * 检查方块是否完全熄灭
+     * 清理燃尽的柴火堆。
+     */
+    private void removeExtinguishedFirewood(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+        // 先按场景移除柴火堆，并确定掉落来源的方块状态
+        BlockState dropSource;
+        if (world.getBlockEntity(pos) instanceof GrillBlockEntity grill) {
+            // 烤架内：先取灰烬外观作掉落来源，再让烤架移除它
+            dropSource = grill.getFirewoodState();
+            if (dropSource == null) {
+                // 烤架内没有柴火堆（不应发生的边界）：没有灰烬可清，直接结束
+                return;
+            }
+            grill.removeFirewoodPile();
+            world.playSound(null, pos, SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.BLOCKS, 0.5f, 1.0f);
+        } else {
+            // 真实方块：破坏后掉落来源就是自身方块状态
+            world.breakBlock(pos, false, player);
+            dropSource = state;
+        }
+
+        // 按战利品表生成灰烬掉落（2 木炭）并交给玩家
+        LootContextParameterSet.Builder builder = new LootContextParameterSet.Builder((ServerWorld) world)
+                .add(LootContextParameters.ORIGIN, pos.toCenterPos())
+                .add(LootContextParameters.TOOL, Items.AIR.getDefaultStack())
+                .addOptional(LootContextParameters.THIS_ENTITY, player);
+        giveDropsToPlayer(player, this.getDroppedStacks(dropSource, builder));
+    }
+
+    /**
+     * 把掉落物品交给玩家（非创造模式放不下则掉落在地上）。
+     */
+    private static void giveDropsToPlayer(PlayerEntity player, List<ItemStack> drops) {
+        for (ItemStack drop : drops) {
+            if (!player.isCreative() && !player.giveItemStack(drop)) {
+                player.dropItem(drop, false);
+            }
+        }
+    }
+
+    /**
+     * 当前柴火堆是否已完全燃尽（烧成灰烬）。
      */
     private boolean isCompletelyExtinguished(World world, BlockPos pos, BlockState state) {
-        // 客户端只检查方块状态
+        // 客户端查不到方块实体，直接看方块状态是否为灰烬外观
         if (world.isClient()) {
             CombustionState combustionState = state.get(COMBUSTION_STATE);
             return combustionState == CombustionState.FIRST_EXTINGUISHED ||
                     combustionState == CombustionState.AGAIN_EXTINGUISHED;
         }
 
-        // 服务端检查方块实体状态
-        BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (blockEntity instanceof CombustionFirewoodBlockEntity firewoodEntity) {
-            return firewoodEntity.isCompletelyExtinguished();
-        }
-
-        return false;
+        // 服务端统一解析实体（真实或烤架虚拟）判定能量是否耗尽
+        CombustionFirewoodBlockEntity firewoodEntity = getCombustionEntity(world, pos);
+        return firewoodEntity != null && firewoodEntity.isCompletelyExtinguished();
     }
 
     /**
-     * 尝试添柴
+     * 手持柴火使用燃烧中的柴火堆，续一把柴（能量 +50%）。真实与烤架虚拟场景共用。
      */
     private ActionResult tryAddFirewood(World world, BlockPos pos, PlayerEntity player, ItemStack stack) {
         if (world.isClient()) {
             return ActionResult.SUCCESS;
         }
 
-        BlockEntity blockEntity = world.getBlockEntity(pos);
-        if (!(blockEntity instanceof CombustionFirewoodBlockEntity firewoodEntity)) {
+        CombustionFirewoodBlockEntity firewoodEntity = getCombustionEntity(world, pos);
+        if (firewoodEntity == null) {
             return ActionResult.FAIL;
         }
 
@@ -142,6 +189,8 @@ public class CombustionFirewoodBlock extends BlockWithEntity {
 
         return ActionResult.SUCCESS;
     }
+
+    // ==================== 燃烧表现（粒子 / 声音） ====================
 
     @Override
     public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
@@ -221,6 +270,8 @@ public class CombustionFirewoodBlock extends BlockWithEntity {
         }
     }
 
+    // ==================== 方块行为 ====================
+
     @Override
     public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
         CombustionState currentState = state.get(COMBUSTION_STATE);
@@ -268,9 +319,6 @@ public class CombustionFirewoodBlock extends BlockWithEntity {
         return world.isClient ? null : checkType(type, ModBlockEntityTypes.COMBUSTION_FIREWOOD, CombustionFirewoodBlockEntity::tick);
     }
 
-    /**
-     * 重写掉落物方法 - 只在熄灭状态时掉落
-     */
     @Override
     public List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
         CombustionState combustionState = state.get(COMBUSTION_STATE);
@@ -287,35 +335,42 @@ public class CombustionFirewoodBlock extends BlockWithEntity {
         return ModItems.FIREWOOD;
     }
 
+    @Override
+    public String getTranslationKey() {
+        return asItem().getTranslationKey();
+    }
+
+    // ==================== 燃烧外观状态 ====================
+
     public enum CombustionState implements StringIdentifiable {
         /**
-         * 3: 首次点燃 - 燃烧上面两根木棍
+         * 首次点燃 - 燃烧上面两根木棍
          */
-        FIRST_IGNITED("first_ignited", 0, true, 1.0f),
+        FIRST_IGNITED("first_ignited", 0, true),
         /**
-         * 4: 首次燃烧过半 - 上面两根木棍碳化
+         * 首次燃烧过半 - 上面两根木棍碳化
          */
-        FIRST_HALF("first_half", 1, true, 0.5f),
+        FIRST_HALF("first_half", 1, true),
         /**
-         * 4燃尽: 首次燃尽 - 完全碳化
+         * 首次燃尽 - 完全碳化
          */
-        FIRST_EXTINGUISHED("first_extinguished", 2, false, 0.0f),
+        FIRST_EXTINGUISHED("first_extinguished", 2, false),
         /**
-         * 5: 非首次点燃 - 在碳化木棍上添加新木棍
+         * 非首次点燃 - 在碳化木棍上添加新木棍
          */
-        AGAIN_IGNITED("again_ignited", 3, true, 1.0f),
+        AGAIN_IGNITED("again_ignited", 3, true),
         /**
-         * 6: 非首次燃烧过半 - 新添加的木棍碳化
+         * 非首次燃烧过半 - 新添加的木棍碳化
          */
-        AGAIN_HALF("again_half", 4, true, 0.5f),
+        AGAIN_HALF("again_half", 4, true),
         /**
-         * 7: 再次添柴 - 在碳化木棍上再次添加新木棍
+         * 再次添柴 - 在碳化木棍上再次添加新木棍
          */
-        REIGNITED("reignited", 5, true, 1.0f),
+        REIGNITED("reignited", 5, true),
         /**
-         * 6燃尽: 非首次燃尽 - 完全碳化
+         * 非首次燃尽 - 完全碳化
          */
-        AGAIN_EXTINGUISHED("again_extinguished", 6, false, 0.0f);
+        AGAIN_EXTINGUISHED("again_extinguished", 6, false);
 
         /** 序列化使用的字符串标识 */
         private final String id;
@@ -323,14 +378,11 @@ public class CombustionFirewoodBlock extends BlockWithEntity {
         private final int index;
         /** 是否处于燃烧状态 */
         private final boolean burning;
-        /** 粒子/视觉强度提示（当前未接入渲染） */
-        private final float particleIntensity;
 
-        CombustionState(String id, int index, boolean burning, float particleIntensity) {
+        CombustionState(String id, int index, boolean burning) {
             this.id = id;
             this.index = index;
             this.burning = burning;
-            this.particleIntensity = particleIntensity;
         }
 
         @Override
@@ -344,10 +396,6 @@ public class CombustionFirewoodBlock extends BlockWithEntity {
 
         public boolean isBurning() {
             return burning;
-        }
-
-        public float getParticleIntensity() {
-            return particleIntensity;
         }
 
         public static CombustionState byIndex(int index) {
