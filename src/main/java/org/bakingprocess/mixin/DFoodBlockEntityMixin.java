@@ -5,7 +5,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import org.dfood.block.entity.ComplexFoodBlockEntity;
 import org.dfood.block.entity.ModBlockEntityTypes;
 import org.dfood.block.entity.SuspiciousStewBlockEntity;
-import org.dfood.block.FoodBlocks;
+import org.dfood.replace.FoodBlocks;
 import org.bakingprocess.integration.dfood.AssistedBlocks;
 import org.bakingprocess.registry.ModBlocks;
 import org.spongepowered.asm.mixin.Mixin;

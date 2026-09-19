@@ -13,7 +13,7 @@ import org.bakingprocess.client.render.model.ModModelId;
 import org.bakingprocess.container.BreadBoatContainer;
 import org.bakingprocess.registry.ModItems;
 import org.bakingprocess.util.BakingProcessUtils;
-import org.dfood.block.FoodBlocks;
+import org.dfood.replace.FoodBlocks;
 import org.twcore.api.content.ContainerUtil;
 import org.twcore.client.api.render.UpPlaceStackRenderer;
 import org.twcore.content.Content;

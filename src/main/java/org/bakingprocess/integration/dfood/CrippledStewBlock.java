@@ -19,7 +19,7 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.event.GameEvent;
-import org.dfood.block.FoodBlocks;
+import org.dfood.replace.FoodBlocks;
 import org.dfood.shape.FoodShapeHandle;
 import org.dfood.util.IntPropertyManager;
 import org.bakingprocess.block.CrippledBlock;

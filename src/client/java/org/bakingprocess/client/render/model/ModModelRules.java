@@ -14,7 +14,7 @@ import org.bakingprocess.culinary.ingredient.IngredientSource;
 import org.bakingprocess.item.FlourItem;
 import org.bakingprocess.registry.ModContents;
 import org.bakingprocess.registry.ModItems;
-import org.dfood.block.FoodBlocks;
+import org.dfood.replace.FoodBlocks;
 import org.jetbrains.annotations.Nullable;
 import org.twcore.TWCore;
 import org.twcore.api.config.TwConfig;
