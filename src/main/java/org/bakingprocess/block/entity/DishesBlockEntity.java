@@ -35,6 +35,7 @@ public class DishesBlockEntity extends UpPlaceBlockEntity {
     private static final int INVENTORY_SIZE = 1;
     private static final int MAX_STACK_SIZE = 11;
     private static final double FOOD_OFFSET_Y = 0.1;
+    private static final FoodShapeHandle SHAPE_HANDLE = FoodShapeHandle.getInstance();
 
     public DishesBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntityTypes.GARNISH_DISHES, pos, state, INVENTORY_SIZE);
@@ -44,7 +45,7 @@ public class DishesBlockEntity extends UpPlaceBlockEntity {
     public VoxelShape getContentShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
         BlockState itemState = this.getInventoryBlockState();
         if (itemState.getBlock() instanceof FoodBlock foodBlock) {
-            return FoodShapeHandle.getInstance().getShape(itemState, foodBlock.NUMBER_OF_FOOD)
+            return SHAPE_HANDLE.getShape(itemState, foodBlock.NUMBER_OF_FOOD)
                     .offset(0.0, FOOD_OFFSET_Y, 0.0);
         }
         return FoodShapeHandle.shapes.ALL.getShape().offset(0.0, FOOD_OFFSET_Y, 0.0);
