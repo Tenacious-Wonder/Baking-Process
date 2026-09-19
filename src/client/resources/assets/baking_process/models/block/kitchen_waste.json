@@ -1,3 +1,6 @@
 {
-  "parent" : "baking_process:process/cut_minecraft_salmon_7"
+  "parent" : "baking_process:process/cut_minecraft_salmon_7",
+	"textures": {
+		"particle": "minecraft:item/salmon"
+	}
 }

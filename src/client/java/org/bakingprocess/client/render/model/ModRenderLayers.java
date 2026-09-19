@@ -13,5 +13,6 @@ public class ModRenderLayers {
         INSTANCE.putBlock(ModBlocks.COMBUSTION_FIREWOOD, RenderLayer.getCutout());
         INSTANCE.putBlock(ModBlocks.MILK_POTION, RenderLayer.getCutout());
         INSTANCE.putBlock(ModBlocks.GRILL, RenderLayer.getCutout());
+        INSTANCE.putBlock(ModBlocks.KITCHEN_WASTE, RenderLayer.getCutout());
     }
 }
