@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": {"model": "baking_process:block/grill"},
+    "facing=east": {"model": "baking_process:block/grill", "y": 90},
+    "facing=south": {"model": "baking_process:block/grill", "y": 180},
+    "facing=west": {"model": "baking_process:block/grill", "y": 270}
+  }
+}

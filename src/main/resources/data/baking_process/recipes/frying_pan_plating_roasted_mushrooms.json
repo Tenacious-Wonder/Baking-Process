@@ -1,0 +1,13 @@
+{
+  "type": "baking_process:plating",
+  "container": "baking_process:frying_pan",
+  "actions": [
+    "add_item|minecraft:red_mushroom",
+    "add_item|minecraft:brown_mushroom",
+    "add_item|minecraft:brown_mushroom",
+    "add_item|minecraft:brown_mushroom",
+    "add_item|baking_process:salt_flour"
+  ],
+  "dish_name": "baking_process:roasted_mushrooms",
+  "eat_count": 4
+}

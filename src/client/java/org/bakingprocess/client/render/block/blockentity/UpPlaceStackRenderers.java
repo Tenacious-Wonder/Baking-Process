@@ -4,10 +4,12 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
+import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
 import org.bakingprocess.block.EmptyBreadBoatBlock;
-import org.bakingprocess.block.PlateBlock;
+import org.bakingprocess.block.BasePlatableBlock;
 import org.bakingprocess.client.render.item.renderer.MoldItemRenderer;
 import org.bakingprocess.client.render.model.ModModelId;
 import org.bakingprocess.container.BreadBoatContainer;
@@ -23,17 +25,9 @@ public class UpPlaceStackRenderers {
         // 菜刀
         UpPlaceStackRenderer.register(ModItems.KITCHEN_KNIFE, createKitchenKnifeRenderer());
 
-        // 铁盘
-        UpPlaceStackRenderer.register(ModItems.IRON_PLATE, context -> {
-            BlockState state = context.getDefaultBlockState();
-
-            // 手持盘子的菜数据在自定义 NBT 中（Culinary），有菜时预览显示带盖
-            if (PlateBlock.readCulinaryFromStack(context.stack()) != null && state.getBlock() instanceof PlateBlock) {
-                state = state.with(PlateBlock.IS_COVERED, true);
-            }
-
-            context.renderBlockStateOrItem(state);
-        });
+        // 可摆盘容器（铁盘 / 平底锅）
+        registerPlatableContainer(ModItems.IRON_PLATE);
+        registerPlatableContainer(ModItems.FRYING_PAN);
 
         // 面包船
         UpPlaceStackRenderer.register(ModItems.HARD_BREAD_BOAT, context -> {
@@ -58,6 +52,37 @@ public class UpPlaceStackRenderers {
                 context.vertexConsumers(), context.light(), context.overlay()));
         UpPlaceStackRenderer.register(ModItems.CAKE_EMBRYO_MOLD, context -> MoldItemRenderer.renderMold(context.stack(), ModelTransformationMode.GUI,
                 context.matrices(), context.vertexConsumers(), context.light(), context.overlay()));
+    }
+
+    /**
+     * 注册可摆盘容器（铁盘 / 平底锅）在置物面（耐热石板等）上的渲染：
+     * 带菜的成品容器视为盖盖态——先渲染盘体（方块状态，朝向随置物面），再在盘沿之上叠加铁盖物品模型。
+     */
+    private static void registerPlatableContainer(Item container) {
+        UpPlaceStackRenderer.register(container, context -> {
+            BlockState state = context.getDefaultBlockState();
+            boolean hasDish = state.getBlock() instanceof BasePlatableBlock
+                    && BasePlatableBlock.readCulinaryFromStack(context.stack()) != null;
+
+            // 有菜的成品盘视为盖盖态（盘体模型不受盖盖影响，盖由下方叠加）
+            if (hasDish) {
+                state = state.with(BasePlatableBlock.IS_COVERED, true);
+            }
+
+            context.renderBlockStateOrItem(state);
+
+            // 盖盖态：盘体之上叠加铁盖物品（PLATE_LID）模型，抬升 1px（与方块实体渲染一致）
+            if (hasDish) {
+                BakedModel lidModel = context.getModelManager().getModel(
+                        ModModelId.createItemModelId(Registries.ITEM.getId(ModItems.PLATE_LID).getPath()));
+                if (lidModel != null && lidModel != context.getModelManager().getMissingModel()) {
+                    context.matrices().push();
+                    context.matrices().translate(0.0F, 1.0F / 16.0F, 0.0F);
+                    context.renderCustomModel(lidModel, state);
+                    context.matrices().pop();
+                }
+            }
+        });
     }
 
     public static UpPlaceStackRenderer createSpecialItemRenderer() {

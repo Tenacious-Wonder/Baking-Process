@@ -44,8 +44,16 @@ public class ModBlocks {
                             .sounds(BlockSoundGroup.WOOD).strength(0.5F, 0.5F))
                     .build());
     public static final Block IRON_PLATE = registerBlock("iron_plate",
-            new PlateBlock(AbstractBlock.Settings.create().sounds(BlockSoundGroup.METAL)
+            new BasePlatableBlock(AbstractBlock.Settings.create().sounds(BlockSoundGroup.METAL)
                     .strength(0.2F, 0.6F).mapColor(MapColor.IRON_GRAY)));
+    public static final Block FRYING_PAN = registerBlock("frying_pan",
+            new BasePlatableBlock(AbstractBlock.Settings.create().sounds(BlockSoundGroup.METAL)
+                    .strength(0.2F, 0.6F).mapColor(MapColor.IRON_GRAY)));
+    public static final Block GRILL = registerBlock("grill",
+            new GrillBlock(AbstractBlock.Settings.create()
+                    .sounds(BlockSoundGroup.METAL).strength(0.5F, 0.6F)
+                    .nonOpaque().mapColor(MapColor.IRON_GRAY)
+                    .luminance(state -> state.get(GrillBlock.LIT) ? 15 : 0)));
 
     // 工具
     public static final Block IRON_GARNISH_DISHES = registerBlock("iron_garnish_dishes",

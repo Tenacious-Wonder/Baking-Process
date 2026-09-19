@@ -1,0 +1,11 @@
+{
+  "type": "baking_process:generic_plating",
+  "container": "baking_process:frying_pan",
+  "dish_class": "snack",
+  "dish_name": "baking_process:generic/snack",
+  "requirements": {
+    "side/medium": 3,
+    "side/small": [0, 2],
+    "seasoning": [0, 3]
+  }
+}

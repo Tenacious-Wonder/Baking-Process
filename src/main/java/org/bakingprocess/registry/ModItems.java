@@ -19,6 +19,8 @@ public class ModItems {
     public static final Item HEAT_RESISTANT_SLATE = registerItem(ModBlocks.HEAT_RESISTANT_SLATE);
     public static final Item FIREWOOD = registerItem(ModBlocks.FIREWOOD);
     public static final Item IRON_PLATE = registerItem(ModBlocks.IRON_PLATE);
+    public static final Item FRYING_PAN = registerItem(ModBlocks.FRYING_PAN);
+    public static final Item GRILL = registerItem(ModBlocks.GRILL);
 
     // 工具
     public static final Item IRON_GARNISH_DISHES = registerItem(ModBlocks.IRON_GARNISH_DISHES);

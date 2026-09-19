@@ -25,6 +25,8 @@ public class ModItemGroups {
                             entries.add(ModItems.HEAT_RESISTANT_SLATE);
                             entries.add(ModItems.FIREWOOD);
                             entries.add(ModItems.IRON_PLATE);
+                            entries.add(ModItems.FRYING_PAN);
+                            entries.add(ModItems.GRILL);
 
                             // 工具
                             entries.add(ModItems.IRON_GARNISH_DISHES);

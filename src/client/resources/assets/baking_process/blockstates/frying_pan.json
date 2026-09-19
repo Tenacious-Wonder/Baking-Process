@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "facing=north,is_covered=true": {"model": "baking_process:block/frying_pan"},
+    "facing=east,is_covered=true": {"model": "baking_process:block/frying_pan", "y": 90},
+    "facing=south,is_covered=true": {"model": "baking_process:block/frying_pan", "y": 180},
+    "facing=west,is_covered=true": {"model": "baking_process:block/frying_pan", "y": 270},
+    "facing=north,is_covered=false": {"model": "baking_process:block/frying_pan"},
+    "facing=east,is_covered=false": {"model": "baking_process:block/frying_pan", "y": 90},
+    "facing=south,is_covered=false": {"model": "baking_process:block/frying_pan", "y": 180},
+    "facing=west,is_covered=false": {"model": "baking_process:block/frying_pan", "y": 270}
+  }
+}

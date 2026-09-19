@@ -1,0 +1,13 @@
+{
+  "type": "baking_process:plating",
+  "container": "baking_process:frying_pan",
+  "actions": [
+    "add_item|minecraft:beef",
+    "add_item|baking_process:salt_flour",
+    "add_content|tw_core:honey",
+    "add_item|baking_process:carrot_slices",
+    "add_item|baking_process:carrot_slices"
+  ],
+  "dish_name": "baking_process:honey_roasted_beef",
+  "eat_count": 3
+}

@@ -4,7 +4,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.world.World;
-import org.bakingprocess.block.PlateBlock;
+import org.bakingprocess.block.BasePlatableBlock;
 import org.bakingprocess.block.entity.PlatableBlockEntity;
 import org.twcore.api.process.AbstractProcess;
 import org.twcore.process.step.Step;
@@ -43,7 +43,7 @@ public class EatDishesProcess<T extends BlockEntity & PlatableBlockEntity> exten
             T plate = context.blockEntity();
 
             // 无菜或不可食、或盖着盖子：直接结束
-            if (!plate.getCulinaryHandle().isEdible() || context.blockState().get(PlateBlock.IS_COVERED)) {
+            if (!plate.getCulinaryHandle().isEdible() || context.blockState().get(BasePlatableBlock.IS_COVERED)) {
                 return StepResult.complete(ActionResult.PASS);
             }
 

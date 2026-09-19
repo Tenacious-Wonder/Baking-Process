@@ -20,6 +20,9 @@ public class ItemRenderers {
         registrySimpleBlockEntityRenderer(ModItems.GRINDING_STONE, GrindingStoneBlockEntity::new);
         INSTANCE.register(ModItems.TOAST_EMBRYO_MOLD, MoldItemRenderer::renderMold);
         INSTANCE.register(ModItems.CAKE_EMBRYO_MOLD, MoldItemRenderer::renderMold);
+        // 铁盘 / 平底锅：复用方块实体渲染器（同石磨思路），物品形态与方块实体渲染效果一致
+        INSTANCE.register(ModItems.IRON_PLATE, PlatableItemRenderer::render);
+        INSTANCE.register(ModItems.FRYING_PAN, PlatableItemRenderer::render);
     }
 
     /**

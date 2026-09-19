@@ -32,7 +32,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import org.bakingprocess.block.entity.PlateBlockEntity;
+import org.bakingprocess.block.entity.BasePlatableBlockEntity;
 import org.bakingprocess.culinary.Culinary;
 import org.bakingprocess.culinary.carrier.ItemStackVessel;
 import org.bakingprocess.culinary.carrier.ServingVessel;
@@ -43,12 +43,14 @@ import org.twcore.api.process.PlayerAction;
 import java.util.List;
 
 /**
- * <h1>盘子方块</h1>
- * <p>摆盘 / 食用 / 盖盖 / 取放交互的入口；菜数据经 {@link ServingVessel#CULINARY_NBT_KEY}
- * 在方块实体与盘子物品间互转（{@link #writeCulinaryToStack} / {@link #readCulinaryFromStack}）。</p>
+ * <h1>基本可摆盘方块</h1>
+ * <p>具备通用摆盘行为的方块基类：摆盘 / 食用 / 盖盖 / 取放交互的入口。
+ * 需要摆盘功能的方块可直接实例化本类或继承它（如铁盘 {@code iron_plate}、平底锅 {@code frying_pan}）。
+ * 菜数据经 {@link ServingVessel#CULINARY_NBT_KEY} 在方块实体与容器物品间互转
+ * （{@link #writeCulinaryToStack} / {@link #readCulinaryFromStack}）。</p>
  */
-public class PlateBlock extends Block implements BlockEntityProvider {
-    /** 盘子物品上承载菜肴数据的 NBT 键（见 {@link org.bakingprocess.culinary.carrier.ServingVessel#CULINARY_NBT_KEY}）。 */
+public class BasePlatableBlock extends Block implements BlockEntityProvider {
+    /** 容器物品上承载菜肴数据的 NBT 键（见 {@link org.bakingprocess.culinary.carrier.ServingVessel#CULINARY_NBT_KEY}）。 */
     public static final String CULINARY_NBT_KEY = ServingVessel.CULINARY_NBT_KEY;
 
     /**
@@ -60,7 +62,7 @@ public class PlateBlock extends Block implements BlockEntityProvider {
     public static final VoxelShape BASE_SHAPE = Block.createCuboidShape(0.5, 0, 0.5, 15.5, 2,15.5);
     public static final VoxelShape LIB_SHAPE = Block.createCuboidShape(1, 2, 1, 15, 8, 15);
 
-    public PlateBlock(Settings settings) {
+    public BasePlatableBlock(Settings settings) {
         super(settings);
         this.setDefaultState(getDefaultState().with(IS_COVERED, false));
     }
@@ -74,7 +76,7 @@ public class PlateBlock extends Block implements BlockEntityProvider {
             return ActionResult.PASS;
         }
 
-        if (entity instanceof PlateBlockEntity plateBlockEntity) {
+        if (entity instanceof BasePlatableBlockEntity plateBlockEntity) {
             // 尝试食用
             if (plateBlockEntity.getCulinary() != null && !state.get(IS_COVERED) && handStack.isEmpty()) {
                 return plateBlockEntity.tryEat(player, hand, hit);
@@ -125,7 +127,7 @@ public class PlateBlock extends Block implements BlockEntityProvider {
     public List<ItemStack> getDroppedStacks(BlockState state, LootContextParameterSet.Builder builder) {
         BlockEntity entity = builder.get(LootContextParameters.BLOCK_ENTITY);
 
-        if (state.get(IS_COVERED) && entity instanceof PlateBlockEntity plateBlockEntity) {
+        if (state.get(IS_COVERED) && entity instanceof BasePlatableBlockEntity plateBlockEntity) {
             List<ItemStack> droppedStacks = super.getDroppedStacks(state, builder);
             Culinary dish = plateBlockEntity.getCulinary();
             if (dish != null) {
@@ -145,7 +147,7 @@ public class PlateBlock extends Block implements BlockEntityProvider {
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         BlockEntity entity = world.getBlockEntity(pos);
 
-        if (entity instanceof PlateBlockEntity plateBlockEntity) {
+        if (entity instanceof BasePlatableBlockEntity plateBlockEntity) {
             Culinary dish = readCulinaryFromStack(itemStack);
             if (dish != null) {
                 plateBlockEntity.tryAddCulinary(dish);
@@ -167,7 +169,7 @@ public class PlateBlock extends Block implements BlockEntityProvider {
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (!state.isOf(newState.getBlock())) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof PlateBlockEntity plateBlockEntity) {
+            if (blockEntity instanceof BasePlatableBlockEntity plateBlockEntity) {
                 // 仅进行中的摆盘由流程管理的操作序列负责掉落原料；成品态（已固化菜肴）不掉
                 if (plateBlockEntity.getPlatingProcess().isActive()) {
                     DefaultedList<ItemStack> stacks = DefaultedList.of();
@@ -240,7 +242,7 @@ public class PlateBlock extends Block implements BlockEntityProvider {
 
     @Override
     public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new PlateBlockEntity(pos, state);
+        return new BasePlatableBlockEntity(pos, state);
     }
 
     @Override

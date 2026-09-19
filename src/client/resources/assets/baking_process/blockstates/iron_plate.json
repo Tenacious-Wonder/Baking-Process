@@ -1,6 +1,6 @@
 {
   "variants": {
-    "is_covered=true": {"model": "baking_process:block/iron_plate_lib"},
+    "is_covered=true": {"model": "baking_process:block/iron_plate"},
     "is_covered=false": {"model": "baking_process:block/iron_plate"}
   }
 }

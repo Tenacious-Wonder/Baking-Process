@@ -23,10 +23,17 @@ public class ModBlockEntityTypes {
                     ModBlocks.CLAY_POTS
             )
     );
-    public static final BlockEntityType<PlateBlockEntity> PLATE = create("plate",
+    public static final BlockEntityType<BasePlatableBlockEntity> PLATE = create("plate",
             BlockEntityType.Builder.create(
-                    PlateBlockEntity::new,
-                    ModBlocks.IRON_PLATE
+                    BasePlatableBlockEntity::new,
+                    ModBlocks.IRON_PLATE,
+                    ModBlocks.FRYING_PAN
+            )
+    );
+    public static final BlockEntityType<GrillBlockEntity> GRILL = create("grill",
+            BlockEntityType.Builder.create(
+                    GrillBlockEntity::new,
+                    ModBlocks.GRILL
             )
     );
 

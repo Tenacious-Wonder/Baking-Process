@@ -12,5 +12,6 @@ public class ModRenderLayers {
         INSTANCE.putBlock(AssistedBlocks.CRIPPLED_SUSPICIOUS_STEW, RenderLayer.getCutout());
         INSTANCE.putBlock(ModBlocks.COMBUSTION_FIREWOOD, RenderLayer.getCutout());
         INSTANCE.putBlock(ModBlocks.MILK_POTION, RenderLayer.getCutout());
+        INSTANCE.putBlock(ModBlocks.GRILL, RenderLayer.getCutout());
     }
 }

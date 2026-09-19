@@ -1,3 +1,39 @@
 {
-  "parent": "baking_process:block/iron_plate"
+  "parent": "minecraft:builtin/entity",
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [70, 0, 0],
+      "translation": [0, 4, 2.5],
+      "scale": [0.5, 0.5, 0.5]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [70, 0, 0],
+      "translation": [0, 4, 2.5],
+      "scale": [0.5, 0.5, 0.5]
+    },
+    "firstperson_righthand": {
+      "rotation": [0, -45, 0],
+      "translation": [3, 5, 0],
+      "scale": [0.62, 0.62, 0.62]
+    },
+    "firstperson_lefthand": {
+      "rotation": [0, -45, 0],
+      "translation": [3, 5, 0],
+      "scale": [0.62, 0.62, 0.62]
+    },
+    "ground": {
+      "translation": [0, 3.5, 0],
+      "scale": [0.4, 0.4, 0.4]
+    },
+    "gui": {
+      "rotation": [30, 45, 0],
+      "translation": [0, 3, 0],
+      "scale": [0.62, 0.62, 0.62]
+    },
+    "fixed": {
+      "rotation": [-90, 0, 0],
+      "translation": [0, 0, -5],
+      "scale": [0.69, 0.67, 0.65]
+    }
+  }
 }

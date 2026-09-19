@@ -1,0 +1,15 @@
+{
+  "type": "baking_process:plating",
+  "container": "baking_process:frying_pan",
+  "actions": [
+    "add_item|minecraft:chicken",
+    "add_item|minecraft:sweet_berries",
+    "add_item|baking_process:carrot_slices",
+    "add_item|baking_process:carrot_slices",
+    "add_item|baking_process:salt_flour",
+    "add_content|tw_core:honey",
+    "add_item|baking_process:carrot_head"
+  ],
+  "dish_name": "baking_process:deluxe_roast_chicken",
+  "eat_count": 4
+}

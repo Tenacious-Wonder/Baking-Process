@@ -1,0 +1,11 @@
+{
+  "type": "baking_process:plating",
+  "container": "baking_process:frying_pan",
+  "actions": [
+    "add_item|baking_process:potato_cubes",
+    "add_item|baking_process:potato_cubes",
+    "add_item|minecraft:cod"
+  ],
+  "dish_name": "baking_process:grilled_fish_potatoes",
+  "eat_count": 4
+}

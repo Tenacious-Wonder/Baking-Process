@@ -1,0 +1,17 @@
+{
+  "type": "baking_process:plating",
+  "container": "baking_process:frying_pan",
+  "actions": [
+    "add_item|baking_process:carrot_slices",
+    "add_item|baking_process:carrot_head",
+    "add_item|minecraft:rabbit_foot",
+    "add_item|minecraft:rabbit_foot",
+    "add_item|minecraft:rabbit_foot",
+    "add_item|minecraft:rabbit_foot",
+    "add_content|tw_core:honey",
+    "add_item|baking_process:salt_flour",
+    "add_item|minecraft:sweet_berries"
+  ],
+  "dish_name": "baking_process:honey_made_rabbit_leg",
+  "eat_count": 5
+}

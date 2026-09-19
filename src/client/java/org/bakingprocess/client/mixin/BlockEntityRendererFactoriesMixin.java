@@ -25,6 +25,7 @@ public abstract class BlockEntityRendererFactoriesMixin {
         register(ModBlockEntityTypes.MOLD, MoldBlockEntityRenderer::new);
         register(ModBlockEntityTypes.CUTTING_BOARD, CuttingBoardBlockEntityRenderer::new);
         register(ModBlockEntityTypes.POTS, PotsBlockEntityRenderer::new);
-        register(ModBlockEntityTypes.PLATE, PlateBlockEntityRenderer::new);
+        register(ModBlockEntityTypes.PLATE, BasePlatableBlockEntityRenderer::new);
+        register(ModBlockEntityTypes.GRILL, GrillBlockEntityRenderer::new);
     }
 }

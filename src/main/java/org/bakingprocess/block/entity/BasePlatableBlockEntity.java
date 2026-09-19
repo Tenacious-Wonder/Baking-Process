@@ -19,7 +19,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.bakingprocess.block.PlateBlock;
+import org.bakingprocess.block.BasePlatableBlock;
 import org.bakingprocess.block.process.EatDishesProcess;
 import org.bakingprocess.block.process.PlatingProcess;
 import org.bakingprocess.culinary.Culinary;
@@ -35,8 +35,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * <h1>盘子方块实体</h1>
- * <p>可摆盘方块的标准实现，同时是菜肴容器（{@link ServingVessel}）。</p>
+ * <h1>基本可摆盘方块实体</h1>
+ * <p>可摆盘方块的标准实现，同时是菜肴容器（{@link ServingVessel}）。
+ * 供 {@link BasePlatableBlock} 及其子类（铁盘、平底锅等）复用同一套摆盘行为。</p>
  *
  * <h2>菜与流程的状态关系</h2>
  * <ul>
@@ -45,13 +46,13 @@ import java.util.List;
  *     <li><b>揭盖还原</b>：仅当菜肴只含一个摆盘步骤时还原为流程，否则菜保留、露着可继续吃。</li>
  * </ul>
  */
-public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity {
+public class BasePlatableBlockEntity extends BlockEntity implements PlatableBlockEntity {
     private static final String CULINARY_KEY = "culinary";
 
     /** 摆盘流程（负责操作序列、候选配方与配方匹配） */
-    private final PlatingProcess<PlateBlockEntity> platingProcess;
+    private final PlatingProcess<BasePlatableBlockEntity> platingProcess;
     /** 食用流程 */
-    private final EatDishesProcess<PlateBlockEntity> eatProcess;
+    private final EatDishesProcess<BasePlatableBlockEntity> eatProcess;
     /** 对内部真实菜肴的操作句柄（容器认可语义在此实现） */
     private final CulinaryHandle handle = new CulinaryHandle() {
         @Override
@@ -92,14 +93,14 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
 
         @Override
         public boolean eat(PlayerEntity player, World world) {
-            return culinary != null && culinary.eat(player, world, PlateBlockEntity.this);
+            return culinary != null && culinary.eat(player, world, BasePlatableBlockEntity.this);
         }
     };
     /** 成品态固化的菜肴 */
     @Nullable
     private Culinary culinary;
 
-    public PlateBlockEntity(BlockPos pos, BlockState state) {
+    public BasePlatableBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntityTypes.PLATE, pos, state);
         this.eatProcess = new EatDishesProcess<>();
         this.platingProcess = new PlatingProcess<>();
@@ -175,7 +176,7 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
         this.culinary = current;
         platingProcess.reset();
         platingProcess.clearPerformedActions();
-        boolean covered = world.setBlockState(pos, getCachedState().with(PlateBlock.IS_COVERED, true));
+        boolean covered = world.setBlockState(pos, getCachedState().with(BasePlatableBlock.IS_COVERED, true));
         markDirty();
         return covered;
     }
@@ -192,12 +193,12 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
         }
 
         BlockState currentState = getCachedState();
-        if (!currentState.get(PlateBlock.IS_COVERED)) {
+        if (!currentState.get(BasePlatableBlock.IS_COVERED)) {
             return false;
         }
 
         // 取下盖子
-        BlockState newState = currentState.with(PlateBlock.IS_COVERED, false);
+        BlockState newState = currentState.with(BasePlatableBlock.IS_COVERED, false);
         boolean coverRemoved = world.setBlockState(pos, newState, 3);
         if (!coverRemoved) {
             return false;
@@ -241,7 +242,7 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
      */
     public ActionResult tryPlating(PlayerEntity player, Hand hand, BlockHitResult hit) {
         // 检查是否满足摆盘条件：匹配不阻塞继续放入（盖盖才完成），仅阻挡食用流程与已盖盖
-        if (eatProcess.isActive() || getCachedState().get(PlateBlock.IS_COVERED)) {
+        if (eatProcess.isActive() || getCachedState().get(BasePlatableBlock.IS_COVERED)) {
             return ActionResult.PASS;
         }
 
@@ -334,11 +335,11 @@ public class PlateBlockEntity extends BlockEntity implements PlatableBlockEntity
 
     // ==================== 访问器方法 ====================
 
-    public PlatingProcess<PlateBlockEntity> getPlatingProcess() {
+    public PlatingProcess<BasePlatableBlockEntity> getPlatingProcess() {
         return platingProcess;
     }
 
-    public EatDishesProcess<PlateBlockEntity> getEatProcess() {
+    public EatDishesProcess<BasePlatableBlockEntity> getEatProcess() {
         return eatProcess;
     }
 

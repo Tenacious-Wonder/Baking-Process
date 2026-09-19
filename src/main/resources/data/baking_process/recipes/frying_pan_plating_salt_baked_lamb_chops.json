@@ -1,0 +1,17 @@
+{
+  "type": "baking_process:plating",
+  "container": "baking_process:frying_pan",
+  "actions": [
+    "add_item|baking_process:salt_flour",
+    "add_item|baking_process:salt_flour",
+    "add_item|minecraft:mutton",
+    "add_item|baking_process:potato_cubes",
+    "add_item|baking_process:salt_cubes",
+    "add_item|baking_process:salt_cubes",
+    "add_item|baking_process:salt_cubes",
+    "add_item|baking_process:salt_cubes",
+    "add_item|baking_process:carrot_head"
+  ],
+  "dish_name": "baking_process:salt_baked_lamb_chops",
+  "eat_count": 5
+}
